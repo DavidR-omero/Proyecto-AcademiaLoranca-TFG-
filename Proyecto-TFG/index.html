@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Loranca</title>
+    <link rel="shortcut icon" href="./imagenes/logo.png" type="/imagenes/logo.png">
+    <link rel="stylesheet" href="./parte-css/index.css">
+    <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+    <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
+    <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+    
+    <script src="./parte-logica/carrusel.js" defer></script>
+    <script src="./parte-logica/animaciones.js" defer></script>
+</head>
+
+<body>
+
+
+
+    <!--------HEADER---------->
+    <header-componente></header-componente>
+    <whatsapp-componente></whatsapp-componente>
+
+
+
+    <div class="carrusel">
+
+
+        <button class="btn left">❮</button>
+
+
+        <div class="slides">
+            <img src="./imagenes/IMG_20260227_092211.jpg" alt="Academia Loranca - Imagen 1" loading="lazy">
+            <img src="./imagenes/IMG_20260227_092502.jpg" alt="Academia Loranca - Imagen 2" loading="lazy">
+            <img src="./imagenes/IMG_20260227_092615.jpg" alt="Academia Loranca - Imagen 3" loading="lazy">
+            <img src="./imagenes/WhatsApp Image 2026-03-19 at 20.28.11 (1).jpeg" alt="Academia Loranca - Imagen 3"
+                loading="lazy">
+            <img src="./imagenes/WhatsApp Image 2026-03-19 at 20.28.11 (5).jpeg" alt="Academia Loranca - Imagen 3"
+                loading="lazy">
+        </div>
+
+
+
+        <div class="carrusel-cta">
+            <div class="cta-box">
+                <h3>🎉 ¡Día de prueba GRATIS!</h3>
+                <p>
+                    Ven a conocernos y prueba una clase sin compromiso.
+                    Descubre cómo ayudamos a mejorar el rendimiento académico.
+                </p>
+                <a href="./contactos.html" class="cta-btn">Contáctanos</a>
+            </div>
+        </div>
+
+
+        <button class="btn right">❯</button>
+
+
+    </div>
+
+
+    <main class="academia-loranca">
+
+        <section class="hero-academia">
+            <div class="hero-bg-shapes">
+                <div class="shape s1"></div>
+                <div class="shape s2"></div>
+                <div class="shape s3"></div>
+            </div>
+            <div class="hero-content">
+                <h1>Academia Loranca</h1>
+                <h2>Refuerzo escolar, tecnología y desarrollo profesional</h2>
+                <p>
+                    En <strong>Academia Loranca</strong> ofrecemos clases de refuerzo integral para <strong>Primaria, ESO y Bachillerato</strong>, además de cursos especializados en <strong>ciberseguridad, desarrollo web, IA, diseño gráfico y marketing digital</strong>. Grupos reducidos de máximo 8 alumnos, atención personalizada y seguimiento continuo.
+                </p>
+                <div class="hero-stats-live" id="heroLiveStats">
+                    <div class="hsl-item"><span class="hsl-num" id="hslCourses">0</span><span class="hsl-label">Cursos</span></div>
+                    <div class="hsl-item"><span class="hsl-num" id="hslTeachers">0</span><span class="hsl-label">Profesores</span></div>
+                    <div class="hsl-item"><span class="hsl-num" id="hslStudents">0</span><span class="hsl-label">Plazas</span></div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="./contactos.html" class="btn-primary">Solicitar información</a>
+                    <a href="./grupos.html" class="btn-secondary">Ver cursos</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CURSOS DESTACADOS (dinámico) -->
+        <section class="course-preview">
+            <h2>📚 Nuestros cursos</h2>
+            <p class="cp-sub">Desliza para ver todos los cursos disponibles — <a href="./grupos.html" style="color:#2a17cf;font-weight:600">Ver todos →</a></p>
+            <div class="container">
+                <div class="cp-grid" id="cpGrid">
+                    <div style="flex:0 0 280px;padding:40px;text-align:center;color:var(--text-muted)">Cargando cursos...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SOBRE NOSOTROS -->
+        <section class="sobre-nosotros">
+            <div class="container">
+                <h2 class="SOBRE">Sobre Academia Loranca</h2>
+                <p class="intro">
+                    Somos una academia de refuerzo escolar y formación tecnológica ubicada en <strong>Fuenlabrada - Loranca</strong>. Trabajamos con alumnos desde <strong>Primaria hasta Bachillerato</strong>, ofreciendo clases presenciales de refuerzo integral con Isabel y Laura, además de cursos especializados en tecnología, diseño y desarrollo profesional impartidos por profesores expertos en cada área.
+                </p>
+                <p class="experiencia">
+                    🎓 Contamos con <strong>más de 10 años de experiencia</strong> formando estudiantes y <strong>8 cursos activos</strong> con plazas limitadas para garantizar la calidad educativa.
+                </p>
+
+                <div class="valores-grid">
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/atencionPersonalizada.jpg" alt="Atención personalizada al alumno en Academia Loranca">
+                        </div>
+                        <h3>🎯 <strong>Atención personalizada</strong></h3>
+                        <p>Adaptamos el <strong>ritmo de aprendizaje</strong>, los objetivos y la metodología a las
+                            necesidades reales de
+                            cada alumno para garantizar su <strong>progreso académico</strong>.</p>
+                    </div>
+
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/grupos.jpg" alt="Grupos reducidos de máximo 8 alumnos en Academia Loranca">
+                        </div>
+                        <h3>👥 <strong>Grupos reducidos</strong></h3>
+                        <p>Clases con un máximo de <strong>20 alumnos</strong>, lo que permite una enseñanza cercana,
+                            participación activa y
+                            <strong>seguimiento individual constante</strong>.
+                        </p>
+                    </div>
+
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/seguimiento2.jpg" alt="Seguimiento continuo del progreso académico del alumno">
+                        </div>
+                        <h3>📈 <strong>Seguimiento continuo</strong></h3>
+                        <p>Evaluamos semanalmente la <strong>evolución académica</strong> para detectar dificultades a
+                            tiempo y reforzar
+                            los <strong>contenidos necesarios</strong>.</p>
+                    </div>
+
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/comunicacion.jpg" alt="Comunicación directa con familias sobre el progreso académico">
+                        </div>
+                        <h3>🤝 <strong>Comunicación con familias</strong></h3>
+                        <p>Mantenemos <strong>contacto directo</strong> con padres y madres para informar del progreso,
+                            hábitos de
+                            estudio y <strong>resultados obtenidos</strong>.</p>
+                    </div>
+
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/metodologia2.jpg" alt="Metodología adaptativa y técnicas modernas de estudio">
+                        </div>
+                        <h3>📚 <strong>Metodología adaptativa</strong></h3>
+                        <p>Aplicamos <strong>técnicas modernas</strong> que fomentan la <strong>comprensión,
+                                razonamiento lógico</strong> y
+                            el <strong>aprendizaje significativo</strong>.</p>
+                    </div>
+
+                    <div class="valor-card">
+                        <div class="asignatura-img">
+                            <img src="./imagenes/educacion integral (2).jpg" alt="Educación integral que desarrolla autonomía y responsabilidad">
+                        </div>
+                        <h3>🧠 <strong>Educación integral</strong></h3>
+                        <p>No solo enseñamos contenidos académicos, también desarrollamos <strong>organización</strong>,
+                            <strong>responsabilidad</strong>
+                            y <strong>autonomía personal</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-number" data-target="10">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Años de experiencia</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="statCourses" data-target="8">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Asignaturas</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="500">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Alumnos formados</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="8">0</span>
+            <span class="stat-label">Alumnos por grupo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANUNCIOS Y EVENTOS -->
+    <section class="news-section" id="noticias">
+      <div class="container">
+        <h2>📢 Novedades y eventos</h2>
+        <div class="news-grid" id="newsGrid">
+          <div class="news-col">
+            <h3>📌 Anuncios</h3>
+            <div id="announcementsList"><p class="news-empty">Cargando anuncios...</p></div>
+          </div>
+          <div class="news-col">
+            <h3>📅 Próximos eventos</h3>
+            <div id="eventsList"><p class="news-empty">Cargando eventos...</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFESORES -->
+    <section class="profesores-section">
+      <div class="container">
+        <h2>Nuestros profesores</h2>
+        <div class="profesores-grid" id="profesoresGrid">
+          <div class="profesor-card placeholder" style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px">
+            <div class="profesor-avatar">👩‍🏫</div>
+            <h3>Cargando profesores...</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      (async () => {
+        try {
+          const res = await fetch('/api/courses');
+          const { courses } = await res.json();
+          const tRes = await fetch('/api/teachers');
+          const { teachers } = await tRes.json();
+          if (!courses) return;
+
+          const teacherMap = {};
+          const teacherData = {};
+          if (teachers) {
+            teachers.forEach(t => { teacherData[t.name.toLowerCase().trim()] = t; });
+          }
+
+          courses.forEach(c => {
+            const t = (c.teacher || '').trim();
+            if (!t) return;
+            if (!teacherMap[t]) teacherMap[t] = [];
+            teacherMap[t].push(c);
+          });
+
+          const featuredNames = ['isabel', 'laura'];
+          const teachersList = Object.keys(teacherMap);
+          const sorted = [...teachersList].sort((a, b) => {
+            const aFav = featuredNames.some(n => a.toLowerCase().includes(n));
+            const bFav = featuredNames.some(n => b.toLowerCase().includes(n));
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            return 0;
+          });
+
+          const grid = document.getElementById('profesoresGrid');
+          const colors = ['#2a17cf','#00d5ff','#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626'];
+
+          grid.innerHTML = sorted.map((t, idx) => {
+            const isFeatured = featuredNames.some(n => t.toLowerCase().includes(n));
+            const tc = teacherMap[t];
+            const mainCourse = tc[0];
+            const subjects = tc.map(c => c.name).join(', ');
+            const courseLevel = isFeatured && t.toLowerCase().includes('isabel') ? 'Primaria y 1º ESO'
+              : isFeatured && t.toLowerCase().includes('laura') ? '2º-4º ESO y Bachillerato'
+              : '';
+            const color = mainCourse?.color || colors[idx % colors.length];
+            const td = teacherData[t.toLowerCase().trim()];
+            const avatarLetter = t.charAt(0);
+            const avatarColors = ['#2a17cf','#00d5ff','#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626'];
+            const avatarColor = avatarColors[idx % avatarColors.length];
+
+            const initial = t.charAt(0);
+            return `
+            <div class="profesor-card${isFeatured ? ' featured' : ''}" onclick='openTeacherPopup(${JSON.stringify({name:t, initial, title:(td?.title||''), bio:(td?.bio||''), years:(td?.years_experience||0), specialties:(td?.specialties||''), subjects, schedule: (mainCourse?.schedule || ''), courseLevel, isFeatured, color}).replace(/'/g,"&#39;")})'>
+              <div class="profesor-avatar" style="background:${avatarColor}18;color:${avatarColor}">${avatarLetter}</div>
+              <div class="profesor-body">
+                <h3>${t}${isFeatured ? ' ⭐' : ''}</h3>
+                ${td?.title ? '<div class="profesor-title">' + escHtml(td.title) + '</div>' : ''}
+                <div class="profesor-meta">
+                  ${td?.years_experience ? '<span class="profesor-meta-item">📅 ' + td.years_experience + ' años</span>' : ''}
+                  ${td?.specialties ? '<span class="profesor-meta-item">🎯 ' + escHtml(td.specialties.split(',')[0]) + '</span>' : ''}
+                </div>
+                <p class="profesor-courses">📚 ${escHtml(subjects)}</p>
+                ${courseLevel ? '<span class="profesor-badge">' + courseLevel + '</span>' : ''}
+              </div>
+            </div>`;
+          }).join('');
+          document.getElementById('loadingSkeleton')?.remove();
+        } catch {}
+      })();
+
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    </script>
+
+    <!-- Teacher Popup Modal -->
+    <div class="teacher-modal-overlay" id="teacherModal" onclick="closeTeacherPopup(event)">
+      <div class="teacher-modal">
+        <button class="teacher-modal-close" onclick="closeTeacherPopup()">✕</button>
+        <div id="teacherModalContent"></div>
+      </div>
+    </div>
+
+    <script>
+      function openTeacherPopup(data) {
+        const modal = document.getElementById('teacherModal');
+        const content = document.getElementById('teacherModalContent');
+        const whatsappPhone = data.name.toLowerCase().includes('laura') ? '665927240' : '652081700';
+        const whatsappMsg = encodeURIComponent(`¡Hola! Me gustaría recibir información sobre los cursos impartidos por ${data.name}.`);
+        const initial = data.initial || data.name.charAt(0);
+        content.innerHTML = `
+          <div class="tm-header" style="border-bottom:2px solid ${data.color || '#2a17cf'}">
+            <div class="tm-avatar" style="background:${data.color || '#2a17cf'}22;color:${data.color || '#2a17cf'}">${initial}</div>
+            <div>
+              <h2 class="tm-name">${data.name}${data.isFeatured ? ' ⭐' : ''}</h2>
+              ${data.title ? '<div class="tm-title">' + data.title + '</div>' : ''}
+            </div>
+          </div>
+          ${data.bio ? '<div class="tm-section"><h3 class="tm-section-title">📖 Sobre el profesor</h3><div class="tm-bio">' + data.bio.replace(/\n/g, '<br>') + '</div></div>' : ''}
+          <div class="tm-details">
+            ${data.years ? '<div class="tm-detail"><span class="tm-detail-icon">📅</span><span><strong>' + data.years + ' años</strong> de experiencia</span></div>' : ''}
+            ${data.specialties ? '<div class="tm-detail"><span class="tm-detail-icon">🎯</span><span><strong>Especialidades:</strong> ' + data.specialties + '</span></div>' : ''}
+            ${data.subjects ? '<div class="tm-detail"><span class="tm-detail-icon">📚</span><span><strong>Cursos:</strong> ' + data.subjects + '</span></div>' : ''}
+            ${data.schedule ? '<div class="tm-detail"><span class="tm-detail-icon">🕐</span><span><strong>Horario:</strong> ' + data.schedule + '</span></div>' : ''}
+            ${data.courseLevel ? '<div class="tm-detail"><span class="tm-detail-icon">🎓</span><span><strong>Nivel:</strong> ' + data.courseLevel + '</span></div>' : ''}
+          </div>
+          <div class="tm-actions">
+            <a href="https://wa.me/${whatsappPhone}?text=${whatsappMsg}" target="_blank" class="tm-btn tm-btn-wa">💬 Consultar por WhatsApp</a>
+            <a href="./contactos.html" class="tm-btn tm-btn-contact">📝 Formulario de contacto</a>
+          </div>
+        `;
+        modal.classList.add('active');
+      }
+      function closeTeacherPopup(e) {
+        if (e && e.target !== document.getElementById('teacherModal')) return;
+        document.getElementById('teacherModal').classList.remove('active');
+      }
+    </script>
+
+    <script>
+      (async () => {
+        try {
+          const res = await fetch('/api/stats/public');
+          const data = await res.json();
+          const el = document.getElementById('statCourses');
+          if (el) el.dataset.target = data.courses || 8;
+          /* Live hero stats */
+          const hc = document.getElementById('hslCourses');
+          const ht = document.getElementById('hslTeachers');
+          const hs = document.getElementById('hslStudents');
+          if (hc) hc.textContent = data.courses || 0;
+          if (ht) ht.textContent = data.teachers || '—';
+          /* Also load teachers count from courses */
+          if (ht || hs) {
+            const cRes = await fetch('/api/courses');
+            const { courses } = await cRes.json();
+            if (courses) {
+              const teachers = new Set(courses.map(c => c.teacher)).size;
+              if (ht) ht.textContent = teachers || '—';
+              const totalPlazas = courses.reduce((s, c) => s + (c.max_students || 0), 0);
+              if (hs) hs.textContent = totalPlazas || '—';
+            }
+          }
+        } catch {}
+      })();
+    </script>
+
+    <script>
+      (async () => {
+        try {
+          const [aRes, eRes] = await Promise.all([
+            fetch('/api/announcements'),
+            fetch('/api/events/upcoming')
+          ]);
+          const { announcements } = await aRes.json();
+          const { events } = await eRes.json();
+
+          const aList = document.getElementById('announcementsList');
+          if (aList) {
+            if (!announcements || announcements.length === 0) {
+              aList.innerHTML = '<p class="news-empty">No hay anuncios por ahora</p>';
+            } else {
+              aList.innerHTML = announcements.slice(0, 4).map((a, i) => `
+                <div class="news-item clickable" onclick='openNewsPopup("announcement", ${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+                  <div class="ni-title">${a.title}</div>
+                  <div class="ni-date">${new Date(a.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}</div>
+                  ${a.content ? `<div class="ni-content">${a.content.length > 120 ? a.content.substring(0,120)+'...' : a.content}</div>` : ''}
+                </div>
+              `).join('');
+            }
+          }
+
+          const eList = document.getElementById('eventsList');
+          if (eList) {
+            if (!events || events.length === 0) {
+              eList.innerHTML = '<p class="news-empty">No hay eventos próximos</p>';
+            } else {
+              eList.innerHTML = events.slice(0, 4).map(e => {
+                const d = new Date(e.event_date + 'T12:00:00');
+                return `
+                <div class="news-item clickable" onclick='openNewsPopup("event", ${JSON.stringify(e).replace(/'/g,"&#39;")})'>
+                  <div class="ni-title">${e.title}</div>
+                  <div class="ni-date">${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}${e.event_time ? ' · '+e.event_time : ''}</div>
+                  ${e.description ? `<div class="ni-content">${e.description.length > 120 ? e.description.substring(0,120)+'...' : e.description}</div>` : ''}
+                </div>
+              `}).join('');
+            }
+          }
+        } catch {}
+      })();
+    </script>
+
+    <div class="news-modal-overlay" id="newsModal" onclick="closeNewsPopup(event)">
+      <div class="news-modal">
+        <button class="news-modal-close" onclick="closeNewsPopup()">✕</button>
+        <div id="newsModalContent"></div>
+      </div>
+    </div>
+
+    <script>
+      function openNewsPopup(type, data) {
+        const modal = document.getElementById('newsModal');
+        const content = document.getElementById('newsModalContent');
+        if (type === 'announcement') {
+          content.innerHTML = `
+            <div class="nm-badge" style="background:#2a17cf;color:white">📢 Anuncio</div>
+            <h2 class="nm-title">${data.title}</h2>
+            <div class="nm-date">${new Date(data.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+            ${data.content ? `<div class="nm-body">${data.content}</div>` : ''}
+          `;
+        } else {
+          const d = new Date(data.event_date + 'T12:00:00');
+          content.innerHTML = `
+            <div class="nm-badge" style="background:${data.color || '#2a17cf'};color:white">📅 Evento</div>
+            <h2 class="nm-title">${data.title}</h2>
+            <div class="nm-date">${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}${data.event_time ? ' · ' + data.event_time : ''}</div>
+            ${data.description ? `<div class="nm-body">${data.description}</div>` : ''}
+          `;
+        }
+        modal.classList.add('active');
+      }
+      function closeNewsPopup(e) {
+        if (e && e.target !== document.getElementById('newsModal')) return;
+        document.getElementById('newsModal').classList.remove('active');
+      }
+    </script>
+
+    <script>
+      function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(c => {
+          const target = parseInt(c.dataset.target);
+          if (isNaN(target)) return;
+          const duration = 2000;
+          const start = performance.now();
+          function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            c.textContent = Math.floor(eased * target);
+            if (progress < 1) requestAnimationFrame(update);
+          }
+          requestAnimationFrame(update);
+        });
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            animateCounters();
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      const statsSection = document.querySelector('.stats-section');
+      if (statsSection) observer.observe(statsSection);
+    </script>
+
+    </main>
+        <section class="servicios" id="servicios">
+        <div class="container">
+            <h2>Nuestros servicios educativos</h2>
+
+            <!-- BLOQUE 1 -->
+            <div class="servicio-item">
+                <div class="servicio-img">
+                    <img src="./imagenes/clasesRefuerzo.jpg" alt="Clases de refuerzo escolar en grupo reducido">
+                </div>
+                <div class="servicio-text">
+                    <h3>📘 <strong>Refuerzo Integral - Primaria y 1º ESO</strong></h3>
+                    <p>Grupo impartido por <strong>Isabel Rodríguez</strong>, especialista en educación primaria y primer ciclo de secundaria con más de 12 años de experiencia. Clases de lunes a jueves en grupos reducidos para garantizar atención personalizada.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Refuerzo en Matemáticas, Lengua, Inglés y Ciencias</strong>.</li>
+                        <li><strong>Técnicas de estudio y organización</strong> adaptadas a cada alumno.</li>
+                        <li><strong>Seguimiento semanal</strong> del progreso académico.</li>
+                        <li><strong>Comunicación directa</strong> con las familias.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 2 -->
+            <div class="servicio-item reverse">
+                <div class="servicio-img">
+                    <img src="./imagenes/secundaria.jpg" alt="Preparación de exámenes y EVAU">
+                </div>
+                <div class="servicio-text">
+                    <h3>📝 <strong>Refuerzo Integral - Secundaria y Bachillerato</strong></h3>
+                    <p>Grupo impartido por <strong>Laura Barroso</strong>, docente vocacional con 10 años preparando estudiantes para exámenes de secundaria, bachillerato y la EVAU. Grupos de máximo 8 alumnos con horario de lunes a jueves.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Preparación específica</strong> para exámenes y recuperaciones.</li>
+                        <li><strong>Simulacros de EVAU</strong> con condiciones reales.</li>
+                        <li><strong>Técnicas avanzadas de estudio</strong> y planificación.</li>
+                        <li><strong>Refuerzo en Física, Química, Matemáticas</strong> y asignaturas troncales.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 3: Ciberseguridad -->
+            <div class="servicio-item">
+                <div class="servicio-img">
+                    <img src="./imagenes/recuperaciones.jpg" alt="Curso de Ciberseguridad y Hacking Ético con laboratorios virtuales">
+                </div>
+                <div class="servicio-text">
+                    <h3>🛡️ <strong>Ciberseguridad y Hacking Ético</strong></h3>
+                    <p>Impartido por <strong>Carlos Mendoza</strong>, ingeniero de ciberseguridad con 8 años de experiencia. Aprende los fundamentos de la seguridad informática con laboratorios virtuales y ejercicios prácticos de penetración.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Análisis de vulnerabilidades</strong> y pruebas de penetración.</li>
+                        <li><strong>Cifrado y criptografía</strong> aplicada.</li>
+                        <li><strong>Laboratorios virtuales</strong> con entornos reales.</li>
+                        <li><strong>Certificación práctica</strong> al completar el curso.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 4: IA y Machine Learning -->
+            <div class="servicio-item reverse">
+                <div class="servicio-img">
+                    <img src="./imagenes/evau.jpg" alt="Curso de Inteligencia Artificial y Machine Learning con Python">
+                </div>
+                <div class="servicio-text">
+                    <h3>🤖 <strong>Inteligencia Artificial y Machine Learning</strong></h3>
+                    <p>Impartido por <strong>Ana Beltrán</strong>, científica de datos con 7 años de experiencia en IA. Domina redes neuronales, procesamiento del lenguaje natural y visión por computadora con proyectos reales.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Redes neuronales</strong> y deep learning con TensorFlow.</li>
+                        <li><strong>Procesamiento del lenguaje natural</strong> (NLP).</li>
+                        <li><strong>Visión por computadora</strong> con proyectos prácticos.</li>
+                        <li><strong>Despliegue de modelos</strong> en producción.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 5: Data Science -->
+            <div class="servicio-item">
+                <div class="servicio-img">
+                    <img src="./imagenes/apoyo.jpg" alt="Curso de Data Science y Análisis de Datos con Python y SQL">
+                </div>
+                <div class="servicio-text">
+                    <h3>📊 <strong>Data Science y Análisis de Datos</strong></h3>
+                    <p>Impartido por <strong>David Soler</strong>, analista de datos senior con 9 años de experiencia. Aprende a manejar Big Data, estadística avanzada y visualización de datos con Python, R y SQL.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Big Data</strong> y procesamiento de grandes volúmenes de datos.</li>
+                        <li><strong>Estadística avanzada</strong> y análisis predictivo.</li>
+                        <li><strong>Visualización de datos</strong> con herramientas modernas.</li>
+                        <li><strong>Proyectos con datos reales</strong> empresariales.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 6: Desarrollo Web -->
+            <div class="servicio-item reverse">
+                <div class="servicio-img">
+                    <img src="./imagenes/seguimiento.jpg" alt="Curso de Desarrollo Web Full Stack con HTML, CSS, JavaScript y React">
+                </div>
+                <div class="servicio-text">
+                    <h3>💻 <strong>Desarrollo Web Full Stack</strong></h3>
+                    <p>Impartido por <strong>María León</strong>, desarrolladora full stack con 8 años de experiencia. Construye aplicaciones web completas desde cero con HTML, CSS, JavaScript, React, Node.js y bases de datos.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Frontend</strong> con HTML, CSS y React.</li>
+                        <li><strong>Backend</strong> con Node.js y Express.</li>
+                        <li><strong>Bases de datos</strong> SQL y NoSQL.</li>
+                        <li><strong>Despliegue</strong> de aplicaciones en producción.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BLOQUE 7: Marketing Digital -->
+            <div class="servicio-item">
+                <div class="servicio-img">
+                    <img src="./imagenes/plan.jpg" alt="Curso de Marketing Digital y Redes Sociales con SEO y SEM">
+                </div>
+                <div class="servicio-text">
+                    <h3>📈 <strong>Marketing Digital y Redes Sociales</strong></h3>
+                    <p>Impartido por <strong>Sofía Rivas</strong>, especialista en marketing digital con 6 años de experiencia. Aprende estrategias de SEO, SEM, email marketing y gestión de redes sociales con certificación práctica incluida.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>SEO y SEM</strong> para posicionamiento web.</li>
+                        <li><strong>Gestión de redes sociales</strong> y content marketing.</li>
+                        <li><strong>Email marketing</strong> y automatización.</li>
+                        <li><strong>Analítica web</strong> y medición de resultados.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+
+
+    <!-- ASIGNATURAS -->
+
+
+    <section class="asignaturas">
+        <div class="container">
+            <h2>Asignaturas</h2>
+
+            <div class="asignaturas-grid">
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/matematicas.jpg" alt="Clase de matemáticas con ejercicios guiados paso a paso">
+                    </div>
+                    <h3><strong>Matemáticas</strong></h3>
+                    <p>Refuerzo desde primaria hasta bachillerato: <strong>cálculo, álgebra, problemas</strong> y
+                        preparación de
+                        exámenes con ejercicios guiados.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/lengua.jpg" alt="Clase de lengua y literatura con comprensión lectora">
+                    </div>
+                    <h3><strong>Lengua</strong></h3>
+                    <p><strong>Comprensión lectora, ortografía, sintaxis, redacción</strong> y preparación de pruebas
+                        escolares.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/ingles.jpg" alt="Clase de inglés con gramática y conversación">
+                    </div>
+                    <h3><strong>Inglés</strong></h3>
+                    <p><strong>Gramática, vocabulario, conversación</strong> y refuerzo adaptado al centro.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/fisica.jpg" alt="Clase de física con resolución práctica de problemas">
+                    </div>
+                    <h3><strong>Física</strong></h3>
+                    <p><strong>Conceptos teóricos</strong> y resolución práctica de problemas adaptados al nivel
+                        educativo.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/quimica.png" alt="Clase de química con formulación y reacciones">
+                    </div>
+                    <h3><strong>Química</strong></h3>
+                    <p><strong>Formulación, reacciones químicas</strong> y ejercicios guiados para mejorar la
+                        comprensión.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/biologia.png" alt="Clase de biología y ciencias naturales">
+                    </div>
+                    <h3><strong>Biología</strong></h3>
+                    <p>Refuerzo en <strong>ciencias naturales, anatomía</strong> y contenidos científicos clave.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/tecnologia.jpg" alt="Clase de tecnología con proyectos prácticos">
+                    </div>
+                    <h3><strong>Tecnología</strong></h3>
+                    <p><strong>Conceptos técnicos</strong>, resolución de ejercicios y apoyo en proyectos escolares.</p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/geografia.png" alt="Clase de geografía con mapas y análisis territorial">
+                    </div>
+                    <h3><strong>Geografía</strong></h3>
+                    <p><strong>Mapas, análisis territorial</strong> y comprensión de contenidos sociales y naturales.
+                    </p>
+                </div>
+
+                <div class="asignatura-card">
+                    <div class="asignatura-img">
+                        <img src="./imagenes/historia.jpg" alt="Clase de historia con esquemas cronológicos">
+                    </div>
+                    <h3><strong>Historia</strong></h3>
+                    <p><strong>Comprensión histórica, esquemas cronológicos</strong> y preparación de exámenes.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- NIVELES EDUCATIVOS -->
+    <section class="niveles">
+        <div class="container">
+            <h2 class="nivelesTitulo">Niveles educativos</h2>
+
+            <div class="niveles-grid">
+                <div class="nivel-card">
+                    <div class="nivel-img">
+                        <img src="./imagenes/primaria.jpg" alt="Educación Primaria con refuerzo integral en todas las asignaturas">
+                    </div>
+                    <div class="nivel-content">
+                        <h3><strong>Educación Primaria</strong></h3>
+                        <p><strong>Refuerzo integral</strong> en todas las asignaturas y creación de una <strong>base
+                                académica sólida</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="nivel-card">
+                    <div class="nivel-img">
+                        <img src="./imagenes/secundaria.jpg" alt="Educación Secundaria con apoyo académico completo">
+                    </div>
+                    <div class="nivel-content">
+                        <h3><strong>Educación Secundaria (ESO)</strong></h3>
+                        <p><strong>Apoyo académico completo</strong>, preparación de exámenes y <strong>seguimiento
+                                personalizado</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="nivel-card">
+                    <div class="nivel-img">
+                        <img src="./imagenes/bachillerato.jpg" alt="Bachillerato con refuerzo avanzado y preparación universitaria">
+                    </div>
+                    <div class="nivel-content">
+                        <h3><strong>Bachillerato</strong></h3>
+                        <p><strong>Refuerzo avanzado</strong>, preparación universitaria y <strong>orientación
+                                académica</strong>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METODOLOGÍA -->
+    <section class="metodologia">
+        <div class="container">
+            <h2>Nuestra metodología</h2>
+
+            <!-- BLOQUE 1 -->
+            <div class="metodologia-item">
+                <div class="metodo-img">
+                    <img src="./imagenes/evaluacion inicial.jpg" alt="Evaluación inicial del nivel del alumno antes de comenzar">
+                </div>
+                <div class="metodo-text">
+                    <h3>📋 <strong>Evaluación inicial</strong></h3>
+                    <p>Antes de comenzar cualquier plan de estudio, realizamos una <strong>evaluación completa</strong>
+                        del nivel del alumno en las diferentes asignaturas para identificar <strong>fortalezas,
+                            debilidades y hábitos de estudio</strong>.</p>
+                    <p>Durante esta evaluación, utilizamos:</p>
+                    <ul>
+                        <li><strong>Pruebas diagnósticas</strong> adaptadas al curso.</li>
+                        <li><strong>Entrevistas personales</strong> para conocer motivaciones y dificultades.</li>
+                        <li><strong>Revisión de trabajos y exámenes</strong> anteriores.</li>
+                    </ul>
+                    <p>Con esta información, diseñamos un <strong>plan de estudio personalizado</strong> que garantiza
+                        un progreso eficiente y enfocado en los objetivos del alumno.</p>
+                </div>
+            </div>
+
+            <!-- BLOQUE 2 -->
+            <div class="metodologia-item reverse">
+                <div class="metodo-img">
+                    <img src="./imagenes/objetivos.jpg" alt="Objetivos personalizados y metas académicas alcanzables">
+                </div>
+                <div class="metodo-text">
+                    <h3>🎯 <strong>Objetivos personalizados</strong></h3>
+                    <p>Definimos <strong>metas claras y alcanzables</strong> adaptadas al nivel, ritmo y necesidades de
+                        cada alumno, lo que ayuda a mantener la motivación y asegura <strong>resultados
+                            concretos</strong>.</p>
+                    <p>Los objetivos incluyen:</p>
+                    <ul>
+                        <li><strong>Metas académicas</strong> por asignatura.</li>
+                        <li><strong>Desarrollo de habilidades</strong> de estudio y organización.</li>
+                        <li><strong>Mejora de confianza y autonomía</strong> para afrontar exámenes.</li>
+                    </ul>
+                    <p>Cada objetivo se revisa periódicamente y se ajusta según la evolución del alumno, garantizando un
+                        <strong>aprendizaje continuo y efectivo</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- BLOQUE 3 -->
+            <div class="metodologia-item">
+                <div class="metodo-img">
+                    <img src="./imagenes/plan-educativo.jpg" alt="Plan educativo individual adaptado a cada alumno">
+                </div>
+                <div class="metodo-text">
+                    <h3>📚 <strong>Plan educativo individual</strong></h3>
+                    <p>Diseñamos un <strong>programa formativo estructurado</strong> con contenidos y actividades
+                        específicas adaptadas a cada alumno, fomentando la <strong>comprensión profunda</strong> de los
+                        contenidos.</p>
+                    <p>Elementos incluidos:</p>
+                    <ul>
+                        <li><strong>Material didáctico personalizado</strong>.</li>
+                        <li><strong>Ejercicios prácticos adaptados</strong> al nivel del estudiante.</li>
+                        <li><strong>Actividades de refuerzo</strong> para superar dificultades concretas.</li>
+                    </ul>
+                    <p>El plan se revisa y ajusta periódicamente, asegurando que cada alumno avance de manera
+                        <strong>consistente y segura</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- BLOQUE 4 -->
+            <div class="metodologia-item reverse">
+                <div class="metodo-img">
+                    <img src="./imagenes/seguimiento-mensual.jpg" alt="Seguimiento mensual del progreso académico">
+                </div>
+                <div class="metodo-text">
+                    <h3>📈 <strong>Seguimiento mensual</strong></h3>
+                    <p>Revisamos el progreso de cada alumno de manera constante para detectar posibles dificultades y
+                        reforzar los <strong>contenidos necesarios</strong>.</p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Revisión de tareas y ejercicios</strong> realizados.</li>
+                        <li><strong>Evaluaciones periódicas</strong> para medir avances.</li>
+                        <li><strong>Reuniones con alumnos y familias</strong> para comunicar resultados.</li>
+                    </ul>
+                    <p>Esto nos permite mantener un <strong>control académico constante</strong> y adaptar el plan
+                        educativo a la evolución de cada estudiante.</p>
+                </div>
+            </div>
+
+            <!-- BLOQUE 5 -->
+            <div class="metodologia-item">
+                <div class="metodo-img">
+                    <img src="./imagenes/refuerzo-continuo.jpg" alt="Refuerzo continuo para consolidar conocimientos">
+                </div>
+                <div class="metodo-text">
+                    <h3>🧠 <strong>Refuerzo continuo</strong></h3>
+                    <p>Trabajamos de manera constante sobre las dificultades del alumno para <strong>consolidar
+                            conocimientos</strong> y garantizar que las materias se comprendan a fondo.</p>
+                    <p>Metodología:</p>
+                    <ul>
+                        <li><strong>Revisión y corrección</strong> de ejercicios complejos.</li>
+                        <li><strong>Explicaciones adicionales</strong> de los temas más difíciles.</li>
+                        <li><strong>Actividades de refuerzo adaptadas</strong> al ritmo de cada alumno.</li>
+                    </ul>
+                    <p>El refuerzo continuo asegura que ningún alumno se quede atrás y que cada concepto se
+                        <strong>afiance correctamente</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- BLOQUE 6 -->
+            <div class="metodologia-item reverse">
+                <div class="metodo-img">
+                    <img src="./imagenes/acompañamiento.jpg" alt="Acompañamiento educativo personalizado y apoyo emocional">
+                </div>
+                <div class="metodo-text">
+                    <h3>🤝 <strong>Acompañamiento educativo</strong></h3>
+                    <p>Ofrecemos <strong>apoyo emocional y académico</strong> durante todo el proceso de aprendizaje,
+                        entendiendo que cada alumno es único y requiere atención integral para alcanzar su
+                        <strong>máximo potencial</strong>.
+                    </p>
+                    <p>Incluye:</p>
+                    <ul>
+                        <li><strong>Orientación y motivación personalizada</strong>.</li>
+                        <li><strong>Asesoramiento en gestión del tiempo y hábitos de estudio</strong>.</li>
+                        <li><strong>Comunicación continua con familias</strong> para un seguimiento completo.</li>
+                    </ul>
+                    <p>El acompañamiento educativo fomenta <strong>autonomía, confianza y seguridad</strong> en el
+                        alumno durante su proceso académico.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- BENEFICIOS -->
+    <section class="beneficios">
+        <div class="container">
+            <h2>Beneficios para el alumno</h2>
+            <ul class="beneficios-lista">
+                <li><strong>Mejora del rendimiento académico:</strong> comprensión real de las materias.</li>
+                <li><strong>Mayor motivación:</strong> aprendizaje dinámico y adaptado.</li>
+                <li><strong>Confianza personal:</strong> seguridad ante exámenes.</li>
+                <li><strong>Autonomía:</strong> desarrollo de hábitos de estudio sólidos.</li>
+                <li><strong>Organización:</strong> planificación eficaz del tiempo.</li>
+                <li><strong>Responsabilidad:</strong> compromiso con el aprendizaje.</li>
+                <li><strong>Hábitos duraderos:</strong> herramientas útiles para toda la vida académica.</li>
+
+            </ul>
+        </div>
+    </section>
+
+    <!-- INSCRIPCIÓN -->
+    <section class="inscripcion" id="inscripcion">
+        <div class="container">
+            <h2>Inscripción abierta</h2>
+            <p>
+                Forma parte de <strong>Academia Loranca</strong> y empieza a construir un futuro académico sólido.
+                Te ayudamos a alcanzar tus objetivos.
+            </p>
+            <div class="inscripcion-cta">
+                <a href="./contactos.html" class="btn-primary">Solicitar información</a>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+    <!-- HORARIOS -->
+    <section class="horarios-section" id="horarios">
+        <div class="container">
+            <h2>Horarios</h2>
+            <div class="horarios-grid">
+                <div class="horario-card">
+                    <h3>🏫 Academia Loranca</h3>
+                    <ul class="horario-lista">
+                        <li><span>Lunes a Jueves</span><span>15:00 — 21:00</span></li>
+                        <li><span>Viernes</span><span>16:00 — 20:00</span></li>
+                        <li><span>Sábado</span><span>Cerrado</span></li>
+                        <li><span>Domingo</span><span>Cerrado</span></li>
+                    </ul>
+                </div>
+                <div class="horario-card">
+                    <h3>📚 Cursos con horario propio</h3>
+                    <p style="font-size:0.9rem;color:var(--text-secondary,#475569);margin-bottom:12px;line-height:1.5">Algunos cursos especializados tienen horarios específicos según el profesor. Consulta los horarios directamente en cada curso.</p>
+                    <a href="./grupos.html" class="btn-horario">Horarios de curso →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- UBICACIÓN -->
+    <section class="ubicacion" id="contacto">
+        <div class="container">
+            <div class="ubicacion-grid">
+                <div class="ubicacion-mapa">
+                    <h2>Encuéntranos</h2>
+                    <p>Visítanos en nuestra academia para más información o para una clase de prueba gratuita.</p><br>
+                    <div class="mapa">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3043.037095040079!2d-3.8388983999999993!3d40.2971353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418d004f4a4791%3A0xa943d1af28b87dc2!2sAcademia%20Loranca!5e0!3m2!1ses!2ses!4v1777016648252!5m2!1ses!2ses" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+                <div class="ubicacion-contacto">
+                    <h2>Contactar ahora</h2>
+                    <p>¿Tienes dudas? Llámanos o escríbenos.</p>
+                    <div class="contacto-telefonos">
+                        <div class="contacto-fila">
+                            <span class="cf-icon">🧒</span>
+                            <span class="cf-name">Isabel Rodríguez</span>
+                            <span class="cf-nivel">Primaria y 1º ESO</span>
+                            <a href="tel:+34652081700" class="cf-phone">652 08 17 00</a>
+                        </div>
+                        <div class="contacto-fila">
+                            <span class="cf-icon">📚</span>
+                            <span class="cf-name">Laura Barroso</span>
+                            <span class="cf-nivel">2º-4º ESO y Bachillerato</span>
+                            <a href="tel:+34665927240" class="cf-phone">665 92 72 40</a>
+                        </div>
+                    </div>
+                    <div class="contacto-cta">
+                        <a href="https://wa.me/652081700" target="_blank" class="btn-primary" style="background:#25d366;border-color:#25d366">💬 WhatsApp</a>
+                        <a href="./contactos.html" class="btn-secondary">📝 Formulario</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer-componente id="footer"></footer-componente>
+
+<script>
+  (function() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var scrollToHash = function() {
+      var el = document.querySelector(hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    setTimeout(scrollToHash, 300);
+    setTimeout(scrollToHash, 800);
+    setTimeout(scrollToHash, 1500);
+  })();
+</script>
+
+</body>
+
+
+</html>
