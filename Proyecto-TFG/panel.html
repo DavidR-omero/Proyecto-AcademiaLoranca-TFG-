@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Panel - Academia Loranca</title>
+  <link rel="shortcut icon" href="./imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="./parte-css/index.css">
+  <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+  <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+  <script src="./parte-logica/api.js"></script>
+  <style>
+    :root { --panel-radius: 20px; --panel-radius-sm: 14px; }
+    .panel-page {
+      min-height: 80vh; padding: clamp(24px, 5vw, 60px) clamp(12px, 3vw, 20px);
+      background: #f5f9ff;
+    }
+    .panel-container { max-width: 1040px; margin: 0 auto; animation: panelFadeIn .5s ease; }
+    @keyframes panelFadeIn { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:translateY(0) } }
+
+    /* ── Header ── */
+    .panel-header {
+      background: linear-gradient(135deg, #2a17cf 0%, #1a0fa0 40%, #00d5ff 100%);
+      color: #fff; border-radius: var(--panel-radius); padding: clamp(24px,4vw,40px) clamp(24px,4vw,40px);
+      margin-bottom: clamp(20px,3vw,30px); position: relative; overflow: hidden;
+    }
+    .panel-header::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    }
+    .panel-header::after {
+      content: ''; position: absolute; top: -60%; right: -10%;
+      width: min(500px, 60vw); height: min(500px, 60vw); border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    }
+    .panel-header h1 { font-size: clamp(20px,3vw,30px); margin-bottom: 4px; position: relative; z-index: 1; line-height: 1.2; }
+    .panel-header p { opacity: .85; font-size: clamp(13px,1.6vw,15px); position: relative; z-index: 1; }
+    .panel-header .badge {
+      display: inline-block; background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(4px); padding: 4px 16px; border-radius: 20px;
+      font-size: 12px; margin-top: 10px; position: relative; z-index: 1;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* ── Grid ── */
+    .panel-grid { display: grid; gap: clamp(16px,2vw,24px); }
+    .panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(16px,2vw,24px); }
+
+    /* ── Cards ── */
+    .panel-card {
+      background: #fff; border-radius: var(--panel-radius); padding: clamp(20px,2.5vw,28px);
+      box-shadow: 0 1px 3px rgba(0,0,0,.03), 0 4px 20px rgba(0,0,0,.03);
+      border: 1px solid rgba(59,130,246,.06); transition: all .35s ease;
+      animation: cardSlide .45s ease both;
+    }
+    .panel-card:nth-child(1) { animation-delay: .05s }
+    .panel-card:nth-child(2) { animation-delay: .1s }
+    .panel-card:nth-child(3) { animation-delay: .15s }
+    .panel-card:nth-child(4) { animation-delay: .2s }
+    .panel-card:nth-child(5) { animation-delay: .25s }
+    .panel-card:nth-child(6) { animation-delay: .3s }
+    @keyframes cardSlide { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+    .panel-card:hover {
+      box-shadow: 0 8px 40px rgba(42,23,207,.06), 0 2px 8px rgba(42,23,207,.04);
+      border-color: rgba(59,130,246,.12); transform: translateY(-2px);
+    }
+    .panel-card .card-header {
+      display: flex; align-items: center; gap: 10px;
+      font-size: clamp(16px,1.8vw,18px); font-weight: 700; color: #0f172a;
+      margin-bottom: 16px; padding-bottom: 14px;
+      border-bottom: 1px solid #f1f5f9; letter-spacing: -.01em;
+    }
+    .panel-card .card-header .icon { font-size: clamp(20px,2.2vw,24px); }
+
+    /* ── Info rows ── */
+    .info-row { display: flex; gap: 8px; margin-bottom: 10px; font-size: 14px; flex-wrap: wrap; }
+    .info-row strong { min-width: 100px; color: #64748b; font-weight: 600; flex-shrink: 0; }
+    .info-row span { color: #1e293b; word-break: break-word; }
+
+    /* ── Empty state ── */
+    .empty-state { text-align: center; padding: clamp(24px,3vw,40px) 20px; color: #94a3b8; }
+    .empty-state .empty-icon { font-size: clamp(32px,4vw,42px); margin-bottom: 8px; opacity: .45; }
+    .empty-state p { font-size: 14px; margin: 0 0 4px; }
+
+    /* ── Announcement ── */
+    .announcement-item {
+      position: relative; padding: 18px 18px 18px 22px; border-radius: var(--panel-radius-sm);
+      border: 1px solid #f1f5f9; margin-bottom: 12px; transition: all .3s; background: #f8faff;
+      cursor: pointer; overflow: hidden;
+    }
+    .announcement-item::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+      background: linear-gradient(to bottom, #2a17cf, #00d5ff); border-radius: 0 4px 4px 0;
+    }
+    .announcement-item:hover { border-color: #c7d2fe; transform: translateX(4px); box-shadow: 0 4px 16px rgba(42,23,207,.06); }
+    .announcement-item h3 { font-size: 15px; color: #1e293b; margin-bottom: 4px; font-weight: 700; }
+    .announcement-item .date { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+    .announcement-item p { font-size: 14px; color: #475569; line-height: 1.6; margin: 0; }
+
+    /* ── Event ── */
+    .event-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: var(--panel-radius-sm);
+      border: 1px solid #f1f5f9; margin-bottom: 10px; transition: all .3s; cursor: pointer;
+    }
+    .event-item:hover { border-color: #c7d2fe; transform: translateX(4px); background: rgba(59,130,246,.02); }
+    .event-item .event-dot {
+      width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; margin-top: 2px;
+      box-shadow: 0 0 0 3px rgba(42,23,207,.1);
+    }
+    .event-item .event-body { flex: 1; min-width: 0; }
+    .event-item .event-body .event-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+    .event-item .event-body .event-meta { font-size: 12px; color: #94a3b8; margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+
+    /* ── Message ── */
+    .msg-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 16px; border-radius: var(--panel-radius-sm);
+      border: 1px solid #f1f5f9; margin-bottom: 10px; transition: all .3s;
+    }
+    .msg-item:hover { border-color: #c7d2fe; background: rgba(59,130,246,.02); }
+    .msg-item .msg-dot {
+      width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+    }
+    .msg-item .msg-dot.unread { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
+    .msg-item .msg-dot.read { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,.12); }
+    .msg-item .msg-body { flex: 1; min-width: 0; }
+    .msg-item .msg-body .msg-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+    .msg-item .msg-body .msg-meta { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+    .msg-item .msg-body .msg-reply {
+      font-size: 13px; color: #059669; margin-top: 8px; padding: 10px 14px;
+      background: #f0fdf4; border-radius: 10px; border-left: 3px solid #22c55e;
+      line-height: 1.5;
+    }
+
+    /* ── Course ── */
+    .course-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 18px; border-radius: var(--panel-radius-sm);
+      border: 1px solid #f1f5f9; margin-bottom: 12px; transition: all .3s;
+    }
+    .course-item:hover { border-color: #c7d2fe; transform: translateX(4px); background: rgba(59,130,246,.02); }
+    .course-dot {
+      width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(42,23,207,.1);
+    }
+    .course-info { flex: 1; min-width: 0; }
+    .course-info h3 { font-size: 15px; color: #1e293b; margin-bottom: 2px; font-weight: 700; }
+    .course-info p { font-size: 13px; color: #64748b; margin: 0; line-height: 1.4; }
+
+    /* ── Buttons ── */
+    .btn-panel {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 24px; background: linear-gradient(60deg, #2f3f95, #000c8c); color: #fff;
+      border-radius: 50px; font-weight: 600; font-size: 14px; white-space: nowrap;
+      text-decoration: none; transition: all .3s ease; border: none; cursor: pointer;
+      justify-content: center;
+    }
+    .btn-panel:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(47,63,149,.35); }
+    .btn-panel:active { transform: translateY(0); }
+    .btn-outline {
+      background: transparent; border: 2px solid #e2e8f0; color: #475569;
+      box-shadow: none !important; transition: all .3s;
+    }
+    .btn-outline:hover { border-color: #2a17cf; color: #2a17cf; background: rgba(42,23,207,.03); }
+    .btn-icon-sm {
+      background: none; border: none; cursor: pointer; font-size: 15px;
+      padding: 6px 8px; border-radius: 8px; transition: all .2s; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-icon-sm:hover { background: #f1f5f9; transform: scale(1.08); }
+    .btn-icon-sm.btn-save:hover { background: #dcfce7; color: #16a34a; }
+    .btn-enroll { cursor: pointer; }
+    .btn-enroll.enrolled { background: #16a34a; box-shadow: none; cursor: default; }
+    .btn-enroll.enrolled:hover { transform: none; box-shadow: none; }
+    .btn-enroll.full { cursor: not-allowed; opacity: .55; }
+
+    /* ── Inputs ── */
+    .inline-input {
+      padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 10px;
+      font-size: 13px; background: #f8fafc; outline: none; transition: all .25s;
+      width: min(200px, 100%); box-sizing: border-box;
+    }
+    .inline-input:focus { border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,.08); }
+
+    /* ── Password form ── */
+    #pwdForm .info-row { align-items: center; }
+    #pwdForm .inline-input { width: min(220px, 100%); }
+    .toggle-pwd { color: #94a3b8 !important; }
+
+    /* ── Loading ── */
+    .loading { text-align: center; padding: clamp(40px,8vw,80px); color: #94a3b8; font-size: 15px; }
+    .loading .spinner {
+      width: 40px; height: 40px; border: 3px solid #e2e8f0;
+      border-top-color: #2a17cf; border-radius: 50%;
+      animation: spin .75s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Skeleton ── */
+    .skeleton-card {
+      background: #fff; border-radius: var(--panel-radius); padding: 28px;
+      border: 1px solid rgba(59,130,246,.06); animation: pulse 1.6s ease-in-out infinite;
+    }
+    .skeleton { background: #e2e8f0; border-radius: 8px; animation: pulse 1.6s ease-in-out infinite; }
+    .sk-title { height: 22px; width: 60%; margin-bottom: 18px; }
+    .sk-line { height: 14px; margin-bottom: 12px; }
+    .w60 { width: 60%; } .w40 { width: 40%; } .w80 { width: 80%; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+
+    /* ── Help text ── */
+    .help-text { color: var(--text-secondary,#64748b); margin-bottom: 16px; font-size: 14px; }
+
+    /* ── Toast ── */
+    .panel-toast {
+      position: fixed; bottom: 24px; right: 24px;
+      padding: 14px 24px; border-radius: 14px; font-weight: 600; z-index: 99999;
+      box-shadow: 0 10px 40px rgba(0,0,0,.15);
+      animation: toastIn .4s ease; font-size: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel-toast.success { background: #16a34a; color: #fff; }
+    .panel-toast.error { background: #dc2626; color: #fff; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(20px) scale(.95) } to { opacity:1; transform:translateY(0) scale(1) } }
+
+    /* ── Orders ── */
+    .order-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0; border-bottom: 1px solid #f1f5f9; gap: 12px;
+      transition: background .2s;
+    }
+    .order-row:last-child { border-bottom: none; }
+    .order-row:hover { background: rgba(59,130,246,.015); margin: 0 -8px; padding: 16px 8px; border-radius: 10px; }
+    .order-row .or-left { min-width: 0; flex: 1; }
+    .order-row .or-id { font-weight: 700; font-size: 15px; color: var(--text-primary,#1e293b); }
+    .order-row .or-date { font-size: 12px; color: var(--text-muted,#94a3b8); margin-top: 2px; }
+    .order-row .or-items { font-size: 13px; color: var(--text-secondary,#64748b); margin-top: 4px; }
+    .order-row .or-right { text-align: right; flex-shrink: 0; }
+    .order-row .or-total { font-weight: 700; color: var(--text-primary,#1e293b); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .panel-container { max-width: 100%; padding: 0 4px; }
+    }
+    @media (max-width: 768px) {
+      .panel-row { grid-template-columns: 1fr; }
+      .panel-header h1 { font-size: clamp(18px,4vw,22px); }
+      .panel-card { padding: 20px; }
+      .info-row strong { min-width: 80px; font-size: 13px; }
+      .info-row span { font-size: 13px; }
+      .panel-header { padding: 20px; border-radius: 16px; }
+      .order-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .order-row .or-right { text-align: left; width: 100%; }
+    }
+    @media (max-width: 640px) {
+      .panel-page { padding: 16px 10px; }
+      .panel-card { padding: 16px; border-radius: 16px; }
+      .panel-card .card-header { font-size: 15px; padding-bottom: 12px; margin-bottom: 14px; }
+      .announcement-item { padding: 14px 14px 14px 18px; }
+      .course-item, .event-item, .msg-item { padding: 12px 14px; }
+      .btn-panel { font-size: 13px; padding: 8px 18px; }
+      .inline-input { width: 100%; }
+      #pwdForm .inline-input { width: 100%; }
+      .panel-toast { right: 16px; left: 16px; bottom: 16px; }
+      .panel-toast { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .panel-header h1 { font-size: 17px; }
+      .panel-header .badge { font-size: 11px; padding: 3px 12px; }
+      .panel-card .card-header .icon { font-size: 18px; }
+      .announcement-item h3 { font-size: 14px; }
+      .course-info h3 { font-size: 14px; }
+      .event-item .event-body .event-title { font-size: 13px; }
+      .msg-item .msg-body .msg-title { font-size: 13px; }
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] .panel-page { background: var(--bg-body); }
+    [data-theme="dark"] .panel-card { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .panel-card:hover { border-color: rgba(59,130,246,.15); box-shadow: 0 8px 40px rgba(0,0,0,.2); }
+    [data-theme="dark"] .panel-card .card-header { color: var(--text-primary); border-bottom-color: var(--border-color); }
+    [data-theme="dark"] .panel-card hr { border-top-color: var(--border-color) !important; }
+    [data-theme="dark"] .info-row strong { color: var(--text-muted); }
+    [data-theme="dark"] .info-row span { color: var(--text-primary); }
+    [data-theme="dark"] .empty-state { color: var(--text-muted); }
+    [data-theme="dark"] .panel-header .badge { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.05); }
+    [data-theme="dark"] .announcement-item { background: var(--bg-section); border-color: var(--border-color); }
+    [data-theme="dark"] .announcement-item:hover { border-color: #334155; box-shadow: none; }
+    [data-theme="dark"] .announcement-item h3 { color: var(--text-primary); }
+    [data-theme="dark"] .announcement-item p { color: var(--text-secondary); }
+    [data-theme="dark"] .announcement-item::before { opacity: .7; }
+    [data-theme="dark"] .event-item { border-color: var(--border-color); }
+    [data-theme="dark"] .event-item:hover { border-color: #334155; background: rgba(255,255,255,.02); }
+    [data-theme="dark"] .event-item .event-dot { box-shadow: 0 0 0 3px rgba(255,255,255,.05); }
+    [data-theme="dark"] .event-item .event-body .event-title { color: var(--text-primary); }
+    [data-theme="dark"] .msg-item { border-color: var(--border-color); }
+    [data-theme="dark"] .msg-item:hover { border-color: #334155; background: rgba(255,255,255,.02); }
+    [data-theme="dark"] .msg-item .msg-body .msg-title { color: var(--text-primary); }
+    [data-theme="dark"] .msg-item .msg-body .msg-reply { background: #1a3b2a; color: #86efac; border-left-color: #22c55e; }
+    [data-theme="dark"] .course-item { border-color: var(--border-color); }
+    [data-theme="dark"] .course-item:hover { border-color: #334155; background: rgba(255,255,255,.02); }
+    [data-theme="dark"] .course-dot { box-shadow: 0 0 0 3px rgba(255,255,255,.05); }
+    [data-theme="dark"] .course-info h3 { color: var(--text-primary); }
+    [data-theme="dark"] .course-info p { color: var(--text-secondary); }
+    [data-theme="dark"] .btn-outline { border-color: var(--border-color); color: var(--text-secondary); }
+    [data-theme="dark"] .btn-outline:hover { border-color: #93c5fd; color: #93c5fd; background: rgba(147,197,253,.05); }
+    [data-theme="dark"] .inline-input { background: var(--input-bg); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .inline-input:focus { border-color: #3b82f6; background: var(--bg-card); box-shadow: 0 0 0 3px rgba(59,130,246,.06); }
+    [data-theme="dark"] .btn-icon-sm:hover { background: var(--border-color); }
+    [data-theme="dark"] .btn-icon-sm.btn-save:hover { background: #1a3b2a; color: #86efac; }
+    [data-theme="dark"] .toggle-pwd { color: var(--text-muted) !important; }
+    [data-theme="dark"] #pwdForm .inline-input { background: var(--input-bg); border-color: var(--border-color); color: var(--text-primary); }
+    [data-theme="dark"] .news-modal { background: var(--bg-card); }
+    [data-theme="dark"] .nm-title { color: var(--text-primary); }
+    [data-theme="dark"] .nm-date { color: var(--text-muted); }
+    [data-theme="dark"] .nm-body { color: var(--text-secondary); }
+    [data-theme="dark"] .loading { color: var(--text-muted); }
+    [data-theme="dark"] .loading .spinner { border-color: var(--border-color); border-top-color: #2a17cf; }
+    [data-theme="dark"] .skeleton-card { background: var(--bg-card); border-color: var(--border-color); }
+    [data-theme="dark"] .skeleton { background: var(--border-color); }
+    [data-theme="dark"] .order-row { border-bottom-color: var(--border-color) !important; }
+    [data-theme="dark"] .order-row:hover { background: rgba(255,255,255,.02); }
+  </style>
+</head>
+<body>
+  <header-componente></header-componente>
+
+  <main class="panel-page">
+    <div class="panel-container" id="app">
+      <div id="loadingSkeleton" class="panel-grid" style="gap:20px">
+        <div class="skeleton-card" style="height:180px"><div class="skeleton sk-title w80"></div><div class="skeleton sk-line w50" style="margin-bottom:16px"></div><div class="skeleton sk-line w30"></div></div>
+        <div class="panel-row">
+          <div class="skeleton-card" style="height:280px"><div class="skeleton sk-title w70"></div><div class="skeleton sk-line w90" style="margin-bottom:14px"></div><div class="skeleton sk-line w60" style="margin-bottom:14px"></div><div class="skeleton sk-line w80" style="margin-bottom:20px"></div><div class="skeleton sk-line w40"></div></div>
+          <div class="skeleton-card" style="height:280px"><div class="skeleton sk-title w50"></div><div class="skeleton sk-line w80" style="margin-bottom:14px"></div><div class="skeleton sk-line w90" style="margin-bottom:14px"></div><div class="skeleton sk-line w60" style="margin-bottom:20px"></div><div class="skeleton sk-line w40"></div></div>
+        </div>
+        <div class="panel-row">
+          <div class="skeleton-card" style="height:200px"><div class="skeleton sk-title w60"></div><div class="skeleton sk-line w90"></div><div class="skeleton sk-line w80"></div><div class="skeleton sk-line w70"></div></div>
+          <div class="skeleton-card" style="height:200px"><div class="skeleton sk-title w70"></div><div class="skeleton sk-line w80"></div><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w90"></div></div>
+        </div>
+        <div class="skeleton-card" style="height:120px"><div class="skeleton sk-title w40"></div><div class="skeleton sk-line w90"></div><div class="skeleton sk-line w70"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <footer-componente></footer-componente>
+
+  <script>
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const now = new Date();
+      const diff = (now - d) / 1000;
+      if (diff < 60) return 'hace unos segundos';
+      if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`;
+      if (diff < 86400) return `hace ${Math.floor(diff / 3600)} h`;
+      if (diff < 604800) return `hace ${Math.floor(diff / 86400)} d`;
+      return d.toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    (async () => {
+      const token = localStorage.getItem('token');
+      if (!token) { window.location.href = './login.html'; return; }
+      const userData = (function(){ try { return JSON.parse(localStorage.getItem('user')); } catch { return null; } })();
+      if (userData && userData.role === 'admin') { window.location.href = './admin/dashboard.html'; return; }
+
+      const app = document.getElementById('app');
+
+      try {
+        const { user } = await API.me();
+        const { courses } = await API.getCourses();
+        const { announcements } = await API.getAnnouncements();
+        const { events } = await API.getEvents();
+
+        let myCourses = [];
+        try { const d = await API.getMyCourses(); myCourses = d.courses || []; } catch {}
+        const myCourseIds = new Set(myCourses.map(c => c.id));
+
+        let messages = [];
+        try {
+          const msgData = await API.getMyMessages();
+          messages = msgData.messages || [];
+        } catch {}
+
+        document.getElementById('loadingSkeleton')?.remove();
+        app.innerHTML = `
+          <div class="panel-header">
+            <h1>Bienvenido, ${user.username}</h1>
+            <p>Panel de alumno - Academia Loranca</p>
+            <span class="badge">${user.email}</span>
+          </div>
+
+          <div class="panel-grid">
+            <div class="panel-row">
+              <div class="panel-card">
+                <div class="card-header"><span class="icon">👤</span> Mis datos</div>
+                <div class="info-row"><strong>Usuario:</strong> <span>${user.username}</span></div>
+                <div class="info-row" id="emailRow">
+                  <strong>Email:</strong>
+                  <span id="emailDisplay">${user.email}</span>
+                  <button class="btn-icon-sm" id="editEmailBtn" title="Cambiar email">✏️</button>
+                </div>
+                <div class="info-row" id="editEmailRow" style="display:none">
+                  <strong>Email:</strong>
+                  <input type="email" id="emailInput" value="${user.email}" class="inline-input">
+                  <button class="btn-icon-sm btn-save" id="saveEmailBtn">✅</button>
+                  <button class="btn-icon-sm" id="cancelEmailBtn">❌</button>
+                </div>
+                <div class="info-row"><strong>Rol:</strong> <span>${user.role === 'admin' ? 'Administrador' : 'Alumno'}</span></div>
+                <div class="info-row"><strong>Miembro desde:</strong> <span>${formatDate(user.created_at)}</span></div>
+                <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+                  ${user.role === 'admin' ? '<a href="./admin/dashboard.html" class="btn-panel">Panel Admin</a>' : ''}
+                  <a href="#" class="btn-panel btn-outline" id="logoutBtn">Cerrar Sesi&oacute;n</a>
+                </div>
+                <hr style="margin:18px 0;border:none;border-top:1px solid #f1f5f9">
+                <div class="card-header" style="font-size:15px;margin-bottom:12px"><span class="icon">🔑</span> Cambiar contrase&ntilde;a</div>
+                <div id="pwdForm">
+                  <div class="info-row"><strong>Actual:</strong> <div style="position:relative;display:inline-block"><input type="password" id="pwdCurrent" class="inline-input" placeholder="Contraseña actual" style="padding-right:32px"><span class="toggle-pwd" data-target="pwdCurrent" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;user-select:none;color:#94a3b8">👁️</span></div></div>
+                  <div class="info-row"><strong>Nueva:</strong> <div style="position:relative;display:inline-block"><input type="password" id="pwdNew" class="inline-input" placeholder="Nueva contraseña (mín. 4 caracteres)" style="padding-right:32px"><span class="toggle-pwd" data-target="pwdNew" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;user-select:none;color:#94a3b8">👁️</span></div></div>
+                  <div style="margin-top:8px"><button class="btn-panel" id="changePwdBtn" style="font-size:13px;padding:8px 18px">Cambiar contrase&ntilde;a</button></div>
+                  <div id="pwdMsg" style="margin-top:8px;font-size:13px"></div>
+                </div>
+              </div>
+
+              <div class="panel-card">
+                <div class="card-header"><span class="icon">📚</span> Cursos disponibles</div>
+                ${courses.length === 0
+                  ? '<div class="empty-state"><div class="empty-icon">📚</div><p>No hay cursos disponibles</p></div>'
+                  : courses.map(c => {
+                    const enrolled = myCourseIds.has(c.id);
+                    const full = c.enrolled_count >= c.max_students;
+                    return `
+                    <div class="course-item">
+                      <div class="course-dot" style="background:${c.color || '#2a17cf'}"></div>
+                      <div class="course-info">
+                        <h3>${c.name}</h3>
+                        <p>${c.teacher ? '👨‍🏫 ' + c.teacher : ''} ${c.schedule ? '| 🕐 ' + c.schedule : ''}</p>
+                        <p style="font-size:12px;color:#94a3b8;margin-top:2px">${c.enrolled_count || 0}/${c.max_students} plazas ocupadas</p>
+                      </div>
+                      ${enrolled
+                        ? `<button class="btn-panel btn-enroll enrolled" data-id="${c.id}" style="font-size:12px;padding:6px 16px;flex-shrink:0">✅ Inscrito</button>`
+                        : full
+                          ? `<button class="btn-panel btn-enroll full" disabled style="font-size:12px;padding:6px 16px;flex-shrink:0;opacity:0.5">Completo</button>`
+                          : `<button class="btn-panel btn-enroll" data-id="${c.id}" style="font-size:12px;padding:6px 16px;flex-shrink:0">Apuntarse</button>`
+                      }
+                    </div>`;
+                  }).join('')
+                }
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="card-header"><span class="icon">🎯</span> Mis cursos</div>
+              ${myCourses.length === 0
+                ? '<div class="empty-state"><div class="empty-icon">🎯</div><p>No estás matriculado en ningún curso</p><p style="font-size:13px;color:#94a3b8;margin-top:4px">Apúntate desde "Cursos disponibles"</p></div>'
+                : myCourses.map(c => `
+                  <div class="course-item">
+                    <div class="course-dot" style="background:${c.color || '#2a17cf'}"></div>
+                    <div class="course-info">
+                      <h3>${c.name}</h3>
+                      <p>${c.teacher ? '👨‍🏫 ' + c.teacher : ''} ${c.schedule ? '| 🕐 ' + c.schedule : ''}</p>
+                      <p style="font-size:12px;color:#94a3b8;margin-top:2px">Inscrito desde ${formatDate(c.enrolled_at)}</p>
+                    </div>
+                    <button class="btn-panel btn-unenroll" data-id="${c.id}" style="font-size:12px;padding:6px 16px;flex-shrink:0;background:#dc2626;box-shadow:none">Desapuntarse</button>
+                  </div>
+                `).join('')
+              }
+            </div>
+
+            <div class="panel-row">
+              <div class="panel-card">
+                <div class="card-header"><span class="icon">📢</span> Avisos y anuncios</div>
+                ${announcements.length === 0
+                  ? '<div class="empty-state"><div class="empty-icon">📢</div><p>No hay anuncios por ahora</p></div>'
+                  : announcements.slice(0, 4).map(a => `
+                    <div class="announcement-item" style="cursor:pointer" onclick='openNewsPopup("announcement", ${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+                      <h3>${a.title}</h3>
+                      <div class="date">${formatDate(a.created_at)}</div>
+                      ${a.content ? `<p>${a.content.length > 120 ? a.content.substring(0,120)+'...' : a.content}</p>` : ''}
+                    </div>
+                  `).join('')
+                }
+              </div>
+
+              <div class="panel-card">
+                <div class="card-header"><span class="icon">📅</span> Pr&oacute;ximas fechas</div>
+                ${events.length === 0
+                  ? '<div class="empty-state"><div class="empty-icon">📅</div><p>No hay eventos pr&oacute;ximos</p></div>'
+                  : events.map(e => `
+                    <div class="event-item" style="cursor:pointer" onclick='openNewsPopup("event", ${JSON.stringify(e).replace(/'/g,"&#39;")})'>
+                      <div class="event-dot" style="background:${e.color || '#2a17cf'}"></div>
+                      <div class="event-body">
+                        <div class="event-title">${e.title}</div>
+                        <div class="event-meta">${new Date(e.event_date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}${e.event_time ? ' · ' + e.event_time : ''}</div>
+                      </div>
+                    </div>
+                  `).join('')
+                }
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <div class="card-header"><span class="icon">✉️</span> Mis mensajes</div>
+                ${messages.length === 0
+                  ? '<div class="empty-state"><div class="empty-icon">✉️</div><p>No has enviado mensajes todav&iacute;a</p><a href="./contactos.html" class="btn-panel" style="margin-top:12px;display:inline-block">Contactar</a></div>'
+                  : messages.slice(0, 5).map(m => `
+                    <div class="msg-item">
+                      <div class="msg-dot ${m.is_read ? 'read' : 'unread'}"></div>
+                      <div class="msg-body">
+                        <div class="msg-title">${m.course_level || 'Consulta'} ${m.is_read ? '✅' : '🕐'}</div>
+                        <div class="msg-meta">${formatDate(m.created_at)} ${m.is_read ? '· Le&iacute;do' : '· Pendiente'}</div>
+                        ${m.reply ? `<div class="msg-reply">📩 Respuesta: ${m.reply}</div>` : ''}
+                      </div>
+                    </div>
+                  `).join('') + (messages.length > 5 ? `<div style="text-align:center;margin-top:12px"><a href="./contactos.html" class="btn-panel btn-outline" style="font-size:13px;padding:8px 18px">Ver todos</a></div>` : '')
+                }
+              </div>
+            </div>
+
+            <div class="panel-card" id="ordersCard">
+              <div class="card-header"><span class="icon">📦</span> Mis pedidos</div>
+              <div id="ordersList"></div>
+            </div>
+
+            <div class="panel-card" style="text-align:center">
+              <div class="card-header" style="justify-content:center;border:none;padding-bottom:0;margin-bottom:12px"><span class="icon">💬</span> ¿Necesitas ayuda?</div>
+              <p class="help-text">Contacta con nosotros para resolver tus dudas</p>
+              <a href="./contactos.html" class="btn-panel">Enviar mensaje</a>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+          e.preventDefault();
+          API.logout();
+          window.location.href = './index.html';
+        });
+
+        document.getElementById('editEmailBtn')?.addEventListener('click', () => {
+          document.getElementById('emailRow').style.display = 'none';
+          document.getElementById('editEmailRow').style.display = '';
+          document.getElementById('emailInput').focus();
+        });
+
+        document.getElementById('cancelEmailBtn')?.addEventListener('click', () => {
+          document.getElementById('emailRow').style.display = '';
+          document.getElementById('editEmailRow').style.display = 'none';
+        });
+
+        document.getElementById('saveEmailBtn')?.addEventListener('click', async () => {
+          const val = document.getElementById('emailInput').value.trim();
+          if (!val) return;
+          try {
+            const { user } = await API.updateProfile(val);
+            document.getElementById('emailDisplay').textContent = user.email;
+            document.getElementById('emailRow').style.display = '';
+            document.getElementById('editEmailRow').style.display = 'none';
+            showPanelToast('Email actualizado', 'success');
+          } catch (e) { showPanelToast(e.error || 'Error', 'error'); }
+        });
+
+        document.getElementById('emailInput')?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') document.getElementById('saveEmailBtn')?.click();
+          if (e.key === 'Escape') document.getElementById('cancelEmailBtn')?.click();
+        });
+
+        document.getElementById('changePwdBtn')?.addEventListener('click', async () => {
+          const cur = document.getElementById('pwdCurrent').value;
+          const neu = document.getElementById('pwdNew').value;
+          const msg = document.getElementById('pwdMsg');
+          if (!cur || !neu) { msg.innerHTML = '<span style="color:#dc2626">Rellena ambos campos</span>'; return; }
+          if (neu.length < 4) { msg.innerHTML = '<span style="color:#dc2626">M&iacute;nimo 4 caracteres</span>'; return; }
+          try {
+            await API.changePassword(cur, neu);
+            msg.innerHTML = '<span style="color:#16a34a">✅ Contrase&ntilde;a cambiada correctamente</span>';
+            document.getElementById('pwdCurrent').value = '';
+            document.getElementById('pwdNew').value = '';
+          } catch (e) { msg.innerHTML = `<span style="color:#dc2626">${e.error || 'Error'}</span>`; }
+        });
+
+        document.getElementById('pwdNew')?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') document.getElementById('changePwdBtn')?.click();
+        });
+
+        document.addEventListener('click', async (e) => {
+          const btn = e.target.closest('.btn-enroll:not(.enrolled):not(.full)');
+          if (btn) {
+            btn.disabled = true; btn.textContent = '...';
+            try {
+              await API.enrollCourse(parseInt(btn.dataset.id));
+              showPanelToast('✅ Matriculado correctamente', 'success');
+              location.reload();
+            } catch (err) { showPanelToast(err.error || 'Error', 'error'); btn.disabled = false; btn.textContent = 'Apuntarse'; }
+          }
+        });
+
+        document.addEventListener('click', async (e) => {
+          const btn = e.target.closest('.btn-unenroll');
+          if (btn && confirm('¿Desapuntarte de este curso?')) {
+            btn.disabled = true; btn.textContent = '...';
+            try {
+              await API.unenrollCourse(parseInt(btn.dataset.id));
+              showPanelToast('Desmatriculado correctamente', 'success');
+              location.reload();
+            } catch (err) { showPanelToast(err.error || 'Error', 'error'); btn.disabled = false; btn.textContent = 'Desapuntarse'; }
+          }
+        });
+
+        function showPanelToast(msg, type) {
+          const t = document.createElement('div');
+          t.className = 'panel-toast ' + type;
+          t.textContent = msg;
+          document.body.appendChild(t);
+          setTimeout(() => t.remove(), 3200);
+        }
+
+        (async function loadOrders() {
+          try {
+            const orders = await API.getMyOrders();
+            const el = document.getElementById('ordersList');
+            if (!el) return;
+            if (!orders.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No has realizado ningún pedido todavía.</p></div>'; return; }
+            el.innerHTML = orders.map(o => `
+              <div class="order-row">
+                <div class="or-left">
+                  <div class="or-id">Pedido #${o.id}</div>
+                  <div class="or-date">${formatDate ? formatDate(o.created_at) : new Date(o.created_at).toLocaleDateString('es-ES')}</div>
+                  <div class="or-items">${o.items.map(i => i.course_name).join(', ')}</div>
+                </div>
+                <div class="or-right">
+                  <div class="or-total">${(o.total||0).toFixed(2).replace('.',',')} €</div>
+                  <span style="font-size:11px;color:var(--text-muted);display:block;margin-top:2px">${o.payment_method ? (o.payment_method === 'tarjeta' ? '💳' : '💳') + ' ' + (o.payment_last4 ? '····' + o.payment_last4 : '') : ''}</span>
+                  <span class="badge ${o.status === 'completed' ? 'badge-read' : 'badge-unread'}" style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px">${o.status === 'completed' ? 'Pagado' : o.status === 'cancelled' ? 'Cancelado' : 'Pendiente'}</span>
+                </div>
+              </div>
+            `).join('');
+          } catch(e) { console.error('Orders error', e); }
+        })();
+
+      } catch (err) {
+        document.getElementById('loadingSkeleton')?.remove();
+        API.logout();
+        window.location.href = './login.html';
+      }
+    })();
+  </script>
+
+  <div class="news-modal-overlay" id="newsModal" onclick="closeNewsPopup(event)">
+    <div class="news-modal">
+      <button class="news-modal-close" onclick="closeNewsPopup()">✕</button>
+      <div id="newsModalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    function openNewsPopup(type, data) {
+      const modal = document.getElementById('newsModal');
+      const content = document.getElementById('newsModalContent');
+      if (type === 'announcement') {
+        content.innerHTML = `
+          <div class="nm-badge" style="background:#2a17cf;color:white">📢 Anuncio</div>
+          <h2 class="nm-title">${data.title}</h2>
+          <div class="nm-date">${new Date(data.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+          ${data.content ? `<div class="nm-body">${data.content}</div>` : ''}
+        `;
+      } else {
+        const d = new Date(data.event_date + 'T12:00:00');
+        content.innerHTML = `
+          <div class="nm-badge" style="background:${data.color || '#2a17cf'};color:white">📅 Evento</div>
+          <h2 class="nm-title">${data.title}</h2>
+          <div class="nm-date">${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}${data.event_time ? ' · ' + data.event_time : ''}</div>
+          ${data.description ? `<div class="nm-body">${data.description}</div>` : ''}
+        `;
+      }
+      modal.classList.add('active');
+    }
+    function closeNewsPopup(e) {
+      if (e && e.target !== document.getElementById('newsModal')) return;
+      document.getElementById('newsModal').classList.remove('active');
+    }
+  </script>
+
+  <script>
+    document.querySelectorAll('.toggle-pwd').forEach(el => {
+      el.onclick = function() {
+        const inp = document.getElementById(this.dataset.target);
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        this.textContent = inp.type === 'password' ? '👁️' : '👁️‍🗨️';
+      };
+    });
+  </script>
+</body>
+</html>
