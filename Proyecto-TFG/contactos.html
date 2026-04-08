@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactanos</title>
+    <link rel="shortcut icon" href="./imagenes/logo.png" type="/imagenes/logo.png">
+    <link rel="stylesheet" href="./parte-css/contactos.css">
+    <link rel="stylesheet" href="./parte-css/index.css">
+    <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+    <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+    <script src="./parte-logica/api.js"></script>
+    <script src="./parte-logica/contador.js" defer></script>
+</head>
+
+<body>
+    <!--Encabezado-->
+    <header-componente></header-componente>
+    <main>
+        <div class="form-cont">
+            <div class="contacto-info">
+                <h1 class="info-titulo">
+                    Ponte en contacto con nuestra academia en Loranca para
+                    <span class="subrayado-amarillo">reservar la plaza de tu hijo/a</span>
+                </h1>
+
+                <div class="info-cuerpo">
+                    <p>Somos una academia en <strong>Loranca (Madrid)</strong>, creada con la ilusión de
+                        ofrecer un apoyo educativo cercano, personalizado y de calidad.</p>
+
+                    <p>Nuestra experiencia se basa en dos grupos principales:</p>
+                    <div class="teacher-highlight">
+                        <div class="th-item">
+                            <span class="th-badge" style="background:#2a17cf">⭐</span>
+                            <div>
+                                <strong>Isabel Rodríguez</strong> — Grupo 1
+                                <br><span style="font-size:0.9rem;color:#475569">Primaria y 1º ESO · Refuerzo Integral</span>
+                            </div>
+                        </div>
+                        <div class="th-item">
+                            <span class="th-badge" style="background:#00d5ff">⭐</span>
+                            <div>
+                                <strong>Laura Barroso</strong> — Grupo 2
+                                <br><span style="font-size:0.9rem;color:#475569">2º-4º ESO y Bachillerato · Refuerzo Integral</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p>Además, ofrecemos cursos especializados en <strong>tecnología, idiomas y desarrollo profesional</strong> con plazas limitadas.</p>
+
+                    <p>Disponemos de <strong>grupos reducidos</strong> de máximo <strong>20 alumnos</strong> adaptados a
+                        todos los niveles, desde <strong>Primaria hasta Bachillerato</strong>, lo que nos permite atender de
+                        forma individual las necesidades de cada alumno.</p>
+
+                    <p>Si quieres asegurar una formación de calidad y mejorar sus resultados académicos, consulta nuestras
+                        plazas disponibles.</p>
+
+                <p class="destacado">
+                    Llámanos o escríbenos un mensaje ahora mismo para informarte sobre metodología y
+                    horarios.
+                    ¡Te esperamos para empezar a trabajar juntos en su futuro!
+                </p>
+            </div>
+
+            <div class="info-detalles">
+                <div class="detalle-item" style="flex:1;min-width:200px">
+                    <span style="font-size:1.3rem">📍</span>
+                    <a href="https://maps.app.goo.gl/qMmnxELKV5qWs9Aj9" target="_blank" rel="noopener">
+                       C. de la Alegria, 4, Local 37, 28942 Fuenlabrada, Madrid
+                    </a>
+                </div>
+                <div class="detalle-item clickable" id="contactarAhoraBtn">
+                    <span style="font-size:1.5rem">📞</span>
+                    <div>
+                        <strong>Contactar ahora</strong>
+                        <span style="font-size:0.75rem;color:var(--text-muted,#94a3b8);display:block">Teléfonos y WhatsApp</span>
+                    </div>
+                    <span style="font-size:1.2rem;color:#25d366">›</span>
+                </div>
+            </div>
+        </div>
+
+            <form id="formulario-interactivo" class="formulario-responsivo" novalidate>
+
+                <h2 class="titulo-animado">Formulario de Contacto</h2>
+
+                <div id="contactMsg" role="alert" style="display:none;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px"></div>
+
+                <div class="grupo-campo">
+                    <label for="nombre-completo">Nombre completo <span aria-hidden="true">*</span></label>
+                    <input type="text" id="nombre-completo" name="Nombre Completo" minlength="3" maxlength="50" required
+                        placeholder="Ej: María García" autocomplete="name"
+                        pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$"
+                        aria-required="true"
+                        aria-describedby="err-nombre">
+                    <span id="err-nombre" class="error-msg" role="alert"></span>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="correo-electronico">Correo electrónico <span aria-hidden="true">*</span></label>
+                    <input type="email" id="correo-electronico" name="Correo" required
+                        placeholder="ejemplo@gmail.com" autocomplete="email"
+                        aria-required="true"
+                        aria-describedby="err-email">
+                    <span id="err-email" class="error-msg" role="alert"></span>
+                </div>
+
+                <div class="fila-formulario">
+                    <div class="grupo-campo">
+                        <label for="curso-usuario">Curso Escolar <span aria-hidden="true">*</span></label>
+                        <select name="Curso" id="curso-usuario" required autocomplete="off"
+                            aria-required="true"
+                            aria-describedby="err-curso">
+                            <option value="" disabled selected>Escoge un curso</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="1ºESO">1ºESO</option>
+                            <option value="2ºESO - 4ºESO">2ºESO - 4ºESO</option>
+                            <option value="Bachillerato">Bachillerato</option>
+                        </select>
+                        <span id="err-curso" class="error-msg" role="alert"></span>
+                    </div>
+                </div>
+
+                <div class="fila-formulario">
+                    <div class="grupo-campo">
+                        <label for="telefono-contacto">Teléfono (9 dígitos) <span aria-hidden="true">*</span></label>
+                        <input type="tel" id="telefono-contacto" name="Telefono"
+                            pattern="[0-9]{9}" required
+                            placeholder="600123456" autocomplete="tel"
+                            aria-required="true"
+                            aria-describedby="err-telefono"
+                            inputmode="numeric">
+                        <span id="err-telefono" class="error-msg" role="alert"></span>
+                    </div>
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="mensaje-adicional">Breve Mensaje (máx 200 caracteres)</label>
+                    <textarea id="mensaje-adicional" name="Mensaje" maxlength="200" rows="4"
+                        autocomplete="off" placeholder="Cuéntanos brevemente qué necesitas..."
+                        aria-describedby="contador"></textarea>
+                    <small class="contador-texto" id="contador"><span>0</span> / 200</small>
+                </div>
+
+                <div class="grupo-campo-checkbox">
+                    <label>
+                        <input type="checkbox" id="aceptar-condiciones" name="Condiciones" required
+                            aria-required="true"
+                            aria-describedby="err-condiciones">
+                        Acepto los <a href="./privacidad.html" target="_blank">términos y condiciones</a> <span aria-hidden="true">*</span>
+                    </label>
+                    <span id="err-condiciones" class="error-msg" role="alert"></span>
+                </div>
+
+                <button type="submit" class="boton-enviar" id="contactSubmitBtn">Enviar Formulario</button>
+
+            </form>
+        </div>
+    </main>
+
+    <footer-componente></footer-componente>
+
+    <script>
+      /* Load courses into select + populate teacher contacts */
+      (async () => {
+        try {
+          const [resC, resT] = await Promise.all([
+            fetch('/api/courses'),
+            fetch('/api/teachers')
+          ]);
+          const { courses } = await resC.json();
+          const { teachers } = await resT.json();
+          const teacherMap = {};
+          (teachers || []).forEach(t => { teacherMap[t.name.toLowerCase().trim()] = t; });
+          if (!courses) return;
+
+          /* ====== Populate course select ====== */
+          const sel = document.getElementById('curso-usuario');
+          if (sel) {
+            while (sel.options.length > 1) sel.remove(1);
+            const sorted = [...courses].sort((a, b) => {
+              const aFav = (a.teacher||'').toLowerCase().includes('isabel')||(a.teacher||'').toLowerCase().includes('laura');
+              const bFav = (b.teacher||'').toLowerCase().includes('isabel')||(b.teacher||'').toLowerCase().includes('laura');
+              if (aFav && !bFav) return -1;
+              if (!aFav && bFav) return 1;
+              return a.id - b.id;
+            });
+            sorted.forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.name;
+              const isFav = (c.teacher||'').toLowerCase().includes('isabel')||(c.teacher||'').toLowerCase().includes('laura');
+              opt.textContent = (isFav ? '⭐ ' : '') + c.name + ' — ' + (c.teacher || '');
+              sel.appendChild(opt);
+            });
+          }
+
+          /* ====== Store phone data for popup ====== */
+          const phoneMap = {};
+          courses.forEach(c => {
+            const t = (c.teacher || '').trim();
+            if (!t) return;
+            const td = teacherMap[t.toLowerCase().trim()];
+            if (t.toLowerCase().includes('isabel')) {
+              phoneMap[t] = { phone: '+34 652 08 17 00', label: 'Primaria y 1º ESO', title: td?.title || 'Profesora de Refuerzo Integral' };
+            } else if (t.toLowerCase().includes('laura')) {
+              phoneMap[t] = { phone: '+34 665 92 72 40', label: '2º-4º ESO y Bachillerato', title: td?.title || 'Profesora de Refuerzo Integral' };
+            } else if (!phoneMap[t]) {
+              phoneMap[t] = {
+                phone: '+34 652 08 17 00',
+                label: c.name,
+                title: td?.title || 'Profesor especializado',
+                specialties: td?.specialties || ''
+              };
+            }
+          });
+          window._phoneData = Object.entries(phoneMap);
+        } catch {}
+      })();
+    </script>
+    <script>
+    /* Real-time validation */
+    document.querySelectorAll('#formulario-interactivo input, #formulario-interactivo select, #formulario-interactivo textarea').forEach(el => {
+        el.addEventListener('blur', () => validateField(el));
+        el.addEventListener('input', () => { if (el.dataset.touched) validateField(el); });
+        el.addEventListener('change', () => { el.dataset.touched = 'true'; validateField(el); });
+    });
+
+    function validateField(el) {
+        const errorSpan = document.getElementById('err-' + el.id.replace(/^[^-]+-/, ''));
+        if (!errorSpan) return true;
+        const val = el.value.trim();
+        let valid = true;
+        let msg = '';
+        const name = el.getAttribute('aria-label') || el.labels?.[0]?.textContent?.replace(/[ *]/g,'') || el.name;
+
+        if (el.required && !val) {
+            valid = false; msg = 'Este campo es obligatorio.';
+        } else if (el.type === 'email' && val) {
+            valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val);
+            if (!valid) msg = 'Introduce un email válido (ej: usuario@dominio.com).';
+        } else if (el.id === 'telefono-contacto' && val) {
+            valid = /^[0-9]{9}$/.test(val);
+            if (!valid) msg = 'El teléfono debe tener 9 dígitos (ej: 600123456).';
+        } else if (el.id === 'nombre-completo' && val) {
+            valid = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,50}$/.test(val);
+            if (!valid) msg = 'El nombre debe tener entre 3 y 50 caracteres.';
+        } else if (el.id === 'aceptar-condiciones') {
+            valid = el.checked;
+            if (!valid) msg = 'Debes aceptar los términos y condiciones.';
+        } else if (el.id === 'curso-usuario' && val) {
+            valid = val !== '';
+            if (!valid) msg = 'Selecciona un curso.';
+        }
+
+        el.setAttribute('aria-invalid', (!valid && val !== '') ? 'true' : 'false');
+        el.classList.toggle('input-error', !valid && val !== '');
+        errorSpan.textContent = msg;
+        errorSpan.style.display = msg ? 'block' : 'none';
+        return valid;
+    }
+
+    function validateForm() {
+        let allValid = true;
+        document.querySelectorAll('#formulario-interactivo [required]').forEach(el => {
+            el.dataset.touched = 'true';
+            if (!validateField(el)) allValid = false;
+        });
+        return allValid;
+    }
+
+    document.getElementById('formulario-interactivo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm()) {
+          const firstErr = document.querySelector('#formulario-interactivo [aria-invalid="true"], #formulario-interactivo .input-error');
+          if (firstErr) { firstErr.focus(); }
+          return;
+      }
+      const btn = document.getElementById('contactSubmitBtn');
+      const msg = document.getElementById('contactMsg');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+      msg.style.display = 'none';
+
+      try {
+        await API.sendContact({
+          name: document.getElementById('nombre-completo').value.trim(),
+          email: document.getElementById('correo-electronico').value.trim(),
+          course_level: document.getElementById('curso-usuario').value,
+          phone: document.getElementById('telefono-contacto').value.trim(),
+          message: document.getElementById('mensaje-adicional').value.trim()
+        });
+        msg.style.cssText = 'display:block;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0';
+        msg.textContent = 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.';
+        document.getElementById('formulario-interactivo').reset();
+        document.getElementById('contador').querySelector('span').textContent = '0';
+        document.querySelectorAll('#formulario-interactivo .error-msg').forEach(el => { el.textContent = ''; el.style.display = 'none'; });
+        document.querySelectorAll('#formulario-interactivo [aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+        document.querySelectorAll('#formulario-interactivo .input-error').forEach(el => el.classList.remove('input-error'));
+      } catch (err) {
+        msg.style.cssText = 'display:block;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca';
+        msg.textContent = err.error || 'Error al enviar el mensaje. Inténtalo de nuevo.';
+      }
+      btn.disabled = false; btn.textContent = 'Enviar Formulario';
+    });
+
+    /* Character counter */
+    document.getElementById('mensaje-adicional').addEventListener('input', function() {
+        document.querySelector('#contador span').textContent = this.value.length;
+    });
+    </script>
+
+  <!-- Phone Popup -->
+  <div class="phone-popup-overlay" id="phonePopup" onclick="closePhonePopup(event)">
+    <div class="phone-popup">
+      <button class="phone-popup-close" onclick="closePhonePopup()">✕</button>
+      <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:6px;color:var(--text-primary,#1e293b)">📞 Todos los contactos</h2>
+      <p style="color:var(--text-muted,#94a3b8);margin-bottom:24px;font-size:14px">Elige el profesor o departamento al que quieras contactar</p>
+      <div id="phonePopupGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+        <div style="text-align:center;padding:20px;color:var(--text-muted,#94a3b8)">Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openPhonePopup() {
+      document.getElementById('phonePopup').classList.add('active');
+      const stored = window._phoneData;
+      const grid = document.getElementById('phonePopupGrid');
+      if (stored && stored.length > 0) {
+        grid.innerHTML = stored.map(([teacher, info]) => {
+          const isFeatured = teacher.toLowerCase().includes('isabel')||teacher.toLowerCase().includes('laura');
+          return `
+            <a href="tel:${info.phone.replace(/[\s\+]/g, '')}" style="display:flex;align-items:center;gap:12px;padding:16px 18px;background:${isFeatured ? 'linear-gradient(135deg,#eef2ff,#f0fdf4)' : 'var(--bg-section,#f8faff)'};border-radius:16px;text-decoration:none;color:var(--text-primary,#1e293b);border:${isFeatured ? '2px solid #fbbf24' : '1px solid var(--border-color,#e2e8f0)'};transition:0.25s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.08)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+              <span style="font-size:28px;flex-shrink:0">📞</span>
+              <div>
+                <div style="font-weight:700;font-size:15px">${info.phone}</div>
+                <div style="font-size:12px;color:var(--text-muted,#64748b)">${teacher}${isFeatured ? ' ⭐' : ''}${info.title ? ' — ' + info.title : ''}</div>
+                <div style="font-size:11px;color:var(--text-muted,#94a3b8);margin-top:2px">${info.label || 'Disponible'}</div>
+                ${info.specialties ? `<div style="font-size:11px;color:var(--text-muted,#94a3b8)">🎯 ${info.specialties}</div>` : ''}
+              </div>
+            </a>`;
+        }).join('');
+      }
+    }
+    function closePhonePopup(e) {
+      if (e && e.target !== document.getElementById('phonePopup')) return;
+      document.getElementById('phonePopup').classList.remove('active');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('contactarAhoraBtn');
+      if (btn) btn.addEventListener('click', openPhonePopup);
+    });
+  </script>
+
+  <style>
+    .phone-popup-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
+    }
+    .phone-popup-overlay.active { opacity: 1; visibility: visible; }
+    .phone-popup {
+      background: var(--bg-card,#fff);
+      border-radius: 24px;
+      max-width: 640px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+      transform: scale(0.9);
+      transition: 0.3s;
+    }
+    .phone-popup-overlay.active .phone-popup { transform: scale(1); }
+    .phone-popup-close {
+      position: absolute; top: 14px; right: 18px;
+      background: var(--border-color,#e2e8f0);
+      border: none; border-radius: 50%;
+      width: 34px; height: 34px;
+      font-size: 18px; cursor: pointer;
+      transition: 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-primary,#1e293b);
+    }
+    .phone-popup-close:hover { background: #dc2626; color: white; }
+    [data-theme="dark"] .phone-popup { background: #1a2332; }
+    [data-theme="dark"] .phone-popup a { color: var(--text-primary,#e8edf5) !important; }
+    [data-theme="dark"] .phone-popup a[style*="background"] { background: #1e2d40 !important; border-color: #2a3a4a !important; }
+  </style>
+
+</body>
+
+</html>

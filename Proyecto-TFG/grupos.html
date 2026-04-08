@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+
+    <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+        <title>Cursos - Academia Loranca</title>
+        <link rel="shortcut icon" href="./imagenes/logo.png" type="/imagenes/logo.png">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./parte-css/index.css">
+        <link rel="stylesheet" href="./parte-css/grupos.css">
+        <script src="./parte-logica/grupos.js" defer></script>
+        <script src="./parte-logica/api.js"></script>
+        <script src="./admin/admin-utils.js"></script>
+        <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+        <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
+        <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+    </head>
+
+    <body>
+        
+        <header-componente></header-componente>
+        <whatsapp-componente></whatsapp-componente>
+        
+        <!-- CURSOS -->
+        <main>
+            <section class="clases" id="cursos-disponibles">
+                <h1 class="titulo-seccion">Nuestros Cursos</h1>
+
+                
+                <div class="curso-imagen-derecha">
+                    <div class="curso-texto">
+                        <h2>📚 Clases de Refuerzo</h2>
+                        <p>Nuestras clases de refuerzo están diseñadas para <strong>acompañar al estudiante en su
+                                aprendizaje diario</strong>, resolver dudas y consolidar conocimientos. Trabajamos con
+                            ejercicios prácticos, seguimiento individual y técnicas de estudio personalizadas.</p>
+                        <p><strong>Ventajas:</strong> Atención individual, seguimiento semanal, informes de progreso y
+                            comunicación directa con familias.</p>
+                    </div>
+                    <div class="curso-imagen">
+                        <img src="./imagenes/niños_estudiando.jpg" alt="Estudiantes en clase" loading="lazy">
+                    </div>
+                </div>
+
+                
+                <div class="curso-imagen-derecha reverse">
+                    <div class="curso-texto">
+                        <h2>📝 Preparación de Exámenes</h2>
+                        <p>Preparamos a los alumnos para <strong>exámenes escolares, recuperaciones y la EVAU/PAU</strong>.
+                            Aplicamos simulacros, técnicas de planificación y estrategias de resolución de problemas para
+                            que afronten las pruebas con seguridad y eficiencia.</p>
+                        <p><strong>Metodología:</strong> Evaluación inicial, plan de trabajo personalizado y sesiones de
+                            práctica intensiva.</p>
+                    </div>
+                    <div class="curso-imagen">
+                        <img src="./imagenes/examenes.jpg" alt="Estudiantes haciendo examen" loading="lazy">
+                    </div>
+                </div>
+
+               
+                <div class="curso-imagen-derecha">
+                    <div class="curso-texto">
+                        <h2>🎓 Estudios Generales</h2>
+                        <p>Ofrecemos apoyo integral en todas las asignaturas para estudiantes de Primaria, ESO y
+                            Bachillerato. Nuestro enfoque combina explicaciones claras, actividades dinámicas y seguimiento
+                            constante para que cada alumno avance a su ritmo.</p>
+                        <p><strong>Beneficios:</strong> Refuerzo académico adaptado a cada estudiante, desarrollo de
+                            habilidades de estudio y motivación para el aprendizaje autónomo.</p>
+                    </div>
+                    <div class="curso-imagen">
+                        <img src="./imagenes/estudios.jpg" alt="Tutor dando clase" loading="lazy">
+                    </div>
+                </div>
+
+                
+                <div id="div-grupos" class="div-grupos">
+                    <h2>Grupos Disponibles</h2>
+                    <div class="DivGrupos" id="coursesContainer">
+                        <div class="loading"><div class="spinner"></div><p style="color:#94a3b8;margin-top:10px">Cargando cursos...</p></div>
+                    </div>
+                </div>
+                
+            </section>
+        </main>
+
+
+        
+
+            <div id="popupContainer"></div>
+
+        <script>
+            let coursesData = [];
+
+            async function renderCourses() {
+                try {
+                    const container = document.getElementById('coursesContainer');
+                    const popupContainer = document.getElementById('popupContainer');
+                    const { courses } = await API.getCourses();
+                    coursesData = courses || [];
+
+                    if (!courses || courses.length === 0) {
+                        container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:40px;grid-column:1/-1">No hay cursos disponibles actualmente</p>';
+                        return;
+                    }
+
+                    const isAdminUser = (function(){ try { const u = JSON.parse(localStorage.getItem('user')); return u && u.role === 'admin'; } catch { return false; } })();
+                    const cart = API.getCart();
+
+                    const sorted = [...courses].sort((a, b) => {
+                        const aFeatured = (a.teacher || '').toLowerCase().includes('isabel') || (a.teacher || '').toLowerCase().includes('laura');
+                        const bFeatured = (b.teacher || '').toLowerCase().includes('isabel') || (b.teacher || '').toLowerCase().includes('laura');
+                        if (aFeatured && !bFeatured) return -1;
+                        if (!aFeatured && bFeatured) return 1;
+                        return a.id - b.id;
+                    });
+
+                    container.innerHTML = sorted.map(c => {
+                        const t = (c.teacher || '').toLowerCase();
+                        const isFeatured = t.includes('isabel') || t.includes('laura');
+                        const inCart = cart.some(x => x.course_id === c.id);
+
+                        const colors = ['#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626','#2a17cf','#00d5ff'];
+                        const placeholderColor = colors[c.id % colors.length];
+                        const icons = ['🛡️','🤖','📊','💻','📈','🎨','📚','📝'];
+                        const icon = icons[c.id % icons.length];
+
+                        const imgSrc = t.includes('isabel') ? './imagenes/niños_grupos1.png'
+                            : t.includes('laura') ? './imagenes/adolescentes_grupos.png'
+                            : '';
+
+                        return `
+                        <div class="zona-grupos${isFeatured ? ' featured' : ''}" data-course-id="${c.id}" id="curso-${c.id}">
+                            <div class="card-img-wrap">
+                                ${isFeatured && imgSrc ? `<img class="card-img" src="${imgSrc}" alt="" loading="lazy">` : `<div class="card-img-placeholder" style="background:linear-gradient(135deg,${placeholderColor},${placeholderColor}88)">${icon}</div>`}
+                                ${isFeatured ? '<span class="featured-badge">⭐ Destacado</span>' : ''}
+                            </div>
+                            <div class="card-body">
+                                <h3>${c.name}</h3>
+                                <div class="card-teacher">👨‍🏫 ${c.teacher || 'Pendiente'}</div>
+                                <div class="card-schedule">🕐 ${c.schedule || 'Consultar'}</div>
+                                <div class="card-plazas" style="color:${c.enrolled_count >= c.max_students ? '#dc2626' : '#16a34a'}'}">
+                                    ${c.enrolled_count || 0}/${c.max_students} plazas ${c.enrolled_count >= c.max_students ? '🔴 Completas' : '✅ Disponibles'}
+                                </div>
+                                <div class="card-desc">${c.description || ''}</div>
+                                <span class="price-badge">${c.price ? c.price.toFixed(2).replace('.',',') + ' €/mes' : 'Consultar'}</span>
+                            </div>
+                            <div class="card-footer">
+                                ${isAdminUser
+                                  ? `<a href="./admin/courses.html" class="boton-info" style="flex:1">⚙️ Gestionar cursos</a>`
+                                  : `<button class="btn-add-cart ${inCart ? 'in-cart' : ''}" data-course-id="${c.id}" data-course-name="${c.name}" data-teacher="${c.teacher || ''}" data-price="${c.price || 0}">${inCart ? '✓ En carrito' : '🛒 Añadir'}</button>
+                                <a class="boton-info" onclick="openCoursePopup(${c.id})">🔍 Más información</a>`}
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    const hash = window.location.hash;
+                    if (hash && hash.startsWith('#curso-')) {
+                      const id = hash.replace('#curso-', '');
+                      const el = document.getElementById('curso-' + id);
+                      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    } else if (hash === '#grupo1' || hash === '#grupo2') {
+                      const el = document.getElementById(hash.slice(1));
+                      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }
+
+                    function getAvatar(id) {
+                        const c = courses.find(x => x.id === id);
+                        if (!c) return '';
+                        const t = (c.teacher || '').toLowerCase();
+                        if (t.includes('isabel')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-isabel.mp4" type="video/mp4"></video>';
+                        if (t.includes('laura')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-laura.mp4" type="video/mp4"></video>';
+                        const femaleNames = ['isabel', 'laura', 'ana', 'maria', 'sofia'];
+                        const emoji = femaleNames.some(n => t.startsWith(n)) ? '👩‍🏫' : '👨‍🏫';
+                        return '<div style="font-size:5rem;text-align:center;padding:20px">' + emoji + '</div>';
+                    }
+
+                    window.openCoursePopup = function(id) {
+                        const c = courses.find(x => x.id === id);
+                        if (!c) return;
+                        const existing = document.querySelector('.POPUP.active');
+                        if (existing) { existing.classList.remove('active'); existing.style.display = ''; }
+
+                        let popup = document.getElementById('popup-' + id);
+                        if (!popup) {
+                            popup = document.createElement('div');
+                            popup.id = 'popup-' + id;
+                            popup.className = 'POPUP';
+                            popup.innerHTML = `
+                                <div class="contenido-POPUP">
+                                    <span class="cerrar" onclick="closeCoursePopup(${id})">&times;</span>
+                                    <div class="contenedor-avatar">
+                                        ${getAvatar(id)}
+                                    </div>
+                                    <h2>${c.name}</h2>
+                                    <p><strong>Profesor/a:</strong> ${c.teacher || 'Por asignar'}</p>
+                                    <p><strong>Horario:</strong> ${c.schedule || 'Consultar disponibilidad'}</p>
+                                    <p><strong>Plazas:</strong> ${c.enrolled_count || 0}/${c.max_students} ocupadas</p>
+                                    ${c.description ? `<p style="margin-top:12px">${c.description}</p>` : ''}
+                                    <h3 style="margin-top:16px">Informacion adicional:</h3>
+                                    <ul>
+                                        <li>Dia de prueba gratuito para conocer nuestra metodologia.</li>
+                                        <li>Disponibilidad de contacto directo fuera del horario de clase.</li>
+                                        <li>Evaluaciones periodicas y comunicacion constante con padres.</li>
+                                        <li>Atencion personalizada en grupos reducidos.</li>
+                                    </ul>
+                                    <div class="div-apuntarme">
+                                        <a href="contactos.html" class="boton-apuntarse">Solicitar informacion</a>
+                                    </div>
+                                </div>
+                            `;
+                            popupContainer.appendChild(popup);
+                        }
+                        popup.style.display = '';
+                        popup.classList.add('active');
+                    };
+
+                    window.closeCoursePopup = function(id) {
+                        const popup = document.getElementById('popup-' + id);
+                        if (popup) {
+                            popup.classList.remove('active');
+                            popup.style.display = '';
+                        }
+                    };
+
+                    document.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('POPUP')) {
+                            const id = e.target.id.replace('popup-', '');
+                            if (id) window.closeCoursePopup(parseInt(id));
+                        }
+                    });
+
+                } catch (e) {
+                    document.getElementById('coursesContainer').innerHTML =
+                        '<p style="color:#dc2626;text-align:center;padding:40px;grid-column:1/-1">Error al cargar cursos</p>';
+                }
+            }
+
+            renderCourses();
+            window.addEventListener('cart-changed', renderCourses);
+        </script>
+
+        <script>
+          document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-add-cart');
+            if (!btn || btn.classList.contains('in-cart')) return;
+            if (!API.isLoggedIn()) {
+                API.addToCart({ course_id: +btn.dataset.courseId });
+                return;
+            }
+            API.addToCart({ course_id: +btn.dataset.courseId, course_name: btn.dataset.courseName, teacher: btn.dataset.teacher, price: +btn.dataset.price });
+            btn.textContent = '✓ En carrito';
+            btn.classList.add('in-cart');
+            showToast('Añadido al carrito');
+          });
+        </script>
+
+        <footer-componente></footer-componente>
+
+    </body>
+
+</html>
