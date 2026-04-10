@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Página no encontrada | Academia Loranca</title>
+  <link rel="shortcut icon" href="./imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="./parte-css/index.css">
+  <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+  <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+  <style>
+    .page-404 {
+      min-height: 70vh; display: flex; align-items: center; justify-content: center;
+      padding: 80px 20px; text-align: center;
+    }
+    .page-404 .container { max-width: 500px; }
+    .page-404 .code {
+      font-size: 120px; font-weight: 900;
+      background: linear-gradient(135deg, #2a17cf, #00d5ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1; margin-bottom: 8px;
+    }
+    .page-404 h1 { font-size: 28px; color: #1e293b; margin-bottom: 12px; font-weight: 700; }
+    .page-404 p { color: #64748b; font-size: 16px; margin-bottom: 32px; line-height: 1.6; }
+    .page-404 .btn-404 {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 36px; background: linear-gradient(135deg, #2a17cf, #00d5ff);
+      color: white; text-decoration: none; border-radius: 50px;
+      font-weight: 700; font-size: 16px; transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(42,23,207,0.3);
+    }
+    .page-404 .btn-404:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(42,23,207,0.4); }
+    .page-404 .illustration { font-size: 80px; margin-bottom: 16px; display: block; }
+    [data-theme="dark"] .page-404 h1 { color: #f1f5f9; }
+    [data-theme="dark"] .page-404 p { color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <header-componente></header-componente>
+
+  <main class="page-404">
+    <div class="container">
+      <span class="illustration">🔍</span>
+      <div class="code">404</div>
+      <h1>Página no encontrada</h1>
+      <p>Lo sentimos, la página que buscas no existe o ha sido movida.<br>Vuelve al inicio para encontrar lo que necesitas.</p>
+      <a href="./Index.html" class="btn-404">← Volver al inicio</a>
+    </div>
+  </main>
+
+  <footer-componente></footer-componente>
+</body>
+</html>

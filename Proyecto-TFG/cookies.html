@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Cookies - Academia Loranca</title>
+    <link rel="shortcut icon" href="./imagenes/logo.png" type="image/png">
+    <link rel="stylesheet" href="./parte-css/index.css">
+    <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+    <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+    <style>
+        .legal-page { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+        .legal-page h1 { font-size: 2.2rem; font-weight: 800; color: #1e293b; margin-bottom: 6px; }
+        .legal-page .sub { color: #64748b; font-size: 0.95rem; margin-bottom: 36px; }
+        .legal-page h2 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 32px 0 12px; }
+        .legal-page p { color: #475569; line-height: 1.7; margin-bottom: 12px; }
+        .legal-page ul { margin: 8px 0 16px 24px; }
+        .legal-page li { color: #475569; margin-bottom: 6px; line-height: 1.6; }
+        .legal-page strong { color: #1e293b; }
+        .legal-page a { color: #2a17cf; }
+        .legal-page .btn-volver { display: inline-block; margin-top: 40px; padding: 12px 28px; background: linear-gradient(135deg, #2a17cf, #00d5ff); color: #fff; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; }
+        .legal-page .btn-volver:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(42,23,207,0.3); }
+        [data-theme="dark"] .legal-page h1,
+        [data-theme="dark"] .legal-page h2,
+        [data-theme="dark"] .legal-page strong { color: var(--text-primary, #e8edf5); }
+        [data-theme="dark"] .legal-page p,
+        [data-theme="dark"] .legal-page li { color: var(--text-secondary, #94a3b8); }
+        [data-theme="dark"] .legal-page .sub { color: var(--text-muted, #64748b); }
+        @media (max-width: 600px) { .legal-page { padding: 24px 16px 60px; } .legal-page h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+    <header-componente></header-componente>
+    <main class="legal-page">
+        <h1>🍪 Política de Cookies</h1>
+        <p class="sub">Academia Loranca · Actualizada a mayo de 2026</p>
+
+        <p>En <strong>Academia Loranca</strong> utilizamos cookies propias y de terceros para garantizar el correcto funcionamiento de nuestra web, mejorar la experiencia de navegación y analizar el tráfico.</p>
+
+        <h2>1. ¿Qué son las cookies?</h2>
+        <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas un sitio web. Permiten recordar tus preferencias, facilitar la navegación y ofrecer contenido relevante.</p>
+
+        <h2>2. Tipos de cookies que utilizamos</h2>
+        <ul>
+            <li><strong>Cookies técnicas (necesarias):</strong> Imprescindibles para el funcionamiento básico de la web. No requieren consentimiento previo. Ejemplo: mantener la sesión iniciada, recordar el tema seleccionado (claro/oscuro).</li>
+            <li><strong>Cookies de personalización:</strong> Permiten recordar tus preferencias (como el tema visual) para ofrecerte una experiencia adaptada.</li>
+            <li><strong>Cookies de análisis:</strong> Recogen información anónima sobre el uso de la web para mejorar nuestros servicios.</li>
+        </ul>
+
+        <h2>3. Cookies específicas</h2>
+        <ul>
+            <li><code>theme</code> — Almacena tu preferencia de tema (claro/oscuro). Duración: persistente.</li>
+            <li><code>token</code> — Mantiene tu sesión iniciada. Duración: mientras dure la sesión.</li>
+            <li><code>cart</code> — Almacena los cursos que has añadido al carrito. Duración: persistente.</li>
+        </ul>
+
+        <h2>4. Gestión de cookies</h2>
+        <p>Puedes configurar, bloquear o eliminar las cookies en cualquier momento desde la configuración de tu navegador:</p>
+        <ul>
+            <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener">Chrome</a></li>
+            <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web" target="_blank" rel="noopener">Firefox</a></li>
+            <li><a href="https://support.apple.com/es-es/guide/safari/sfri11471/mac" target="_blank" rel="noopener">Safari</a></li>
+            <li><a href="https://support.microsoft.com/es-es/microsoft-edge/eliminar-cookies-en-microsoft-edge" target="_blank" rel="noopener">Edge</a></li>
+        </ul>
+
+        <h2>5. Consentimiento</h2>
+        <p>Al navegar por nuestra web, aceptas el uso de cookies técnicas y de personalización. Las cookies de análisis solo se activarán si expresamente das tu consentimiento.</p>
+
+        <h2>6. Contacto</h2>
+        <p>Si tienes dudas sobre nuestra política de cookies, escríbenos a <a href="mailto:proyectoacademiatfg@gmail.com">proyectoacademiatfg@gmail.com</a>.</p>
+
+        <a href="./index.html" class="btn-volver">← Volver a la página principal</a>
+    </main>
+    <footer-componente></footer-componente>
+</body>
+</html>
