@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+  <style>
+    .charts-row { display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px }
+    .chart-card {
+      padding:24px;border-radius:16px;background:#fff;
+      box-shadow:0 2px 12px rgba(0,0,0,.03),0 1px 4px rgba(0,0,0,.02);
+      border:1px solid #f1f5f9;position:relative;overflow:hidden;
+    }
+    .chart-card canvas { display:block;width:100%;height:220px;cursor:crosshair }
+    .chart-card .chart-title {
+      margin-bottom:16px;color:#1e293b;font-size:16px;font-weight:700;
+      display:flex;align-items:center;gap:8px;
+    }
+    .chart-tooltip {
+      position:absolute;pointer-events:none;opacity:0;transition:opacity .2s;
+      background:rgba(15,23,42,.9);color:#fff;padding:6px 12px;border-radius:8px;
+      font-size:12px;font-weight:600;z-index:10;white-space:nowrap;
+      backdrop-filter:blur(4px);
+    }
+    .chart-tooltip.show { opacity:1 }
+    @media (max-width:768px) { .charts-row { grid-template-columns:1fr } }
+    @media (max-width:480px) { .chart-card { padding:16px } }
+    [data-theme="dark"] .chart-card { background:var(--bg-card);border-color:var(--border-color);box-shadow:none }
+    [data-theme="dark"] .chart-card .chart-title { color:var(--text-primary) }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html" class="active"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Dashboard</h1>
+        <div class="breadcrumb">Admin / <span>Dashboard</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-card">
+      <h2>Bienvenido al panel de administración</h2>
+      <p>Desde aquí puedes gestionar usuarios, cursos y los mensajes recibidos del formulario de contacto de Academia Loranca.</p>
+    </div>
+
+    <div id="loadingSkeleton">
+      <div class="stats-grid" style="margin-bottom:32px">
+        <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+        <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+        <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+        <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="skeleton-card"><div class="skeleton sk-title"></div><div style="height:200px" class="skeleton"></div></div>
+        <div class="skeleton-card"><div class="skeleton sk-title"></div><div style="height:200px" class="skeleton"></div></div>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon blue">👥</div></div>
+        <div class="number" id="statUsers">-</div>
+        <div class="label">Usuarios registrados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon purple">📚</div></div>
+        <div class="number" id="statCourses">-</div>
+        <div class="label">Cursos activos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon green">✉️</div></div>
+        <div class="number" id="statMessages">-</div>
+        <div class="label">Mensajes recibidos</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon blue">📢</div></div>
+        <div class="number" id="statAnnouncements">-</div>
+        <div class="label">Anuncios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon purple">📅</div></div>
+        <div class="number" id="statEvents">-</div>
+        <div class="label">Eventos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon green">📦</div></div>
+        <div class="number" id="statOrders">-</div>
+        <div class="label">Pedidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon orange">💰</div></div>
+        <div class="number" id="statRevenue">-</div>
+        <div class="label">Ingresos (€)</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card chart-card">
+        <div class="chart-title">📈 Usuarios registrados por mes</div>
+        <canvas id="usersChart" height="200"></canvas>
+        <div class="chart-tooltip" id="tooltip1"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">✉️ Mensajes recibidos por mes</div>
+        <canvas id="messagesChart" height="200"></canvas>
+        <div class="chart-tooltip" id="tooltip2"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+
+      try {
+        const { stats } = await API.admin.getStats();
+        document.getElementById('statUsers').textContent = stats.users;
+        document.getElementById('statCourses').textContent = stats.courses;
+        document.getElementById('statMessages').textContent = stats.messages;
+        document.getElementById('statAnnouncements').textContent = stats.announcements || 0;
+        document.getElementById('statEvents').textContent = stats.events || 0;
+        document.getElementById('statOrders').textContent = stats.orders || 0;
+        document.getElementById('statRevenue').textContent = (stats.revenue || 0).toFixed(2).replace('.', ',');
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { console.error(e); document.getElementById('loadingSkeleton')?.remove(); }
+
+      function drawBarChart(canvas, labels, data, color, tooltipId) {
+        const parent = canvas.parentElement;
+        const rect = parent.getBoundingClientRect();
+        const w = rect.width - 48;
+        canvas.width = w * 2;
+        canvas.style.width = w + 'px';
+        canvas.height = 440;
+        canvas.style.height = '220px';
+        const ctx = canvas.getContext('2d');
+        const h = 440;
+        const max = Math.max(...data, 1);
+        const pad = { top: 30, bottom: 50, left: 36, right: 16 };
+        const chartW = w - pad.left - pad.right;
+        const chartH = h - pad.top - pad.bottom;
+        const gap = chartW / labels.length;
+        const barW = Math.min(44, gap * 0.55);
+        const radius = 6;
+
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+        const c1 = color, c2 = color + '55';
+        grad.addColorStop(0, c1);
+        grad.addColorStop(1, c2);
+
+        ctx.clearRect(0, 0, w * 2, h);
+
+        /* Grid lines */
+        const gridCount = 4;
+        ctx.textAlign = 'right';
+        ctx.font = '18px Inter, sans-serif';
+        for (let i = 0; i <= gridCount; i++) {
+          const y = pad.top + (chartH / gridCount) * i;
+          const val = Math.round(max - (max / gridCount) * i);
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.setLineDash([4, 6]);
+          ctx.moveTo(pad.left, y);
+          ctx.lineTo(w * 2 - pad.right, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(val, pad.left - 8, y + 6);
+        }
+
+        /* Baseline */
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, pad.top + chartH);
+        ctx.lineTo(w * 2 - pad.right, pad.top + chartH);
+        ctx.stroke();
+
+        /* Bars + labels */
+        const barData = [];
+        labels.forEach((l, i) => {
+          const x = pad.left + i * gap + gap / 2;
+          const val = data[i];
+          const barH = (val / max) * chartH || 0;
+          const bw = barW, bx = x - bw / 2, by = pad.top + chartH - barH;
+          barData.push({ bx, by, bw, barH, val, x, label: l });
+
+          /* Shadow */
+          ctx.shadowColor = color + '30';
+          ctx.shadowBlur = 12;
+          ctx.shadowOffsetY = 4;
+
+          /* Bar with gradient */
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          if (barH > radius * 2) {
+            ctx.moveTo(bx + radius, by);
+            ctx.lineTo(bx + bw - radius, by);
+            ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + radius);
+            ctx.lineTo(bx + bw, pad.top + chartH);
+            ctx.lineTo(bx, pad.top + chartH);
+            ctx.lineTo(bx, by + radius);
+            ctx.quadraticCurveTo(bx, by, bx + radius, by);
+          } else {
+            ctx.rect(bx, by, bw, barH);
+          }
+          ctx.fill();
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+
+          /* Value on top */
+          ctx.fillStyle = '#1e293b';
+          ctx.font = 'bold 22px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(val, x, by - 8);
+
+          /* Month label */
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '18px Inter, sans-serif';
+          ctx.fillText(l, x, pad.top + chartH + 32);
+        });
+
+        /* Hover tooltip */
+        canvas.onmousemove = function(e) {
+          const r = canvas.getBoundingClientRect();
+          const mx = (e.clientX - r.left) * 2;
+          const my = (e.clientY - r.top) * 2;
+          let found = null;
+          for (const b of barData) {
+            if (mx >= b.bx && mx <= b.bx + b.bw && my >= b.by && my <= b.by + b.barH + 16) {
+              found = b; break;
+            }
+          }
+          const tooltip = document.getElementById(tooltipId);
+          if (found) {
+            tooltip.textContent = `${found.label}: ${found.val}`;
+            tooltip.style.left = (e.clientX - r.left + 12) + 'px';
+            tooltip.style.top = (e.clientY - r.top - 30) + 'px';
+            tooltip.classList.add('show');
+            canvas.style.cursor = 'pointer';
+          } else {
+            tooltip.classList.remove('show');
+            canvas.style.cursor = 'crosshair';
+          }
+        };
+        canvas.onmouseleave = function() {
+          document.getElementById(tooltipId).classList.remove('show');
+        };
+      }
+
+      try {
+        const chartData = await API.request('/api/admin/stats/charts');
+        drawBarChart(document.getElementById('usersChart'), chartData.months, chartData.users, '#6a11cb', 'tooltip1');
+        drawBarChart(document.getElementById('messagesChart'), chartData.months, chartData.messages, '#00d5ff', 'tooltip2');
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { console.error('Charts error:', e); document.getElementById('loadingSkeleton')?.remove(); }
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+
+</html>
