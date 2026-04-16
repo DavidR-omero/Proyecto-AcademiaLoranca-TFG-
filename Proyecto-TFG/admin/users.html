@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Usuarios - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html" class="active"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Usuarios</h1>
+        <div class="breadcrumb">Admin / <span>Usuarios</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">👥</span> Gesti&oacute;n de usuarios</h2>
+        <div class="card-toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar usuario..." oninput="renderUsers()">
+          </div>
+          <button class="btn btn-secondary" onclick="exportCSV('usuarios.csv', ['ID','Usuario','Email','Rol','Fecha'], users.map(u => [u.id, u.username, u.email, u.role, u.created_at]))">📥 CSV</button>
+        </div>
+      </div>
+      <div id="usersTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="usersPager"></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <h2>✏️ Editar usuario</h2>
+      <div class="field"><label>Rol</label>
+        <select id="editRole"><option value="user">Usuario</option><option value="admin">Administrador</option></select>
+      </div>
+      <div class="field"><label>Nueva contrase&ntilde;a (dejar en blanco para no cambiar)</label><input type="password" id="editPassword" placeholder="M&iacute;n. 4 caracteres"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save" onclick="saveUser()">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let users = [];
+    let editingId = null;
+    let usersPager;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+
+      try {
+        const data = await API.admin.getUsers();
+        users = data.users;
+        usersPager = createPager('usersPager', 10, renderUsers);
+        renderUsers();
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { console.error(e); document.getElementById('loadingSkeleton')?.remove(); showToast('Error: ' + (e.error || e.message || 'Error al cargar usuarios'), 'error'); }
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    function renderUsers() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = users.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+      const div = document.getElementById('usersTable');
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No hay usuarios</p></div>'; usersPager.setTotal(0); return; }
+      usersPager.setTotal(filtered.length);
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead><tbody>' +
+        usersPager.getPage(filtered).data.map(u => `
+          <tr>
+            <td><span class="cell-id">#${u.id}</span></td>
+            <td><span class="cell-name">${u.username}</span></td>
+            <td>${u.email}</td>
+            <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role === 'admin' ? 'Administrador' : 'Usuario'}</span></td>
+            <td>${formatDate(u.created_at)}</td>
+            <td class="actions">
+              <button class="btn-edit btn-icon" onclick="openEdit(${u.id})" title="Editar">✏️</button>
+              <button class="btn-delete btn-icon" onclick="deleteUser(${u.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('') + '</tbody></table></div>';
+    }
+
+    function openEdit(id) {
+      const u = users.find(x => x.id === id); if (!u) return;
+      editingId = id;
+      document.getElementById('editRole').value = u.role;
+      document.getElementById('editPassword').value = '';
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    async function saveUser() {
+      const pwd = document.getElementById('editPassword').value;
+      const data = { role: document.getElementById('editRole').value };
+      if (pwd && pwd.length >= 4) data.password = pwd;
+      const username = users.find(u => u.id === editingId)?.username;
+      try {
+        const res = await API.admin.updateUser(editingId, data);
+        const idx = users.findIndex(u => u.id === editingId);
+        if (idx >= 0) users[idx] = res.user;
+        renderUsers();
+        closeModal();
+        const msg = pwd ? 'Contraseña actualizada correctamente' : 'Usuario actualizado';
+        showToast(msg, 'success');
+      } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
+    }
+
+    async function deleteUser(id) {
+      if (!(await showConfirm('¿Eliminar este usuario definitivamente?'))) return;
+      try {
+        await API.admin.deleteUser(id);
+        users = users.filter(u => u.id !== id);
+        renderUsers();
+        showToast('Usuario eliminado', 'success');
+      } catch (e) { showToast(e.error || 'Error al eliminar', 'error'); }
+    }
+
+    function closeModal() { document.getElementById('editModal').classList.remove('active'); editingId = null; }
+    function showToast(msg, type) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+</html>
