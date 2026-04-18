@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profesores - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./teachers.html" class="active"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Profesores</h1>
+        <div class="breadcrumb">Admin / <span>Profesores</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">👨‍🏫</span>Gestión de profesores</h2>
+        <div class="card-toolbar">
+          <button class="btn btn-primary" id="addBtn">+ Nuevo profesor</button>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchTeacher" placeholder="Buscar...">
+          </div>
+          <button class="btn btn-secondary" onclick="exportCSV('profesores.csv', ['Nombre','Título','Años experiencia','Especialidades'], teachers.map(t => [t.name, t.title, t.years_experience, t.specialties]))">📥 CSV</button>
+        </div>
+      </div>
+      <div id="loadingSkeleton" class="skeleton-card">
+        <div class="skeleton sk-title"></div>
+        <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+        <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+        <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+        <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+        <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Nombre</th><th>Título</th><th>Experiencia</th><th>Especialidades</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="teachersBody"></tbody>
+        </table>
+      </div>
+      <div id="teacherPager"></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border-color)">
+        <div id="modalAvatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#2a17cf,#00d5ff);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;flex-shrink:0">➕</div>
+        <div>
+          <h3 id="modalTitle" style="font-size:20px;font-weight:700;color:var(--text-primary);margin:0">Nuevo profesor</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin:2px 0 0">Completa los datos del profesor</p>
+        </div>
+        <button class="modal-close" id="modalClose" style="margin-left:auto;background:none;border:none;font-size:24px;color:var(--text-muted);cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:0.2s" onmouseover="this.style.background='var(--border-color)'" onmouseout="this.style.background=''">&times;</button>
+      </div>
+      <input type="hidden" id="editId">
+      <div class="field">
+        <label>Nombre completo <span style="color:#dc2626">*</span></label>
+        <input id="fName" class="form-control" placeholder="ej. Javier Torres">
+      </div>
+      <div class="field">
+        <label>Título / Cargo</label>
+        <input id="fTitle" class="form-control" placeholder="ej. Diseñador Gráfico Senior">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="field">
+          <label>Años de experiencia</label>
+          <input id="fYears" type="number" class="form-control" value="0" min="0">
+        </div>
+        <div class="field">
+          <label>URL de imagen</label>
+          <input id="fImage" class="form-control" placeholder="ej. ./imagenes/profe.png">
+        </div>
+      </div>
+      <div class="field">
+        <label>Especialidades</label>
+        <input id="fSpecialties" class="form-control" placeholder="ej. Adobe Suite, UX/UI, Branding">
+      </div>
+      <div class="field">
+        <label>Biografía</label>
+        <textarea id="fBio" class="form-control" rows="4" placeholder="Descripción del profesor..." style="resize:vertical"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">Cancelar</button>
+        <button class="btn-save" id="modalSave">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+
+      let teachers = [];
+      let teacherPager;
+
+      async function load() {
+        try {
+          const res = await API.admin.getTeachers();
+          teachers = res.teachers;
+          teacherPager = createPager('teacherPager', 10, render);
+          render();
+          document.getElementById('loadingSkeleton')?.remove();
+        } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar profesores', 'error'); }
+      }
+
+      function render() {
+        const q = document.getElementById('searchTeacher').value.toLowerCase();
+        const filtered = teachers.filter(t => t.name.toLowerCase().includes(q) || (t.specialties && t.specialties.toLowerCase().includes(q)));
+        teacherPager.setTotal(filtered.length);
+        const tbody = document.getElementById('teachersBody');
+        tbody.innerHTML = teacherPager.getPage(filtered).data.map(t => `
+          <tr>
+            <td><strong>${esc(t.name)}</strong></td>
+            <td>${esc(t.title)}</td>
+            <td>${t.years_experience || 0} años</td>
+            <td>${esc(t.specialties)}</td>
+            <td class="actions">
+              <button class="btn-icon btn-edit" onclick="editTeacher(${t.id})" title="Editar">✏️</button>
+              <button class="btn-icon btn-delete" onclick="deleteTeacher(${t.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+      window.editTeacher = async (id) => {
+        const t = teachers.find(x => x.id === id);
+        if (!t) return;
+        document.getElementById('editId').value = id;
+        document.getElementById('fName').value = t.name;
+        document.getElementById('fTitle').value = t.title;
+        document.getElementById('fYears').value = t.years_experience;
+        document.getElementById('fImage').value = t.image;
+        document.getElementById('fSpecialties').value = t.specialties;
+        document.getElementById('fBio').value = t.bio;
+        document.getElementById('modalTitle').textContent = 'Editar profesor';
+        const av = document.getElementById('modalAvatar');
+        av.textContent = t.name.charAt(0).toUpperCase();
+        av.style.background = 'linear-gradient(135deg,#2a17cf,#00d5ff)';
+        document.getElementById('modal').classList.add('active');
+      };
+
+      window.deleteTeacher = async (id) => {
+        if (!(await showConfirm('¿Eliminar este profesor?'))) return;
+        try {
+          await API.admin.deleteTeacher(id);
+          teachers = teachers.filter(t => t.id !== id);
+          render();
+          showToast('Profesor eliminado', 'success');
+        } catch (e) { showToast(e.error || 'Error al eliminar', 'error'); }
+      };
+
+      document.getElementById('addBtn').onclick = () => {
+        document.getElementById('editId').value = '';
+        document.getElementById('fName').value = '';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fYears').value = '0';
+        document.getElementById('fImage').value = '';
+        document.getElementById('fSpecialties').value = '';
+        document.getElementById('fBio').value = '';
+        document.getElementById('modalTitle').textContent = 'Nuevo profesor';
+        const av = document.getElementById('modalAvatar');
+        av.textContent = '➕';
+        av.style.background = 'linear-gradient(135deg,#2a17cf,#00d5ff)';
+        document.getElementById('modal').classList.add('active');
+      };
+
+      document.getElementById('modalClose').onclick = () => document.getElementById('modal').classList.remove('active');
+      document.getElementById('modalCancel').onclick = () => document.getElementById('modal').classList.remove('active');
+      document.getElementById('modal').onclick = (e) => { if (e.target === e.currentTarget) e.target.classList.remove('active'); };
+
+      document.getElementById('modalSave').onclick = async () => {
+        const id = document.getElementById('editId').value;
+        const data = {
+          name: document.getElementById('fName').value.trim(),
+          title: document.getElementById('fTitle').value.trim(),
+          years_experience: parseInt(document.getElementById('fYears').value) || 0,
+          image: document.getElementById('fImage').value.trim(),
+          specialties: document.getElementById('fSpecialties').value.trim(),
+          bio: document.getElementById('fBio').value.trim()
+        };
+        if (!data.name) { showToast('El nombre del profesor es obligatorio', 'error'); return; }
+        try {
+          if (id) {
+            const res = await API.admin.updateTeacher(id, data);
+            const idx = teachers.findIndex(t => t.id === parseInt(id));
+            if (idx !== -1) teachers[idx] = res.teacher;
+            showToast('Profesor actualizado', 'success');
+          } else {
+            const res = await API.admin.createTeacher(data);
+            teachers.push(res.teacher);
+            showToast('Profesor creado', 'success');
+          }
+          render();
+          document.getElementById('modal').classList.remove('active');
+        } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
+      };
+
+      function showToast(msg, type) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+        document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+      }
+
+      await load();
+      document.getElementById('searchTeacher').addEventListener('input', render);
+      document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); API.logout(); window.location.href = '../index.html'; };
+    })();
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+</html>
