@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajes - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./messages.html" class="active"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Mensajes</h1>
+        <div class="breadcrumb">Admin / <span>Mensajes de contacto</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">✉️</span> Bandeja de entrada</h2>
+        <div class="card-toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar mensaje..." oninput="renderMessages()">
+          </div>
+          <button class="btn btn-secondary" onclick="exportCSV('mensajes.csv', ['ID','Nombre','Email','Mensaje','Leído','Fecha'], messages.map(m => [m.id, m.name, m.email, m.message, m.is_read ? 'Sí' : 'No', m.created_at]))">📥 CSV</button>
+        </div>
+      </div>
+      <div id="messagesTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="messagesPager"></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="messageModal">
+    <div class="modal">
+      <h2>✉️ Mensaje de contacto</h2>
+      <div id="messageDetail">
+        <div class="field"><label>Nombre</label><p style="color:#1e293b;font-weight:500" id="msgName"></p></div>
+        <div class="field"><label>Email</label><p style="color:#2563eb" id="msgEmail"></p></div>
+        <div class="field"><label>Tel&eacute;fono</label><p style="color:#1e293b" id="msgPhone"></p></div>
+        <div class="field"><label>Curso escolar</label><p style="color:#1e293b" id="msgCourse"></p></div>
+        <div class="field"><label>Fecha</label><p style="color:#64748b" id="msgDate"></p></div>
+        <div class="field"><label>Mensaje</label>
+          <div style="background:var(--input-bg);padding:16px;border-radius:12px;line-height:1.7;color:var(--text-primary);font-size:14px;border:1px solid var(--border-color)" id="msgText"></div>
+        </div>
+        <div class="field" id="replySection" style="display:none">
+          <label>Responder</label>
+          <textarea id="replyText" rows="3" style="width:100%;padding:11px 16px;border:2px solid var(--border-color);border-radius:12px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text-primary);resize:vertical" placeholder="Escribe tu respuesta..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions" id="replyActions" style="display:none">
+        <button class="btn-cancel" onclick="toggleReply()">Cancelar respuesta</button>
+        <button class="btn-save" onclick="sendReply()">✉️ Enviar respuesta</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let messages = [];
+    let messagesPager;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+      await loadMessages();
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    async function loadMessages() {
+      try {
+        const data = await API.admin.getMessages();
+        messages = data.messages;
+        messagesPager = createPager('messagesPager', 10, renderMessages);
+        renderMessages();
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar mensajes', 'error'); }
+    }
+
+    function renderMessages() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = messages.filter(m =>
+        m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || (m.message && m.message.toLowerCase().includes(q))
+      );
+      const div = document.getElementById('messagesTable');
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">✉️</div><p>No hay mensajes</p></div>'; messagesPager.setTotal(0); return; }
+      messagesPager.setTotal(filtered.length);
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Estado</th><th>Nombre</th><th>Email</th><th>Tel&eacute;fono</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
+        messagesPager.getPage(filtered).data.map(m => `
+          <tr style="${!m.is_read ? 'background:#f8faff' : ''}">
+            <td><span class="badge ${m.is_read ? 'badge-read' : 'badge-unread'}">${m.is_read ? 'Leído' : 'Nuevo'}</span></td>
+            <td><span class="cell-name">${m.name}</span></td>
+            <td>${m.email}</td>
+            <td>${m.phone || '—'}</td>
+            <td>${formatDate(m.created_at)}</td>
+            <td class="actions">
+              <button class="btn-view btn-icon" onclick="viewMessage(${m.id})" title="Ver">👁️</button>
+              ${!m.is_read ? `<button class="btn-read btn-icon" onclick="markRead(${m.id})" title="Marcar leído">✅</button>` : ''}
+              <button class="btn-delete btn-icon" onclick="deleteMessage(${m.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('') + '</tbody></table></div>';
+    }
+
+    let viewingMsgId = null;
+
+    function viewMessage(id) {
+      const m = messages.find(x => x.id === id); if (!m) return;
+      viewingMsgId = id;
+      document.getElementById('msgName').textContent = m.name;
+      document.getElementById('msgEmail').innerHTML = '<a href="mailto:' + m.email + '" style="color:#2563eb;text-decoration:none;font-weight:500">' + m.email + '</a>';
+      document.getElementById('msgPhone').textContent = m.phone || '—';
+      document.getElementById('msgCourse').textContent = m.course_level || '—';
+      document.getElementById('msgDate').textContent = formatDate(m.created_at);
+      document.getElementById('msgText').textContent = m.message || '(sin mensaje)';
+      document.getElementById('replyText').value = '';
+      const hasReply = m.reply && m.reply.trim();
+      document.getElementById('replySection').style.display = hasReply ? 'block' : 'none';
+      document.getElementById('replyActions').style.display = 'block';
+      if (hasReply) {
+        document.getElementById('replyText').value = m.reply;
+        document.getElementById('replyText').disabled = true;
+      } else {
+        document.getElementById('replyText').disabled = false;
+      }
+      document.getElementById('messageModal').classList.add('active');
+    }
+
+    function toggleReply() {
+      const sec = document.getElementById('replySection');
+      sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function sendReply() {
+      const reply = document.getElementById('replyText').value.trim();
+      if (!reply) { showToast('Escribe una respuesta', 'error'); return; }
+      try {
+        await API.admin.replyMessage(viewingMsgId, reply);
+        const m = messages.find(x => x.id === viewingMsgId);
+        if (m) m.reply = reply;
+        showToast('Respuesta enviada', 'success');
+        document.getElementById('replySection').style.display = 'block';
+        document.getElementById('replyText').disabled = true;
+      } catch (e) { showToast(e.error || 'Error al enviar respuesta', 'error'); }
+    }
+
+    async function markRead(id) {
+      try {
+        await API.admin.markRead(id);
+        const m = messages.find(x => x.id === id);
+        if (m) m.is_read = 1;
+        renderMessages();
+        showToast('Mensaje marcado como leído', 'success');
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    async function deleteMessage(id) {
+      if (!(await showConfirm('¿Eliminar este mensaje?'))) return;
+      try {
+        await API.admin.deleteMessage(id);
+        messages = messages.filter(m => m.id !== id);
+        renderMessages();
+        showToast('Mensaje eliminado', 'success');
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    function closeModal() { document.getElementById('messageModal').classList.remove('active'); }
+    function showToast(msg, type) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+</html>
