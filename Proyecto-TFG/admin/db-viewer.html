@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor BD - Admin</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .table-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .table-selector button { padding: 10px 20px; border: 2px solid #6a11cb; background: white; border-radius: 8px; cursor: pointer; font-weight: 600; color: #6a11cb; transition: all 0.2s; }
+    .table-selector button.active, .table-selector button:hover { background: #6a11cb; color: white; }
+    .data-table { overflow-x: auto; }
+    .data-table table { min-width: 600px; }
+    .count-badge { background: #e8d5ff; color: #6a11cb; padding: 2px 10px; border-radius: 12px; font-size: 14px; margin-left: 8px; }
+    .password-cell { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 12px; color: #888; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>📊 Admin</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a href="users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+        <a href="courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+        <a href="teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+        <a href="schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+        <a href="messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+        <a href="announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+        <a href="events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+        <a href="orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+        <a href="db-viewer.html" class="active"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="content-header">
+        <h1>🗄️ Visor de Base de Datos</h1>
+        <div id="userInfo"></div>
+      </header>
+
+      <div class="table-selector" id="tableSelector"></div>
+
+      <div class="card" id="tableContainer">
+        <div id="tableContent">
+          <p style="text-align:center;color:#888;padding:40px">Selecciona una tabla para ver sus datos</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+  <script>
+    (async () => {
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../login.html'; return; }
+      document.getElementById('userInfo').textContent = `👋 ${user.username} (Admin)`;
+
+      const TABLES = [
+        { name: 'users', label: 'Usuarios' },
+        { name: 'courses', label: 'Cursos' },
+        { name: 'contact_messages', label: 'Mensajes' },
+        { name: 'announcements', label: 'Anuncios' },
+        { name: 'events', label: 'Eventos' },
+        { name: 'enrollments', label: 'Matrículas' },
+        { name: 'schedules', label: 'Horarios' },
+        { name: 'teachers', label: 'Profesores' }
+      ];
+      const selector = document.getElementById('tableSelector');
+
+      TABLES.forEach(t => {
+        const btn = document.createElement('button');
+        btn.textContent = t.label;
+        btn.dataset.table = t.name;
+        btn.onclick = () => loadTable(t.name, btn);
+        selector.appendChild(btn);
+      });
+
+      async function loadTable(tableName, btn) {
+        document.querySelectorAll('.table-selector button').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        document.getElementById('tableContent').innerHTML = '<p style="text-align:center;color:#888;padding:20px">Cargando...</p>';
+
+        try {
+          const data = await API.admin.getAll(tableName);
+          const container = document.getElementById('tableContent');
+
+          if (!data || data.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#888;padding:40px">No hay datos en esta tabla</p>';
+            return;
+          }
+
+          const keys = Object.keys(data[0]);
+          let html = `<p style="margin-bottom:10px;color:#666">Total: <strong>${data.length}</strong> registros</p>`;
+          html += '<div class="data-table"><table><thead><tr>';
+          keys.forEach(k => { html += `<th>${k}</th>`; });
+          html += '</tr></thead><tbody>';
+          data.forEach(row => {
+            html += '<tr>';
+            keys.forEach(k => {
+              let val = row[k];
+              if (val === null || val === undefined) val = '—';
+              if (k === 'password') val = `<span class="password-cell">${val.substring(0, 20)}...</span>`;
+              if (k.endsWith('_at') || k === 'fecha_registro') val = formatDate(val);
+              html += `<td>${val}</td>`;
+            });
+            html += '</tr>';
+          });
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } catch (err) {
+          document.getElementById('tableContent').innerHTML = `<p style="color:#e74c3c;padding:20px">Error: ${err.message}</p>`;
+        }
+      }
+
+      loadTable('users', document.querySelector('.table-selector button:first-child'));
+    })();
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+</html>
