@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: academia-loranca
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    volumes:
+      - academia-data:/app/backend
+
+volumes:
+  academia-data:
