@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contactanos</title>
+    <link rel="shortcut icon" href="./imagenes/logo.png" type="/imagenes/logo.png">
+    <link rel="stylesheet" href="./parte-css/contactos.css">
+    <link rel="stylesheet" href="./parte-css/index.css">
+    <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+    <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+    <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
+    <script type="module" src="./parte-logica/Componentes/lector-pagina.js"></script>
+    <script src="./parte-logica/contador.js" defer></script>
+</head>
+
+<body>
+    <!--Encabezado-->
+    <header-componente></header-componente>
+    <lector-pagina></lector-pagina>
+    <whatsapp-componente></whatsapp-componente>
+    <main>
+        <div class="form-cont">
+            <div class="contacto-info">
+                <h1 class="info-titulo">
+                    Ponte en contacto con nuestra academia en Loranca para
+                    <span class="subrayado-amarillo">reservar la plaza de tu hijo/a</span>
+                </h1>
+
+                <div class="info-cuerpo">
+                    <p>Somos una academia en <strong>Loranca (Madrid)</strong>, creada con la ilusión de
+                        ofrecer un apoyo educativo cercano, personalizado y de calidad.</p>
+
+                    <p>Disponemos de <strong>grupos reducidos</strong> de máximo <strong>8 alumnos</strong> adaptados a
+                        todos los niveles, desde <strong>Primaria hasta Bachillerato</strong>, lo que nos permite atender de
+                        forma individual las necesidades de cada alumno.</p>
+
+                    <p>Ofrecemos refuerzo escolar general, preparación de exámenes, técnicas de estudio y apoyo en
+                        asignaturas específicas, con seguimiento continuo y comunicación directa con las familias.</p>
+
+                    <p>Si quieres asegurar una formación de calidad y mejorar sus resultados académicos, consulta nuestras
+                        plazas disponibles.</p>
+
+                <p class="destacado">
+                    Llámanos o escríbenos un mensaje ahora mismo para informarte sobre metodología y
+                    horarios.
+                    ¡Te esperamos para empezar a trabajar juntos en su futuro!
+                </p>
+            </div>
+
+            <div class="info-detalles">
+                <div class="detalle-item">
+                    📍 <a
+                        href="https://maps.app.goo.gl/qMmnxELKV5qWs9Aj9"
+                        target="_blank" rel="noopener">
+                       C. de la Alegria, 4, Local 37, 28942 Fuenlabrada, Madrid
+                    </a>
+                </div>
+                <div class="detalle-item">
+                    <a href="tel:+34652081700" class="boton-telefono1"><span>📞 +34 652 08 17 00</span><br><span>(Isabel: Primaria y 1º ESO)</span></a><br>
+                    <a href="tel:+34665927240" class="boton-telefono2"><span>📞 +34 665 92 72 40</span><br><span>(Laura: 2º- 4º ESO y Bachillerato)</span></a>
+                </div>
+            </div>
+        </div>
+
+            <form id="formulario-interactivo" class="formulario-responsivo" action="https://formspree.io/f/xwvwdbln" method="POST">
+
+                <h2 class="titulo-animado">Formulario de Contacto</h2>
+
+                <div class="grupo-campo">
+                    <label for="nombre-completo">Nombre completo:</label>
+                    <input type="text" id="nombre-completo" name="Nombre Completo" minlength="3" maxlength="50" required
+                        placeholder="Escribe tu nombre" autocomplete="off" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+">
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="correo-electronico">Correo electrónico:</label>
+                    <input type="email" id="correo-electronico" name="Correo" required placeholder="ejemplo@gmail.com" autocomplete="off" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$">
+                </div>
+
+                <div class="fila-formulario">
+
+                    <div class="grupo-campo">
+                        <label for="curso-usuario">Curso Escolar:</label>
+                        <select name="Curso" id="curso-usuario" required autocomplete="off">
+                            <option value="" disabled selected>Escoge un curso</option>
+                            <option value="Primaria">Primaria</option>
+                            <option value="1ºESO">1ºESO</option>
+                            <option value="2ºESO - 4ºESO">2ºESO - 4ºESO</option>
+                            <option value="Bachillerato">Bachillerato</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="fila-formulario">
+
+                    <div class="grupo-campo">
+                        <label for="telefono-contacto">Teléfono (9 dígitos):</label>
+                        <input type="tel" id="telefono-contacto" name="Telefono" pattern="[0-9]{9}" required
+                            placeholder="600123456" autocomplete="off" pattern="[0-9]+">
+                    </div>
+
+                </div>
+
+                <div class="grupo-campo">
+                    <label for="mensaje-adicional">Breve Mensaje (máx 200 caracteres):</label>
+                    <textarea id="mensaje-adicional" name="Mensaje" maxlength="200" rows="4" autocomplete="off"></textarea>
+                    <small class="contador-texto"><span id="contador">0</span> / 200 </small>
+                </div>
+
+                <div class="grupo-campo-checkbox">
+                    <label>
+                        <input type="checkbox" id="aceptar-condiciones" name="Condiciones" required autocomplete="off">
+                        Acepto los términos y condiciones
+                    </label>
+                </div>
+
+                <button type="submit" class="boton-enviar">Enviar Formulario</button>
+
+
+            </form>
+        </div>
+    </main>
+
+    <footer-componente></footer-componente>
+
+</body>
+
+</html>
