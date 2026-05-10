@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anuncios - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html" class="active"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Anuncios</h1>
+        <div class="breadcrumb">Admin / <span>Anuncios</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">📢</span> Gesti&oacute;n de anuncios</h2>
+        <div class="card-toolbar">
+          <button class="btn-primary" onclick="openCreate()">+ Nuevo anuncio</button>
+        </div>
+      </div>
+      <div id="announcementsTable"><div class="loading"><div class="spinner"></div>Cargando anuncios...</div></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="announcementModal">
+    <div class="modal">
+      <h2 id="modalTitle">➕ Nuevo anuncio</h2>
+      <div class="field"><label>T&iacute;tulo</label><input type="text" id="editTitle" placeholder="T&iacute;tulo del anuncio"></div>
+      <div class="field"><label>Contenido</label><textarea id="editContent" rows="5" placeholder="Escribe el contenido del anuncio..."></textarea></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save" id="saveBtn" onclick="saveAnnouncement()">Publicar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let announcements = [];
+    let editingId = null;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+      await load();
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    async function load() {
+      try {
+        const data = await API.admin.getAnnouncements();
+        announcements = data.announcements;
+        render();
+      } catch (e) { showToast('Error al cargar', 'error'); }
+    }
+
+    function render() {
+      const div = document.getElementById('announcementsTable');
+      if (announcements.length === 0) {
+        div.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><p>No hay anuncios. Crea el primero.</p></div>';
+        return;
+      }
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>T&iacute;tulo</th><th>Contenido</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
+        announcements.map(a => `
+          <tr>
+            <td><span class="cell-id">#${a.id}</span></td>
+            <td><span class="cell-name">${a.title}</span></td>
+            <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b">${a.content || '—'}</td>
+            <td>${new Date(a.created_at).toLocaleDateString('es-ES')}</td>
+            <td class="actions">
+              <button class="btn-edit btn-icon" onclick="openEdit(${a.id})" title="Editar">✏️</button>
+              <button class="btn-delete btn-icon" onclick="deleteAnn(${a.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('') + '</tbody></table></div>';
+    }
+
+    function openCreate() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '➕ Nuevo anuncio';
+      document.getElementById('saveBtn').textContent = 'Publicar';
+      document.getElementById('editTitle').value = '';
+      document.getElementById('editContent').value = '';
+      document.getElementById('announcementModal').classList.add('active');
+    }
+
+    function openEdit(id) {
+      const a = announcements.find(x => x.id === id); if (!a) return;
+      editingId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Editar anuncio';
+      document.getElementById('saveBtn').textContent = 'Guardar cambios';
+      document.getElementById('editTitle').value = a.title;
+      document.getElementById('editContent').value = a.content || '';
+      document.getElementById('announcementModal').classList.add('active');
+    }
+
+    async function saveAnnouncement() {
+      const data = {
+        title: document.getElementById('editTitle').value,
+        content: document.getElementById('editContent').value
+      };
+      if (!data.title) { showToast('El t&iacute;tulo es obligatorio', 'error'); return; }
+      try {
+        if (editingId) {
+          const res = await API.admin.updateAnnouncement(editingId, data);
+          const idx = announcements.findIndex(a => a.id === editingId);
+          if (idx >= 0) announcements[idx] = res.announcement;
+          showToast('Anuncio actualizado', 'success');
+        } else {
+          const res = await API.admin.createAnnouncement(data);
+          announcements.unshift(res.announcement);
+          showToast('Anuncio publicado', 'success');
+        }
+        render();
+        closeModal();
+      } catch (e) { showToast(e.error || 'Error', 'error'); }
+    }
+
+    async function deleteAnn(id) {
+      if (!confirm('¿Eliminar este anuncio?')) return;
+      try {
+        await API.admin.deleteAnnouncement(id);
+        announcements = announcements.filter(a => a.id !== id);
+        render();
+        showToast('Anuncio eliminado', 'success');
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    function closeModal() { document.getElementById('announcementModal').classList.remove('active'); editingId = null; }
+    function showToast(msg, type) {
+      const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión - Academia Loranca</title>
+  <link rel="shortcut icon" href="./imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="./parte-css/index.css">
+  <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
+  <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
+  <script src="./parte-logica/api.js"></script>
+  <style>
+    .auth-page {
+      min-height: 80vh; display: flex; align-items: center; justify-content: center;
+      padding: 60px 20px; background: #f8faff;
+    }
+    .auth-card {
+      background: #ffffff; border-radius: 24px; padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+      text-align: center; border: 1px solid rgba(59,130,246,0.08);
+    }
+    .auth-logo { width: 80px; margin-bottom: 16px; }
+    .auth-card h1 {
+      font-size: 26px; color: #1e293b; margin-bottom: 4px; font-weight: 800;
+    }
+    .auth-sub { color: #64748b; font-size: 14px; margin-bottom: 28px; }
+    .auth-error {
+      background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 10px;
+      font-size: 14px; margin-bottom: 20px; border: 1px solid #fecaca; text-align: left;
+    }
+    .auth-form { display: flex; flex-direction: column; gap: 18px; text-align: left; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-weight: 600; font-size: 13px; color: #1e293b; }
+    .field input {
+      padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
+      font-size: 15px; background: #f8fafc; color: #1e293b;
+      transition: border-color 0.3s, box-shadow 0.3s; outline: none;
+    }
+    .field input:focus {
+      border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); background: #fff;
+    }
+    .btn-auth {
+      padding: 14px; margin-top: 6px;
+      background: linear-gradient(60deg, #2f3f95, #000c8c);
+      color: white; border: none; border-radius: 50px; font-weight: 700;
+      font-size: 16px; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 8px 25px rgba(47,63,149,0.35);
+    }
+    .btn-auth:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(47,63,149,0.45); }
+    .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+    .auth-footer p { font-size: 14px; color: #64748b; }
+    .auth-footer a { color: #2563eb; font-weight: 600; text-decoration: none; }
+    .auth-footer a:hover { text-decoration: underline; }
+    .auth-footer small { display: block; margin-top: 8px; color: #94a3b8; font-size: 12px; }
+    @media (max-width: 480px) {
+      .auth-card { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header-componente></header-componente>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <img src="./imagenes/logo.png" alt="Academia Loranca" class="auth-logo">
+      <h1>Iniciar Sesión</h1>
+      <p class="auth-sub">Accede a tu panel personalizado</p>
+      <div id="authError" class="auth-error" style="display:none"></div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="field">
+          <label>Usuario o Email</label>
+          <input type="text" id="username" name="username" required autocomplete="username" placeholder="Tu usuario o email">
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Tu contraseña">
+        </div>
+        <button type="submit" class="btn-auth" id="submitBtn">Entrar</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>¿No tienes cuenta? <a href="./register.html">Regístrate</a></p>
+        <small>Admin: admin / admin123</small>
+      </div>
+    </div>
+  </main>
+
+  <footer-componente></footer-componente>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errDiv = document.getElementById('authError');
+      btn.disabled = true; btn.textContent = 'Entrando...';
+      errDiv.style.display = 'none';
+
+      try {
+        const data = await API.login(
+          document.getElementById('username').value,
+          document.getElementById('password').value
+        );
+        API.setSession(data);
+        window.location.href = data.user.role === 'admin' ? './admin/dashboard.html' : './panel.html';
+      } catch (err) {
+        errDiv.textContent = err.error || 'Error al iniciar sesión';
+        errDiv.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

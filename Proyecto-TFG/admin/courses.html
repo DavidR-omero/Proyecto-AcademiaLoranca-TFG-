@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursos - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html" class="active"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Cursos</h1>
+        <div class="breadcrumb">Admin / <span>Cursos</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">📚</span> Gesti&oacute;n de cursos</h2>
+        <div class="card-toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar curso..." oninput="renderCourses()">
+          </div>
+          <button class="btn-primary" onclick="openCreate()">+ Nuevo curso</button>
+        </div>
+      </div>
+      <div id="coursesTable"><div class="loading"><div class="spinner"></div>Cargando cursos...</div></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="courseModal">
+    <div class="modal">
+      <h2>➕ Nuevo curso</h2>
+      <div class="field"><label>Nombre del curso</label><input type="text" id="editName" placeholder="Ej: Refuerzo Integral - Grupo 1"></div>
+      <div class="field"><label>Descripci&oacute;n</label><textarea id="editDescription" rows="3" placeholder="Descripci&oacute;n del curso"></textarea></div>
+      <div class="field"><label>Profesor</label><input type="text" id="editTeacher" placeholder="Nombre del profesor"></div>
+      <div class="field"><label>Horario</label><input type="text" id="editSchedule" placeholder="Ej: Lunes a Jueves 15:00-20:00"></div>
+      <div class="field"><label>M&aacute;ximo de alumnos</label><input type="number" id="editMaxStudents" value="8" min="1"></div>
+      <div class="field"><label>Color identificativo</label><input type="color" id="editColor" value="#2a17cf"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save" id="saveCourseBtn" onclick="saveCourse()">Guardar curso</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let courses = [];
+    let editingId = null;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+      await loadCourses();
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    async function loadCourses() {
+      try {
+        const data = await API.admin.getCourses();
+        courses = data.courses;
+        renderCourses();
+      } catch (e) { showToast('Error al cargar cursos', 'error'); }
+    }
+
+    function renderCourses() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = courses.filter(c => c.name.toLowerCase().includes(q));
+      const div = document.getElementById('coursesTable');
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">📚</div><p>No hay cursos</p></div>'; return; }
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Curso</th><th>Profesor</th><th>Horario</th><th>Plazas</th><th>Acciones</th></tr></thead><tbody>' +
+        filtered.map(c => `
+          <tr>
+            <td><span class="cell-id">#${c.id}</span></td>
+            <td><span class="cell-name" style="color:${c.color || '#2a17cf'}">${c.name}</span></td>
+            <td>${c.teacher || '—'}</td>
+            <td>${c.schedule || '—'}</td>
+            <td>${c.max_students || 8} plazas</td>
+            <td class="actions">
+              <button class="btn-edit btn-icon" onclick="openEdit(${c.id})" title="Editar">✏️</button>
+              <button class="btn-delete btn-icon" onclick="deleteCourse(${c.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `).join('') + '</tbody></table></div>';
+    }
+
+    function openCreate() {
+      editingId = null;
+      document.querySelector('#courseModal h2').textContent = '➕ Nuevo curso';
+      document.getElementById('saveCourseBtn').textContent = 'Guardar curso';
+      ['editName','editDescription','editTeacher','editSchedule'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('editMaxStudents').value = 8;
+      document.getElementById('editColor').value = '#2a17cf';
+      document.getElementById('courseModal').classList.add('active');
+    }
+
+    function openEdit(id) {
+      const c = courses.find(x => x.id === id); if (!c) return;
+      editingId = id;
+      document.querySelector('#courseModal h2').textContent = '✏️ Editar curso';
+      document.getElementById('saveCourseBtn').textContent = 'Guardar cambios';
+      document.getElementById('editName').value = c.name;
+      document.getElementById('editDescription').value = c.description || '';
+      document.getElementById('editTeacher').value = c.teacher || '';
+      document.getElementById('editSchedule').value = c.schedule || '';
+      document.getElementById('editMaxStudents').value = c.max_students || 8;
+      document.getElementById('editColor').value = c.color || '#2a17cf';
+      document.getElementById('courseModal').classList.add('active');
+    }
+
+    async function saveCourse() {
+      const data = {
+        name: document.getElementById('editName').value,
+        description: document.getElementById('editDescription').value,
+        teacher: document.getElementById('editTeacher').value,
+        schedule: document.getElementById('editSchedule').value,
+        max_students: parseInt(document.getElementById('editMaxStudents').value) || 8,
+        color: document.getElementById('editColor').value
+      };
+      if (!data.name) { showToast('El nombre del curso es obligatorio', 'error'); return; }
+      try {
+        if (editingId) {
+          const res = await API.admin.updateCourse(editingId, data);
+          const idx = courses.findIndex(c => c.id === editingId);
+          if (idx >= 0) courses[idx] = res.course;
+          showToast('Curso actualizado correctamente', 'success');
+        } else {
+          const res = await API.admin.createCourse(data);
+          courses.push(res.course);
+          showToast('Curso creado correctamente', 'success');
+        }
+        renderCourses();
+        closeModal();
+      } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
+    }
+
+    async function deleteCourse(id) {
+      if (!confirm('¿Eliminar este curso definitivamente?')) return;
+      try {
+        await API.admin.deleteCourse(id);
+        courses = courses.filter(c => c.id !== id);
+        renderCourses();
+        showToast('Curso eliminado', 'success');
+      } catch (e) { showToast(e.error || 'Error', 'error'); }
+    }
+
+    function closeModal() { document.getElementById('courseModal').classList.remove('active'); editingId = null; }
+    function showToast(msg, type) {
+      const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+</body>
+</html>

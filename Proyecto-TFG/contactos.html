@@ -12,6 +12,7 @@
     <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
     <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
     <script type="module" src="./parte-logica/Componentes/lector-pagina.js"></script>
+    <script src="./parte-logica/api.js"></script>
     <script src="./parte-logica/contador.js" defer></script>
 </head>
 
@@ -64,9 +65,11 @@
             </div>
         </div>
 
-            <form id="formulario-interactivo" class="formulario-responsivo" action="https://formspree.io/f/xwvwdbln" method="POST">
+            <form id="formulario-interactivo" class="formulario-responsivo">
 
                 <h2 class="titulo-animado">Formulario de Contacto</h2>
+
+                <div id="contactMsg" style="display:none;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px"></div>
 
                 <div class="grupo-campo">
                     <label for="nombre-completo">Nombre completo:</label>
@@ -99,7 +102,7 @@
                     <div class="grupo-campo">
                         <label for="telefono-contacto">Teléfono (9 dígitos):</label>
                         <input type="tel" id="telefono-contacto" name="Telefono" pattern="[0-9]{9}" required
-                            placeholder="600123456" autocomplete="off" pattern="[0-9]+">
+                            placeholder="600123456" autocomplete="off">
                     </div>
 
                 </div>
@@ -117,14 +120,41 @@
                     </label>
                 </div>
 
-                <button type="submit" class="boton-enviar">Enviar Formulario</button>
-
+                <button type="submit" class="boton-enviar" id="contactSubmitBtn">Enviar Formulario</button>
 
             </form>
         </div>
     </main>
 
     <footer-componente></footer-componente>
+
+  <script>
+    document.getElementById('formulario-interactivo').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('contactSubmitBtn');
+      const msg = document.getElementById('contactMsg');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+      msg.style.display = 'none';
+
+      try {
+        await API.sendContact({
+          name: document.getElementById('nombre-completo').value,
+          email: document.getElementById('correo-electronico').value,
+          course_level: document.getElementById('curso-usuario').value,
+          phone: document.getElementById('telefono-contacto').value,
+          message: document.getElementById('mensaje-adicional').value
+        });
+        msg.style.cssText = 'display:block;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0';
+        msg.textContent = 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.';
+        document.getElementById('formulario-interactivo').reset();
+        document.getElementById('contador').textContent = '0';
+      } catch (err) {
+        msg.style.cssText = 'display:block;padding:12px;border-radius:10px;margin-bottom:16px;font-size:14px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca';
+        msg.textContent = err.error || 'Error al enviar el mensaje. Inténtalo de nuevo.';
+      }
+      btn.disabled = false; btn.textContent = 'Enviar Formulario';
+    });
+  </script>
 
 </body>
 

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html" class="active"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Dashboard</h1>
+        <div class="breadcrumb">Admin / <span>Dashboard</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-card">
+      <h2>Bienvenido al panel de administración</h2>
+      <p>Desde aquí puedes gestionar usuarios, cursos y los mensajes recibidos del formulario de contacto de Academia Loranca.</p>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon blue">👥</div></div>
+        <div class="number" id="statUsers">-</div>
+        <div class="label">Usuarios registrados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon purple">📚</div></div>
+        <div class="number" id="statCourses">-</div>
+        <div class="label">Cursos activos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon green">✉️</div></div>
+        <div class="number" id="statMessages">-</div>
+        <div class="label">Mensajes recibidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon orange">🔴</div></div>
+        <div class="number" id="statUnread">-</div>
+        <div class="label">Mensajes sin leer</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon blue">📢</div></div>
+        <div class="number" id="statAnnouncements">-</div>
+        <div class="label">Anuncios</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-top"><div class="stat-icon purple">📅</div></div>
+        <div class="number" id="statEvents">-</div>
+        <div class="label">Eventos</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+
+      try {
+        const { stats } = await API.admin.getStats();
+        document.getElementById('statUsers').textContent = stats.users;
+        document.getElementById('statCourses').textContent = stats.courses;
+        document.getElementById('statMessages').textContent = stats.messages;
+        document.getElementById('statUnread').textContent = stats.unread;
+        document.getElementById('statAnnouncements').textContent = stats.announcements || 0;
+        document.getElementById('statEvents').textContent = stats.events || 0;
+      } catch (e) { console.error(e); }
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+  </script>
+</body>
+</html>

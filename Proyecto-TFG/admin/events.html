@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventos - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html" class="active"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Eventos</h1>
+        <div class="breadcrumb">Admin / <span>Calendario y fechas</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">📅</span> Calendario de eventos</h2>
+        <div class="card-toolbar">
+          <button class="btn-primary" onclick="openCreate()">+ Nuevo evento</button>
+        </div>
+      </div>
+      <div id="eventsTable"><div class="loading"><div class="spinner"></div>Cargando eventos...</div></div>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="eventModal">
+    <div class="modal">
+      <h2 id="modalTitle">➕ Nuevo evento</h2>
+      <div class="field"><label>Título</label><input type="text" id="editTitle" placeholder="Ej: Exámenes finales"></div>
+      <div class="field"><label>Descripción</label><textarea id="editDescription" rows="3" placeholder="Descripción del evento"></textarea></div>
+      <div class="field"><label>Fecha</label><input type="date" id="editDate"></div>
+      <div class="field"><label>Hora (opcional)</label><input type="time" id="editTime"></div>
+      <div class="field"><label>Color</label><input type="color" id="editColor" value="#2a17cf"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-save" id="saveBtn" onclick="saveEvent()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let events = [];
+    let editingId = null;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+      await load();
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    async function load() {
+      try {
+        const data = await API.admin.getEvents();
+        events = data.events;
+        render();
+      } catch (e) { showToast('Error al cargar', 'error'); }
+    }
+
+    function render() {
+      const div = document.getElementById('eventsTable');
+      if (events.length === 0) {
+        div.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No hay eventos. Añade el primero.</p></div>';
+        return;
+      }
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Evento</th><th>Fecha</th><th>Hora</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>' +
+        events.map(e => {
+          const isPast = e.event_date < todayStr;
+          return `
+          <tr style="${isPast ? 'opacity:0.6' : ''}">
+            <td><span class="cell-id">#${e.id}</span></td>
+            <td><span class="cell-name" style="color:${e.color || '#2a17cf'}">${e.title}</span></td>
+            <td>${new Date(e.event_date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</td>
+            <td>${e.event_time || '—'}</td>
+            <td><span class="badge ${isPast ? 'badge-read' : 'badge-unread'}">${isPast ? 'Pasado' : 'Próximo'}</span></td>
+            <td class="actions">
+              <button class="btn-edit btn-icon" onclick="openEdit(${e.id})" title="Editar">✏️</button>
+              <button class="btn-delete btn-icon" onclick="deleteEvent(${e.id})" title="Eliminar">🗑️</button>
+            </td>
+          </tr>`;
+        }).join('') + '</tbody></table></div>';
+    }
+
+    function openCreate() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '➕ Nuevo evento';
+      document.getElementById('saveBtn').textContent = 'Guardar';
+      document.getElementById('editTitle').value = '';
+      document.getElementById('editDescription').value = '';
+      document.getElementById('editDate').value = '';
+      document.getElementById('editTime').value = '';
+      document.getElementById('editColor').value = '#2a17cf';
+      document.getElementById('eventModal').classList.add('active');
+    }
+
+    function openEdit(id) {
+      const e = events.find(x => x.id === id); if (!e) return;
+      editingId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Editar evento';
+      document.getElementById('saveBtn').textContent = 'Guardar cambios';
+      document.getElementById('editTitle').value = e.title;
+      document.getElementById('editDescription').value = e.description || '';
+      document.getElementById('editDate').value = e.event_date;
+      document.getElementById('editTime').value = e.event_time || '';
+      document.getElementById('editColor').value = e.color || '#2a17cf';
+      document.getElementById('eventModal').classList.add('active');
+    }
+
+    async function saveEvent() {
+      const data = {
+        title: document.getElementById('editTitle').value,
+        description: document.getElementById('editDescription').value,
+        event_date: document.getElementById('editDate').value,
+        event_time: document.getElementById('editTime').value,
+        color: document.getElementById('editColor').value
+      };
+      if (!data.title || !data.event_date) { showToast('Título y fecha son obligatorios', 'error'); return; }
+      try {
+        if (editingId) {
+          const res = await API.admin.updateEvent(editingId, data);
+          const idx = events.findIndex(x => x.id === editingId);
+          if (idx >= 0) events[idx] = res.event;
+          showToast('Evento actualizado', 'success');
+        } else {
+          const res = await API.admin.createEvent(data);
+          events.push(res.event);
+          showToast('Evento creado', 'success');
+        }
+        render();
+        closeModal();
+      } catch (e) { showToast(e.error || 'Error', 'error'); }
+    }
+
+    async function deleteEvent(id) {
+      if (!confirm('¿Eliminar este evento?')) return;
+      try {
+        await API.admin.deleteEvent(id);
+        events = events.filter(e => e.id !== id);
+        render();
+        showToast('Evento eliminado', 'success');
+      } catch (e) { showToast('Error', 'error'); }
+    }
+
+    function closeModal() { document.getElementById('eventModal').classList.remove('active'); editingId = null; }
+    function showToast(msg, type) {
+      const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
+    }
+  </script>
+</body>
+</html>
