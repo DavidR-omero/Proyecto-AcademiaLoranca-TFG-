@@ -1,4 +1,3 @@
 node_modules/
-backend/database.sqlite
-backend/tests/test.sqlite
+*.sqlite
 *.log
