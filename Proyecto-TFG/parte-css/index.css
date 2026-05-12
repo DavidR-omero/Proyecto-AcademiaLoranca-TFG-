@@ -1,7 +1,124 @@
+:root {
+  --bg-body: #ffffff;
+  --bg-card: #ffffff;
+  --bg-section: #f8faff;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 4px 20px rgba(0,0,0,0.03);
+  --shadow-md: 0 8px 30px rgba(0,0,0,0.06);
+}
+[data-theme="dark"] {
+  --bg-body: #0b1324;
+  --bg-card: #1a2332;
+  --bg-section: #131d2b;
+  --text-primary: #e8edf5;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #2a3a4a;
+  --shadow-sm: 0 4px 20px rgba(0,0,0,0.3);
+  --shadow-md: 0 8px 30px rgba(0,0,0,0.4);
+}
+[data-theme="dark"] body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+}
+
+/* fondo de secciones */
+[data-theme="dark"] .sobre-nosotros { background: var(--bg-section); }
+[data-theme="dark"] .servicios { background: var(--bg-section); }
+[data-theme="dark"] .asignaturas { background: var(--bg-body); }
+[data-theme="dark"] .metodologia { background: var(--bg-body); }
+[data-theme="dark"] .beneficios { background: var(--bg-section); }
+[data-theme="dark"] .profesores-section { background: var(--bg-section); }
+[data-theme="dark"] .niveles { background: transparent; }
+[data-theme="dark"] .niveles::before { background: rgba(59,130,246,0.05); opacity: 1; }
+[data-theme="dark"] .nivelesTitulo { color: var(--text-primary); }
+[data-theme="dark"] .ubicacion { background: transparent; }
+
+/* cards */
+[data-theme="dark"] .valor-card,
+[data-theme="dark"] .asignatura-card,
+[data-theme="dark"] .nivel-card,
+[data-theme="dark"] .profesor-card,
+[data-theme="dark"] .beneficios-lista li { background: var(--bg-card); box-shadow: var(--shadow-sm); }
+[data-theme="dark"] .nivel-img { background: var(--bg-card); }
+[data-theme="dark"] .metodologia-item { background: var(--bg-card); border-radius: 20px; padding: 24px; }
+
+/* cta-box (carrusel) */
+[data-theme="dark"] .cta-box { background: rgba(15, 23, 42, 0.95); border-color: var(--border-color); }
+[data-theme="dark"] .cta-box h3 { color: #93c5fd; }
+[data-theme="dark"] .cta-box p { color: var(--text-secondary); }
+
+/* carrusel buttons */
+[data-theme="dark"] .carrusel .btn,
+[data-theme="dark"] .btn.left,
+[data-theme="dark"] .btn.right { background: rgba(30, 41, 59, 0.85); color: #e8edf5; }
+[data-theme="dark"] .carrusel .btn:hover { background: rgba(30, 41, 59, 0.95); }
+
+/* hero */
+[data-theme="dark"] .hero-academia::after { background: var(--bg-body); }
+
+/* section separators */
+[data-theme="dark"] section::after { background: rgba(255,255,255,0.03); }
+
+/* textos principales */
+[data-theme="dark"] .sobre-nosotros h2,
+[data-theme="dark"] .sobre-nosotros .experiencia,
+[data-theme="dark"] .servicios h2,
+[data-theme="dark"] .asignaturas h2,
+[data-theme="dark"] .metodologia h2,
+[data-theme="dark"] .metodologia h2,
+[data-theme="dark"] .beneficios h2,
+[data-theme="dark"] .profesores-section h2,
+[data-theme="dark"] .nivel-content h3,
+[data-theme="dark"] .ubicacion h2 { color: var(--text-primary); }
+
+/* textos secundarios */
+[data-theme="dark"] .sobre-nosotros .intro { color: var(--text-secondary); }
+[data-theme="dark"] .valor-card p,
+[data-theme="dark"] .asignatura-card p,
+[data-theme="dark"] .nivel-card p,
+[data-theme="dark"] .profesor-card p { color: var(--text-secondary); }
+[data-theme="dark"] .beneficios-lista li { color: var(--text-primary); }
+
+/* textos azules (headings de cards) */
+[data-theme="dark"] .valor-card h3,
+[data-theme="dark"] .asignatura-card h3,
+[data-theme="dark"] .servicio-text h3,
+[data-theme="dark"] .metodo-text h3 { color: #93c5fd; }
+
+/* listas azules en servicios y metodología */
+[data-theme="dark"] .servicio-text ul li,
+[data-theme="dark"] .metodo-text ul li { color: #93c5fd; }
+
+/* párrafos en servicios y metodología */
+[data-theme="dark"] .servicio-text p,
+[data-theme="dark"] .metodo-text p,
+[data-theme="dark"] .sobre-nosotros .experiencia { color: var(--text-secondary); }
+
+/* profesor */
+[data-theme="dark"] .profesor-card h3 { color: var(--text-primary); }
+[data-theme="dark"] .profesor-badge { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .profesor-card:hover { border-color: rgba(59,130,246,0.2); }
+
+/* beneficios hover */
+[data-theme="dark"] .beneficios-lista li:hover { background: var(--bg-section); border-left-color: #93c5fd; }
+
+/* inscripcion (gradient - keep it) */
+[data-theme="dark"] .inscripcion p { color: rgba(255,255,255,0.9); }
+
+/* skeleton compatibility */
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+  background-size: 200% 100%;
+}
+
 * {
     margin: 0;
     padding: 0;
-    transition: all 0.25s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 header {
@@ -1415,3 +1532,255 @@ img {
             transform: translateY(0);
         }
     }
+
+/* ===== ESTADÍSTICAS ===== */
+.stats-section {
+    background: linear-gradient(135deg, #2a17cf, #00d5ff);
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;
+}
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+.stat-item {
+    text-align: center;
+    color: white;
+    padding: 20px 10px;
+}
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    display: inline;
+    line-height: 1.1;
+}
+.stat-plus {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-left: 2px;
+    opacity: 0.8;
+}
+.stat-label {
+    display: block;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    opacity: 0.85;
+    font-weight: 500;
+}
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .stat-number { font-size: 2.2rem; }
+}
+@media (max-width: 480px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    .stat-number { font-size: 1.8rem; }
+}
+
+/* ===== PROFESORES ===== */
+.profesores-section {
+    padding: 70px 20px;
+    background: #f8faff;
+}
+.profesores-section h2 {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 50px;
+}
+.profesores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 30px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.profesor-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    border: 1px solid rgba(59,130,246,0.06);
+    transition: 0.3s;
+}
+.profesor-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(42,23,207,0.08);
+    border-color: #c7d2fe;
+}
+.profesor-avatar {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+}
+.profesor-card h3 {
+    font-size: 1.15rem;
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.profesor-card p {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+.profesor-badge {
+    display: inline-block;
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* NEWS SECTION */
+.news-section {
+    padding: 80px 0;
+    background: var(--bg-section);
+}
+.news-section h2 {
+    text-align: center;
+    font-size: 2.4rem;
+    margin-bottom: 50px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.news-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.news-col h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+.news-item {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: 0.3s;
+}
+.news-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.news-item .ni-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.news-item .ni-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.news-item .ni-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.news-empty {
+    color: var(--text-muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 30px;
+}
+@media (max-width: 768px) {
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.news-item.clickable { cursor: pointer; }
+.news-item.clickable:hover .ni-title { color: #2a17cf; }
+
+/* NEWS MODAL */
+.news-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+.news-modal-overlay.active { display: flex; }
+.news-modal {
+    background: var(--bg-card);
+    border-radius: 24px;
+    padding: 36px 40px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    position: relative;
+    animation: modalFade 0.3s ease;
+}
+.news-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: 0.2s;
+    line-height: 1;
+}
+.news-modal-close:hover { transform: scale(1.2); color: var(--text-primary); }
+.nm-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+.nm-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+.nm-date {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+.nm-body {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+@keyframes modalFade {
+    from { opacity: 0; transform: translateY(30px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

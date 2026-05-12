@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const DB_PATH = path.join(__dirname, 'database.sqlite');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'database.sqlite');
 let db = null;
 
 function queryAll(sql, params = []) {
@@ -97,6 +97,44 @@ async function initDb() {
       color TEXT DEFAULT '#2a17cf',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS enrollments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      course_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id),
+      UNIQUE(user_id, course_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS schedules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      group_name TEXT NOT NULL,
+      days TEXT NOT NULL DEFAULT '',
+      start_time TEXT NOT NULL DEFAULT '',
+      end_time TEXT NOT NULL DEFAULT '',
+      sort_order INTEGER DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS orders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      total REAL NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'pending',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS order_items (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_id INTEGER NOT NULL,
+      course_id INTEGER NOT NULL,
+      course_name TEXT NOT NULL,
+      price REAL NOT NULL DEFAULT 0,
+      FOREIGN KEY (order_id) REFERENCES orders(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id)
+    );
   `);
 
   try {
@@ -113,6 +151,34 @@ async function initDb() {
       save();
     }
   } catch {}
+  try {
+    const courseCols = db.exec("PRAGMA table_info(courses)")[0]?.values.map(v => v[1]);
+    if (courseCols && !courseCols.includes('price')) {
+      db.exec("ALTER TABLE courses ADD COLUMN price REAL DEFAULT 0");
+      save();
+    }
+  } catch {}
+  try {
+    const schedCount = queryOne('SELECT COUNT(*) as c FROM schedules').c;
+    if (schedCount === 0) {
+      runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)', ['Grupo 1 - Isabel', 'Lunes a Jueves', '15:00', '20:00', 1]);
+      runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)', ['Grupo 2 - Laura', 'Lunes a Jueves', '16:00', '21:00', 2]);
+    }
+  } catch {}
+  try {
+    db.exec("SELECT id FROM enrollments LIMIT 1");
+  } catch {
+    db.exec(`CREATE TABLE IF NOT EXISTS enrollments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      course_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (course_id) REFERENCES courses(id),
+      UNIQUE(user_id, course_id)
+    )`);
+    save();
+  }
 
   const admin = queryOne('SELECT id FROM users WHERE username=?', ['admin']);
   if (!admin) {
@@ -123,17 +189,76 @@ async function initDb() {
   }
 
   if (queryOne('SELECT COUNT(*) as c FROM courses').c === 0) {
-    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color)
-      VALUES (?,?,?,?,?,?)`,
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
       ['Refuerzo Integral - Grupo 1',
        'Clases de refuerzo escolar para Primaria y 1º ESO. Atención personalizada en grupos reducidos.',
-       'Isabel Rodriguez', 'Lunes a Jueves 15:00-20:00', 8, '#2a17cf']);
-    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color)
-      VALUES (?,?,?,?,?,?)`,
+       'Isabel Rodriguez', 'Lunes a Jueves 15:00-20:00', 8, '#2a17cf', 49.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
       ['Refuerzo Integral - Grupo 2',
        'Clases de refuerzo escolar para 2º-4º ESO y Bachillerato. Preparación de exámenes y EVAU.',
-       'Laura Barroso', 'Lunes a Jueves 16:00-21:00', 8, '#00d5ff']);
+       'Laura Barroso', 'Lunes a Jueves 16:00-21:00', 8, '#00d5ff', 49.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Ciberseguridad y Hacking Ético',
+       'Aprende los fundamentos de la ciberseguridad, análisis de vulnerabilidades, cifrado y pruebas de penetración. Curso práctico con laboratorios virtuales.',
+       'Carlos Mendoza', 'Martes y Jueves 18:00-20:00', 15, '#dc2626', 79.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Inteligencia Artificial y Machine Learning',
+       'Domina los conceptos de IA, redes neuronales, procesamiento del lenguaje natural y visión por computadora. Proyectos reales con Python y TensorFlow.',
+       'Ana Beltrán', 'Lunes y Miércoles 17:00-19:00', 12, '#7c3aed', 89.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Data Science y Análisis de Datos',
+       'Big Data, estadística avanzada, visualización de datos con Python, R y SQL. Ideal para quienes buscan dominar el análisis de datos empresariales.',
+       'David Soler', 'Miércoles y Viernes 16:00-18:00', 12, '#0891b2', 69.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Desarrollo Web Full Stack',
+       'Aprende HTML, CSS, JavaScript, React, Node.js y bases de datos. Construye aplicaciones web completas desde cero hasta producción.',
+       'María León', 'Lunes a Viernes 10:00-12:00', 10, '#059669', 99.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Marketing Digital y Redes Sociales',
+       'Estrategias de marketing online, SEO, SEM, email marketing y gestión de redes sociales. Certificación práctica incluida.',
+       'Sofía Rivas', 'Martes y Jueves 10:00-12:00', 20, '#d97706', 59.90]);
+    runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
+      VALUES (?,?,?,?,?,?,?)`,
+      ['Diseño Gráfico y Adobe Creative Suite',
+       'Photoshop, Illustrator, InDesign y Figma. Desde fundamentos del diseño hasta proyectos profesionales para portafolio.',
+       'Pablo Herrera', 'Lunes, Miércoles y Viernes 18:00-20:00', 14, '#db2777', 74.90]);
     console.log('[DB] Cursos creados');
+  }
+
+  if (queryOne('SELECT COUNT(*) as c FROM announcements').c === 0) {
+    runSql('INSERT INTO announcements (title, content) VALUES (?,?)',
+      ['🎉 Nuevo curso: Ciberseguridad y Hacking Ético',
+       'Ya está disponible nuestro nuevo curso de Ciberseguridad. Aprende fundamentos de seguridad informática, análisis de vulnerabilidades y pruebas de penetración con laboratorios virtuales. Plazas limitadas.']);
+    runSql('INSERT INTO announcements (title, content) VALUES (?,?)',
+      ['📚 Horarios de verano 2026',
+       'Durante los meses de julio y agosto, los grupos de refuerzo pasarán a horario intensivo de mañana (10:00-13:00). Consulta disponibilidad con tu profesor.']);
+    runSql('INSERT INTO announcements (title, content) VALUES (?,?)',
+      ['🏆 Alumnos del mes',
+       'Este mes destacamos a Carlota y Marcos por su excelente evolución en matemáticas y lengua. ¡Enhorabuena! Seguid así.']);
+    console.log('[DB] Anuncios creados');
+  }
+
+  if (queryOne('SELECT COUNT(*) as c FROM events').c === 0) {
+    runSql('INSERT INTO events (title, description, event_date, event_time, color) VALUES (?,?,?,?,?)',
+      ['Jornada de Puertas Abiertas',
+       'Ven a conocer nuestras instalaciones y metodología. Habrá sesiones informativas para padres y actividades para niños.',
+       '2026-06-15', '11:00', '#2a17cf']);
+    runSql('INSERT INTO events (title, description, event_date, event_time, color) VALUES (?,?,?,?,?)',
+      ['Taller de Inteligencia Artificial para Jóvenes',
+       'Taller gratuito donde los alumnos aprenderán conceptos básicos de IA usando herramientas visuales. Edad recomendada: 12-16 años.',
+       '2026-06-22', '17:00', '#7c3aed']);
+    runSql('INSERT INTO events (title, description, event_date, event_time, color) VALUES (?,?,?,?,?)',
+      ['Fin de Curso – Entrega de Notas',
+       'Reunión con familias para la entrega de notas finales y valoración del progreso anual del alumno.',
+       '2026-06-29', '18:00', '#059669']);
+    console.log('[DB] Eventos creados');
   }
 
   console.log('[DB] Base de datos lista');

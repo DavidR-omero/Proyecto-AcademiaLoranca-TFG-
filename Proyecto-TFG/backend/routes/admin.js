@@ -13,7 +13,28 @@ router.get('/stats', (req, res) => {
   const courses = queryAll('SELECT COUNT(*) as c FROM courses')[0].c;
   const announcements = queryAll('SELECT COUNT(*) as c FROM announcements')[0].c;
   const events = queryAll('SELECT COUNT(*) as c FROM events')[0].c;
-  res.json({ stats: { users, messages, unread, courses, announcements, events } });
+  const orders = queryAll('SELECT COUNT(*) as c FROM orders')[0].c;
+  const revenue = queryAll('SELECT COALESCE(SUM(total),0) as c FROM orders WHERE status=?', ['completed'])[0].c;
+  res.json({ stats: { users, messages, unread, courses, announcements, events, orders, revenue } });
+});
+
+router.get('/stats/charts', (req, res) => {
+  const months = [];
+  const userData = [];
+  const msgData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    const label = `${d.toLocaleString('es', { month: 'short' })} ${y}`;
+    months.push(label);
+    const start = `${y}-${m}-01`;
+    const end = new Date(y, d.getMonth() + 1, 1).toISOString().split('T')[0];
+    userData.push(queryOne("SELECT COUNT(*) as c FROM users WHERE created_at >= ? AND created_at < ?", [start, end]).c);
+    msgData.push(queryOne("SELECT COUNT(*) as c FROM contact_messages WHERE created_at >= ? AND created_at < ?", [start, end]).c);
+  }
+  res.json({ months, users: userData, messages: msgData });
 });
 
 router.get('/users', (req, res) => {
@@ -62,25 +83,30 @@ router.delete('/messages/:id', (req, res) => {
 });
 
 router.put('/courses/:id', (req, res) => {
-  const { name, description, teacher, schedule, max_students, color } = req.body;
-  const course = queryOne('SELECT id FROM courses WHERE id=?', [req.params.id]);
+  const { name, description, teacher, schedule, max_students, color, price } = req.body;
+  const course = queryOne('SELECT * FROM courses WHERE id=?', [req.params.id]);
   if (!course) return res.status(404).json({ error: 'Curso no encontrado' });
 
-  runSql(`UPDATE courses SET
-    name=COALESCE(?,name), description=COALESCE(?,description),
-    teacher=COALESCE(?,teacher), schedule=COALESCE(?,schedule),
-    max_students=COALESCE(?,max_students), color=COALESCE(?,color)
-    WHERE id=?`,
-    [name, description, teacher, schedule, max_students, color, req.params.id]);
-  const updated = queryOne('SELECT * FROM courses WHERE id=?', [req.params.id]);
-  res.json({ course: updated });
+  try {
+    runSql(`UPDATE courses SET
+      name=?, description=?, teacher=?, schedule=?,
+      max_students=?, color=?, price=?
+      WHERE id=?`,
+      [name ?? course.name, description ?? course.description, teacher ?? course.teacher,
+       schedule ?? course.schedule, max_students ?? course.max_students,
+       color ?? course.color, price ?? course.price, req.params.id]);
+    const updated = queryOne('SELECT * FROM courses WHERE id=?', [req.params.id]);
+    res.json({ course: updated });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 router.post('/courses', (req, res) => {
-  const { name, description, teacher, schedule, max_students, color } = req.body;
+  const { name, description, teacher, schedule, max_students, color, price } = req.body;
   if (!name) return res.status(400).json({ error: 'El nombre del curso es obligatorio' });
-  runSql('INSERT INTO courses (name,description,teacher,schedule,max_students,color) VALUES (?,?,?,?,?,?)',
-    [name, description || '', teacher || '', schedule || '', max_students || 8, color || '#2a17cf']);
+  runSql('INSERT INTO courses (name,description,teacher,schedule,max_students,color,price) VALUES (?,?,?,?,?,?,?)',
+    [name, description || '', teacher || '', schedule || '', max_students || 8, color || '#2a17cf', price || 0]);
   const course = queryOne('SELECT * FROM courses ORDER BY id DESC LIMIT 1');
   res.status(201).json({ course });
 });
@@ -155,18 +181,76 @@ router.delete('/events/:id', (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/schedules', (req, res) => {
+  const schedules = queryAll('SELECT * FROM schedules ORDER BY sort_order');
+  res.json({ schedules });
+});
+
+router.post('/schedules', (req, res) => {
+  const { group_name, days, start_time, end_time, sort_order } = req.body;
+  const r = runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)',
+    [group_name, days, start_time, end_time, sort_order || 0]);
+  const s = queryOne('SELECT * FROM schedules WHERE id=?', [r.lastInsertRowid]);
+  res.json({ schedule: s });
+});
+
+router.put('/schedules/:id', (req, res) => {
+  const s = queryOne('SELECT id FROM schedules WHERE id=?', [req.params.id]);
+  if (!s) return res.status(404).json({ error: 'No encontrado' });
+  const { group_name, days, start_time, end_time, sort_order } = req.body;
+  runSql('UPDATE schedules SET group_name=?,days=?,start_time=?,end_time=?,sort_order=? WHERE id=?',
+    [group_name, days, start_time, end_time, sort_order || 0, req.params.id]);
+  const updated = queryOne('SELECT * FROM schedules WHERE id=?', [req.params.id]);
+  res.json({ schedule: updated });
+});
+
+router.delete('/schedules/:id', (req, res) => {
+  runSql('DELETE FROM schedules WHERE id=?', [req.params.id]);
+  res.json({ success: true });
+});
+
 router.get('/table/:name', (req, res) => {
-  const allowed = ['users', 'courses', 'contact_messages', 'announcements', 'events'];
+  const allowed = ['users', 'courses', 'contact_messages', 'announcements', 'events', 'enrollments', 'schedules'];
   const name = req.params.name;
   if (!allowed.includes(name)) return res.status(400).json({ error: 'Tabla no permitida' });
 
   let rows;
   if (name === 'users') {
     rows = queryAll('SELECT id,username,email,password,role,created_at FROM users ORDER BY id');
+  } else if (name === 'enrollments') {
+    rows = queryAll(`SELECT e.id, e.user_id, u.username as user, e.course_id, c.name as course, e.created_at
+      FROM enrollments e JOIN users u ON e.user_id=u.id JOIN courses c ON e.course_id=c.id ORDER BY e.id`);
   } else {
     rows = queryAll(`SELECT * FROM ${name} ORDER BY id`);
   }
   res.json(rows);
+});
+
+router.get('/courses/:id/students', (req, res) => {
+  const students = queryAll(`SELECT u.id, u.username, u.email, e.created_at as enrolled_at
+    FROM enrollments e JOIN users u ON e.user_id=u.id
+    WHERE e.course_id=? ORDER BY e.created_at`, [req.params.id]);
+  res.json({ students });
+});
+
+router.delete('/enrollments/:id', (req, res) => {
+  runSql('DELETE FROM enrollments WHERE id=?', [req.params.id]);
+  res.json({ success: true });
+});
+
+router.get('/orders', (req, res) => {
+  const orders = queryAll(`SELECT o.*, u.username FROM orders o
+    JOIN users u ON o.user_id=u.id ORDER BY o.created_at DESC`);
+  orders.forEach(o => {
+    o.items = queryAll('SELECT * FROM order_items WHERE order_id=?', [o.id]);
+  });
+  res.json({ orders });
+});
+
+router.put('/orders/:id/status', (req, res) => {
+  const { status } = req.body;
+  runSql('UPDATE orders SET status=? WHERE id=?', [status, req.params.id]);
+  res.json({ success: true });
 });
 
 module.exports = router;

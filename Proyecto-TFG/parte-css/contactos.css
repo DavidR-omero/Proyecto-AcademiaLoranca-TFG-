@@ -308,3 +308,17 @@ input[type="checkbox"] {
 html {
     font-size: clamp(14px, 1vw, 18px);
 }
+
+/* dark mode */
+[data-theme="dark"] .formulario-responsivo { background: #1a2332; border-color: #2a3a4a; }
+[data-theme="dark"] .info-titulo { color: var(--text-primary, #e8edf5); }
+[data-theme="dark"] .info-cuerpo p { color: var(--text-secondary, #94a3b8); }
+[data-theme="dark"] .destacado { color: var(--text-primary, #e8edf5); }
+[data-theme="dark"] .detalle-item { background: rgba(26, 35, 50, 0.9); backdrop-filter: blur(8px); color: var(--text-primary, #e8edf5); }
+[data-theme="dark"] .detalle-item.verde { background: rgba(26, 50, 45, 0.9); }
+[data-theme="dark"] .detalle-item.morado { background: rgba(40, 30, 60, 0.9); }
+[data-theme="dark"] .detalle-item a { color: var(--text-primary, #e8edf5); }
+[data-theme="dark"] label { color: var(--text-primary, #e8edf5); }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { background: #1a2332; color: #e8edf5; border-color: #2a3a4a; }
+[data-theme="dark"] input:focus, [data-theme="dark"] textarea:focus, [data-theme="dark"] select:focus { background: #1e2d40; border-color: #3962e9; }
+[data-theme="dark"] .titulo-animado { color: var(--text-primary, #e8edf5); }

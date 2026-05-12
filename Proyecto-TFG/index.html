@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academia Loranca</title>
@@ -160,15 +161,195 @@
                 </div>
             </div>
         </section>
+
+    <!-- ESTADÍSTICAS -->
+    <section class="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-number" data-target="10">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Años de experiencia</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="statCourses" data-target="8">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Asignaturas</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="500">0</span>
+            <span class="stat-plus">+</span>
+            <span class="stat-label">Alumnos formados</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="8">0</span>
+            <span class="stat-label">Alumnos por grupo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANUNCIOS Y EVENTOS -->
+    <section class="news-section" id="noticias">
+      <div class="container">
+        <h2>📢 Novedades y eventos</h2>
+        <div class="news-grid" id="newsGrid">
+          <div class="news-col">
+            <h3>📌 Anuncios</h3>
+            <div id="announcementsList"><p class="news-empty">Cargando anuncios...</p></div>
+          </div>
+          <div class="news-col">
+            <h3>📅 Próximos eventos</h3>
+            <div id="eventsList"><p class="news-empty">Cargando eventos...</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFESORES -->
+    <section class="profesores-section">
+      <div class="container">
+        <h2>Nuestros profesores</h2>
+        <div class="profesores-grid" id="profesoresGrid">
+          <div class="profesor-card placeholder">
+            <div class="profesor-avatar">👩‍🏫</div>
+            <h3>Isabel Rodríguez</h3>
+            <p>Refuerzo Integral - Grupo 1</p>
+            <span class="profesor-badge">Primaria y 1º ESO</span>
+          </div>
+          <div class="profesor-card placeholder">
+            <div class="profesor-avatar">👩‍🏫</div>
+            <h3>Laura Barroso</h3>
+            <p>Refuerzo Integral - Grupo 2</p>
+            <span class="profesor-badge">2º-4º ESO y Bachillerato</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      (async () => {
+        try {
+          const res = await fetch('/api/stats/public');
+          const data = await res.json();
+          const el = document.getElementById('statCourses');
+          if (el) el.dataset.target = data.courses || 8;
+        } catch {}
+      })();
+    </script>
+
+    <script>
+      (async () => {
+        try {
+          const [aRes, eRes] = await Promise.all([
+            fetch('/api/announcements'),
+            fetch('/api/events/upcoming')
+          ]);
+          const { announcements } = await aRes.json();
+          const { events } = await eRes.json();
+
+          const aList = document.getElementById('announcementsList');
+          if (aList) {
+            if (!announcements || announcements.length === 0) {
+              aList.innerHTML = '<p class="news-empty">No hay anuncios por ahora</p>';
+            } else {
+              aList.innerHTML = announcements.slice(0, 4).map((a, i) => `
+                <div class="news-item clickable" onclick='openNewsPopup("announcement", ${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+                  <div class="ni-title">${a.title}</div>
+                  <div class="ni-date">${new Date(a.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}</div>
+                  ${a.content ? `<div class="ni-content">${a.content.length > 120 ? a.content.substring(0,120)+'...' : a.content}</div>` : ''}
+                </div>
+              `).join('');
+            }
+          }
+
+          const eList = document.getElementById('eventsList');
+          if (eList) {
+            if (!events || events.length === 0) {
+              eList.innerHTML = '<p class="news-empty">No hay eventos próximos</p>';
+            } else {
+              eList.innerHTML = events.slice(0, 4).map(e => {
+                const d = new Date(e.event_date + 'T12:00:00');
+                return `
+                <div class="news-item clickable" onclick='openNewsPopup("event", ${JSON.stringify(e).replace(/'/g,"&#39;")})'>
+                  <div class="ni-title">${e.title}</div>
+                  <div class="ni-date">${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}${e.event_time ? ' · '+e.event_time : ''}</div>
+                  ${e.description ? `<div class="ni-content">${e.description.length > 120 ? e.description.substring(0,120)+'...' : e.description}</div>` : ''}
+                </div>
+              `}).join('');
+            }
+          }
+        } catch {}
+      })();
+    </script>
+
+    <div class="news-modal-overlay" id="newsModal" onclick="closeNewsPopup(event)">
+      <div class="news-modal">
+        <button class="news-modal-close" onclick="closeNewsPopup()">✕</button>
+        <div id="newsModalContent"></div>
+      </div>
+    </div>
+
+    <script>
+      function openNewsPopup(type, data) {
+        const modal = document.getElementById('newsModal');
+        const content = document.getElementById('newsModalContent');
+        if (type === 'announcement') {
+          content.innerHTML = `
+            <div class="nm-badge" style="background:#2a17cf;color:white">📢 Anuncio</div>
+            <h2 class="nm-title">${data.title}</h2>
+            <div class="nm-date">${new Date(data.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+            ${data.content ? `<div class="nm-body">${data.content}</div>` : ''}
+          `;
+        } else {
+          const d = new Date(data.event_date + 'T12:00:00');
+          content.innerHTML = `
+            <div class="nm-badge" style="background:${data.color || '#2a17cf'};color:white">📅 Evento</div>
+            <h2 class="nm-title">${data.title}</h2>
+            <div class="nm-date">${d.toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })}${data.event_time ? ' · ' + data.event_time : ''}</div>
+            ${data.description ? `<div class="nm-body">${data.description}</div>` : ''}
+          `;
+        }
+        modal.classList.add('active');
+      }
+      function closeNewsPopup(e) {
+        if (e && e.target !== document.getElementById('newsModal')) return;
+        document.getElementById('newsModal').classList.remove('active');
+      }
+    </script>
+
+    <script>
+      function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(c => {
+          const target = parseInt(c.dataset.target);
+          if (isNaN(target)) return;
+          const duration = 2000;
+          const start = performance.now();
+          function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            c.textContent = Math.floor(eased * target);
+            if (progress < 1) requestAnimationFrame(update);
+          }
+          requestAnimationFrame(update);
+        });
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            animateCounters();
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.3 });
+      const statsSection = document.querySelector('.stats-section');
+      if (statsSection) observer.observe(statsSection);
+    </script>
+
     </main>
-
-
-
-
-
-
-
-    <!-- SERVICIOS -->
     <section class="servicios" id="servicios">
         <div class="container">
             <h2>Servicios educativos</h2>

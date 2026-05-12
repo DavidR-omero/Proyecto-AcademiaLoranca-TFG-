@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mensajes - Academia Loranca</title>
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="../parte-css/index.css">
   <link rel="stylesheet" href="./admin.css">
   <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -23,7 +25,14 @@
       <a href="./messages.html" class="active"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
     </nav>
   </aside>
@@ -51,9 +60,18 @@
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar mensaje..." oninput="renderMessages()">
           </div>
+          <button class="btn btn-secondary" onclick="exportCSV('mensajes.csv', ['ID','Nombre','Email','Mensaje','Leído','Fecha'], messages.map(m => [m.id, m.name, m.email, m.message, m.is_read ? 'Sí' : 'No', m.created_at]))">📥 CSV</button>
         </div>
       </div>
-      <div id="messagesTable"><div class="loading"><div class="spinner"></div>Cargando mensajes...</div></div>
+      <div id="messagesTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="messagesPager"></div>
     </div>
   </main>
 
@@ -78,6 +96,7 @@
 
   <script>
     let messages = [];
+    let messagesPager;
 
     (async () => {
       if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
@@ -96,8 +115,10 @@
       try {
         const data = await API.admin.getMessages();
         messages = data.messages;
+        messagesPager = createPager('messagesPager', 10, renderMessages);
         renderMessages();
-      } catch (e) { showToast('Error al cargar mensajes', 'error'); }
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar mensajes', 'error'); }
     }
 
     function renderMessages() {
@@ -106,15 +127,16 @@
         m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q) || (m.message && m.message.toLowerCase().includes(q))
       );
       const div = document.getElementById('messagesTable');
-      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">✉️</div><p>No hay mensajes</p></div>'; return; }
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">✉️</div><p>No hay mensajes</p></div>'; messagesPager.setTotal(0); return; }
+      messagesPager.setTotal(filtered.length);
       div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Estado</th><th>Nombre</th><th>Email</th><th>Tel&eacute;fono</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
-        filtered.map(m => `
+        messagesPager.getPage(filtered).data.map(m => `
           <tr style="${!m.is_read ? 'background:#f8faff' : ''}">
             <td><span class="badge ${m.is_read ? 'badge-read' : 'badge-unread'}">${m.is_read ? 'Le&iacute;do' : 'Nuevo'}</span></td>
             <td><span class="cell-name">${m.name}</span></td>
             <td>${m.email}</td>
             <td>${m.phone || '—'}</td>
-            <td>${new Date(m.created_at).toLocaleString('es-ES')}</td>
+            <td>${formatDate(m.created_at)}</td>
             <td class="actions">
               <button class="btn-view btn-icon" onclick="viewMessage(${m.id})" title="Ver">👁️</button>
               ${!m.is_read ? `<button class="btn-read btn-icon" onclick="markRead(${m.id})" title="Marcar le&iacute;do">✅</button>` : ''}
@@ -130,7 +152,7 @@
       document.getElementById('msgEmail').innerHTML = '<a href="mailto:' + m.email + '" style="color:#2563eb;text-decoration:none;font-weight:500">' + m.email + '</a>';
       document.getElementById('msgPhone').textContent = m.phone || '—';
       document.getElementById('msgCourse').textContent = m.course_level || '—';
-      document.getElementById('msgDate').textContent = new Date(m.created_at).toLocaleString('es-ES');
+      document.getElementById('msgDate').textContent = formatDate(m.created_at);
       document.getElementById('msgText').textContent = m.message || '(sin mensaje)';
       document.getElementById('messageModal').classList.add('active');
     }
@@ -146,7 +168,7 @@
     }
 
     async function deleteMessage(id) {
-      if (!confirm('¿Eliminar este mensaje?')) return;
+      if (!(await showConfirm('¿Eliminar este mensaje?'))) return;
       try {
         await API.admin.deleteMessage(id);
         messages = messages.filter(m => m.id !== id);
@@ -161,5 +183,25 @@
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }
   </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
 </body>
 </html>

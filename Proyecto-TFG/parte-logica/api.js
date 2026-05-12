@@ -42,6 +42,17 @@ var API = {
   getCourses() {
     return this.request('/api/courses');
   },
+  enrollCourse(courseId) {
+    return this.request('/api/courses/enroll', {
+      method: 'POST', body: JSON.stringify({ course_id: courseId })
+    });
+  },
+  unenrollCourse(courseId) {
+    return this.request(`/api/courses/enroll/${courseId}`, { method: 'DELETE' });
+  },
+  getMyCourses() {
+    return this.request('/api/courses/my/enrollments');
+  },
 
   getAnnouncements() {
     return this.request('/api/announcements');
@@ -63,6 +74,12 @@ var API = {
     return this.request('/api/contact', {
       method: 'POST', body: JSON.stringify(data)
     });
+  },
+  getNotifications() {
+    return this.request('/api/notifications');
+  },
+  getSchedules() {
+    return this.request('/api/schedules');
   },
 
   admin: {
@@ -132,7 +149,53 @@ var API = {
     },
     getAll(tableName) {
       return API.request(`/api/admin/table/${tableName}`);
+    },
+    getCourseStudents(courseId) {
+      return API.request(`/api/admin/courses/${courseId}/students`);
+    },
+    deleteEnrollment(id) {
+      return API.request(`/api/admin/enrollments/${id}`, { method: 'DELETE' });
+    },
+    getOrders() { return API.request('/api/admin/orders'); },
+    updateOrderStatus(id, status) {
+      return API.request(`/api/admin/orders/${id}/status`, {
+        method: 'PUT', body: JSON.stringify({ status })
+      });
     }
+  },
+
+  /* Cart */
+  getCart() {
+    try { return JSON.parse(localStorage.getItem('cart')) || []; } catch { return []; }
+  },
+  setCart(items) {
+    localStorage.setItem('cart', JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent('cart-changed', { detail: items }));
+  },
+  addToCart(item) {
+    const cart = API.getCart();
+    if (!cart.find(c => c.course_id === item.course_id)) {
+      cart.push(item);
+      API.setCart(cart);
+    }
+  },
+  removeFromCart(courseId) {
+    API.setCart(API.getCart().filter(c => c.course_id !== courseId));
+  },
+  clearCart() { API.setCart([]); },
+  getCartTotal() {
+    return API.getCart().reduce((s, i) => s + (i.price || 0), 0);
+  },
+  getCartCount() { return API.getCart().length; },
+
+  /* Orders */
+  createOrder(items) {
+    return API.request('/api/orders', {
+      method: 'POST', body: JSON.stringify({ items })
+    });
+  },
+  getMyOrders() {
+    return API.request('/api/orders');
   },
 
   logout() {

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visor BD - Admin</title>
@@ -28,9 +29,15 @@
         <a href="messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
         <a href="announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
         <a href="events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+        <a href="orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+        <a href="schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
         <a href="db-viewer.html" class="active"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
-        <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      </nav>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+    </nav>
     </aside>
 
     <main class="main-content">
@@ -50,6 +57,7 @@
   </div>
 
   <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
   <script>
     (async () => {
       const user = API.getUser();
@@ -61,7 +69,9 @@
         { name: 'courses', label: 'Cursos' },
         { name: 'contact_messages', label: 'Mensajes' },
         { name: 'announcements', label: 'Anuncios' },
-        { name: 'events', label: 'Eventos' }
+        { name: 'events', label: 'Eventos' },
+        { name: 'enrollments', label: 'Matrículas' },
+        { name: 'schedules', label: 'Horarios' }
       ];
       const selector = document.getElementById('tableSelector');
 
@@ -99,6 +109,7 @@
               let val = row[k];
               if (val === null || val === undefined) val = '—';
               if (k === 'password') val = `<span class="password-cell">${val.substring(0, 20)}...</span>`;
+              if (k.endsWith('_at') || k === 'fecha_registro') val = formatDate(val);
               html += `<td>${val}</td>`;
             });
             html += '</tr>';
@@ -113,5 +124,25 @@
       loadTable('users', document.querySelector('.table-selector button:first-child'));
     })();
   </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
 </body>
 </html>

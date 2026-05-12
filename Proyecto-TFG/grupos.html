@@ -2,6 +2,7 @@
 <html lang="es">
 
     <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
         <title>Cursos - Academia Loranca</title>
         <link rel="shortcut icon" href="./imagenes/logo.png" type="/imagenes/logo.png">
         <meta charset="UTF-8">
@@ -9,6 +10,8 @@
         <link rel="stylesheet" href="./parte-css/index.css">
         <link rel="stylesheet" href="./parte-css/grupos.css">
         <script src="./parte-logica/grupos.js" defer></script>
+        <script src="./parte-logica/api.js"></script>
+        <script src="./admin/admin-utils.js"></script>
         <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
         <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
         <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
@@ -74,25 +77,8 @@
                 
                 <div id="div-grupos" class="div-grupos">
                     <h2>Grupos Disponibles</h2>
-                    <div class="DivGrupos">
-                        <div class="zona-grupos" id="grupo1">
-                            <h3>👦 Grupo 1:</h3>
-                            <img src="./imagenes/niños_grupos1.png" alt="Estudiantes Primaria + 1º ESO" loading="lazy">
-                            <p><strong>Nivel: Primaria y 1º ESO</strong></p>
-                            <div class="div-apuntarme">
-                                <a class="boton-info" onclick="abrirPOPUP('POPUP1')">Más Información</a>
-                            </div>
-                        </div>
-                        
-                       
-                        <div class="zona-grupos" id="grupo2">
-                            <h3>👩‍🎓 Grupo 2:</h3>
-                            <img src="./imagenes/adolescentes_grupos.png" alt="Estudiantes ESO y Bachillerato" loading="lazy" class="imagenAdolescentes">
-                            <p><strong>Nivel: 2º- 4º ESO y Bachillerato</strong></p>
-                            <div class="div-apuntarme">
-                                <a class="boton-info" onclick="abrirPOPUP('POPUP2')">Más Información</a>
-                            </div>
-                        </div>
+                    <div class="DivGrupos" id="coursesContainer">
+                        <div class="loading"><div class="spinner"></div><p style="color:#94a3b8;margin-top:10px">Cargando cursos...</p></div>
                     </div>
                 </div>
                 
@@ -102,71 +88,158 @@
 
         
 
-            <!-- POPUP GRUPO 1 -->
-            <div id="POPUP1" class="POPUP">
-                <div class="contenido-POPUP">
+            <div id="popupContainer"></div>
 
-                    
-                    <span class="cerrar" onclick="cerrarPOPUP('POPUP1')">&times;</span>
+        <script>
+            (async () => {
+                try {
+                    const { courses } = await API.getCourses();
+                    const container = document.getElementById('coursesContainer');
+                    const popupContainer = document.getElementById('popupContainer');
 
-                    
-                    <div class="contenedor-avatar">
-                        <video class="video-avatar" muted playsinline>
-                            <source src="./imagenes/avatar-isabel.mp4" type="video/mp4">
-                        </video>
-                    </div>
+                    if (!courses || courses.length === 0) {
+                        container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:40px;grid-column:1/-1">No hay cursos disponibles actualmente</p>';
+                        return;
+                    }
 
-                   
-                    <h2 class="pop1">👦 Grupo 1: Primaria + 1º ESO</h2>
-                    <p><strong>Profesora:</strong> Isabel Rodriguez</p>
-                    <p><strong>Horario:</strong> Lunes a Jueves (15:00-20:00), sesiones de 60 minutos adaptadas al nivel de cada alumno.</p>
-                    <p><strong>Plazas:</strong> 8 alumnos por grupo para garantizar atención personalizada.</p>
-                    <h3>Información adicional:</h3>
-                    <ul>
-                        <li>Día de prueba gratuito para conocer nuestra metodología.</li>
-                        <li>Disponibilidad de contacto directo fuera del horario de clase.</li>
-                        <li>Evaluaciones periódicas y comunicación constante con padres.</li>
-                        <li>Actividades complementarias para potenciar habilidades de estudio.</li>
-                    </ul>
+                    const isAdminUser = (function(){ try { const u = JSON.parse(localStorage.getItem('user')); return u && u.role === 'admin'; } catch { return false; } })();
 
-                    <div class="div-apuntarme">
-                        <a href="contactos.html" class="boton-apuntarse">Apuntarme</a>
-                    </div>
-                </div>
-            </div>
+                    const sorted = [...courses].sort((a, b) => {
+                        const aFeatured = (a.teacher || '').toLowerCase().includes('isabel') || (a.teacher || '').toLowerCase().includes('laura');
+                        const bFeatured = (b.teacher || '').toLowerCase().includes('isabel') || (b.teacher || '').toLowerCase().includes('laura');
+                        if (aFeatured && !bFeatured) return -1;
+                        if (!aFeatured && bFeatured) return 1;
+                        return a.id - b.id;
+                    });
 
-            <!-- POPUP GRUPO 2 -->
-            <div id="POPUP2" class="POPUP">
-                <div class="contenido-POPUP">
+                    container.innerHTML = sorted.map(c => {
+                        const t = (c.teacher || '').toLowerCase();
+                        const isFeatured = t.includes('isabel') || t.includes('laura');
+                        const inCart = API.getCart().some(x => x.course_id === c.id);
 
-                    
-                    <span class="cerrar" onclick="cerrarPOPUP('POPUP2')">&times;</span>
+                        const colors = ['#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626','#2a17cf','#00d5ff'];
+                        const placeholderColor = colors[c.id % colors.length];
+                        const icons = ['🛡️','🤖','📊','💻','📈','🎨','📚','📝'];
+                        const icon = icons[c.id % icons.length];
 
-                    
-                    <div class="contenedor-avatar">
-                        <video class="video-avatar" muted playsinline>
-                            <source src="./imagenes/avatar-laura.mp4" type="video/mp4">
-                        </video>
-                    </div>
+                        const imgSrc = t.includes('isabel') ? './imagenes/niños_grupos1.png'
+                            : t.includes('laura') ? './imagenes/adolescentes_grupos.png'
+                            : '';
 
-                    
-                    <h2 class="pop2">👩‍🎓 Grupo 2: 2º- 4º ESO + Bachillerato</h2>
-                    <p><strong>Profesora:</strong> Laura Barroso</p>
-                    <p><strong>Horario:</strong> Lunes a Jueves (16:00-21:00), sesiones de 60 minutos adaptadas al nivel de cada alumno.</p>
-                    <p><strong>Plazas:</strong> 8 alumnos por grupo para garantizar atención personalizada.</p>
-                    <h3>Información adicional:</h3>
-                    <ul>
-                        <li>Día de prueba gratuito para conocer nuestra metodología.</li>
-                        <li>Disponibilidad de contacto directo fuera del horario de clase.</li>
-                        <li>Evaluaciones periódicas con informes de progreso.</li>
-                        <li>Preparación específica para exámenes finales y EVAU.</li>
-                    </ul>
-                    <div class="div-apuntarme">
-                        <a href="contactos.html" class="boton-apuntarse">Apuntarme</a>
-                    </div>
+                        return `
+                        <div class="zona-grupos${isFeatured ? ' featured' : ''}" data-course-id="${c.id}"${t.includes('isabel') ? ' id="grupo1"' : t.includes('laura') ? ' id="grupo2"' : ''}>
+                            <div class="card-img-wrap">
+                                ${isFeatured && imgSrc ? `<img class="card-img" src="${imgSrc}" alt="" loading="lazy">` : `<div class="card-img-placeholder" style="background:linear-gradient(135deg,${placeholderColor},${placeholderColor}88)">${icon}</div>`}
+                                ${isFeatured ? '<span class="featured-badge">⭐ Destacado</span>' : ''}
+                            </div>
+                            <div class="card-body">
+                                <h3>${c.name}</h3>
+                                <div class="card-teacher">👨‍🏫 ${c.teacher || 'Pendiente'}</div>
+                                <div class="card-schedule">🕐 ${c.schedule || 'Consultar'}</div>
+                                <div class="card-plazas" style="color:${c.enrolled_count >= c.max_students ? '#dc2626' : '#16a34a}'}">
+                                    ${c.enrolled_count || 0}/${c.max_students} plazas ${c.enrolled_count >= c.max_students ? '🔴 Completas' : '✅ Disponibles'}
+                                </div>
+                                <div class="card-desc">${c.description || ''}</div>
+                                <span class="price-badge">${c.price ? c.price.toFixed(2).replace('.',',') + ' €/mes' : 'Consultar'}</span>
+                            </div>
+                            <div class="card-footer">
+                                ${isAdminUser
+                                  ? `<a href="./admin/courses.html" class="boton-info" style="flex:1">⚙️ Gestionar cursos</a>`
+                                  : `<button class="btn-add-cart ${inCart ? 'in-cart' : ''}" data-course-id="${c.id}" data-course-name="${c.name}" data-teacher="${c.teacher || ''}" data-price="${c.price || 0}">${inCart ? '✓ En carrito' : '🛒 Añadir'}</button>
+                                <a class="boton-info" onclick="openCoursePopup(${c.id})">🔍 Más información</a>`}
+                            </div>
+                        </div>`;
+                    }).join('');
 
-                </div>
-            </div>
+                    window.coursesData = courses;
+
+                    const hash = window.location.hash;
+                    if (hash === '#grupo1' || hash === '#grupo2') {
+                      const el = document.getElementById(hash.slice(1));
+                      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    }
+
+                    function getAvatar(id) {
+                        const c = courses.find(x => x.id === id);
+                        if (!c) return '';
+                        const t = (c.teacher || '').toLowerCase();
+                        if (t.includes('isabel')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-isabel.mp4" type="video/mp4"></video>';
+                        if (t.includes('laura')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-laura.mp4" type="video/mp4"></video>';
+                        return '<div style="font-size:5rem;text-align:center;padding:20px">👩‍🏫</div>';
+                    }
+
+                    window.openCoursePopup = function(id) {
+                        const c = courses.find(x => x.id === id);
+                        if (!c) return;
+                        const existing = document.querySelector('.POPUP.active');
+                        if (existing) { existing.classList.remove('active'); existing.style.display = ''; }
+
+                        let popup = document.getElementById('popup-' + id);
+                        if (!popup) {
+                            popup = document.createElement('div');
+                            popup.id = 'popup-' + id;
+                            popup.className = 'POPUP';
+                            popup.innerHTML = `
+                                <div class="contenido-POPUP">
+                                    <span class="cerrar" onclick="closeCoursePopup(${id})">&times;</span>
+                                    <div class="contenedor-avatar">
+                                        ${getAvatar(id)}
+                                    </div>
+                                    <h2>${c.name}</h2>
+                                    <p><strong>Profesor/a:</strong> ${c.teacher || 'Por asignar'}</p>
+                                    <p><strong>Horario:</strong> ${c.schedule || 'Consultar disponibilidad'}</p>
+                                    <p><strong>Plazas:</strong> ${c.enrolled_count || 0}/${c.max_students} ocupadas</p>
+                                    ${c.description ? `<p style="margin-top:12px">${c.description}</p>` : ''}
+                                    <h3 style="margin-top:16px">Información adicional:</h3>
+                                    <ul>
+                                        <li>Día de prueba gratuito para conocer nuestra metodología.</li>
+                                        <li>Disponibilidad de contacto directo fuera del horario de clase.</li>
+                                        <li>Evaluaciones periódicas y comunicación constante con padres.</li>
+                                        <li>Atención personalizada en grupos reducidos.</li>
+                                    </ul>
+                                    <div class="div-apuntarme">
+                                        <a href="contactos.html" class="boton-apuntarse">Solicitar información</a>
+                                    </div>
+                                </div>
+                            `;
+                            popupContainer.appendChild(popup);
+                        }
+                        popup.style.display = '';
+                        popup.classList.add('active');
+                    };
+
+                    window.closeCoursePopup = function(id) {
+                        const popup = document.getElementById('popup-' + id);
+                        if (popup) {
+                            popup.classList.remove('active');
+                            popup.style.display = '';
+                        }
+                    };
+
+                    document.addEventListener('click', function(e) {
+                        if (e.target.classList.contains('POPUP')) {
+                            const id = e.target.id.replace('popup-', '');
+                            if (id) window.closeCoursePopup(parseInt(id));
+                        }
+                    });
+
+                } catch (e) {
+                    document.getElementById('coursesContainer').innerHTML =
+                        '<p style="color:#dc2626;text-align:center;padding:40px;grid-column:1/-1">Error al cargar cursos</p>';
+                }
+            })();
+        </script>
+
+        <script>
+          document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-add-cart');
+            if (!btn || btn.classList.contains('in-cart')) return;
+            API.addToCart({ course_id: +btn.dataset.courseId, course_name: btn.dataset.courseName, teacher: btn.dataset.teacher, price: +btn.dataset.price });
+            btn.textContent = '✓ En carrito';
+            btn.classList.add('in-cart');
+            showToast('Añadido al carrito');
+          });
+        </script>
 
         <footer-componente></footer-componente>
 

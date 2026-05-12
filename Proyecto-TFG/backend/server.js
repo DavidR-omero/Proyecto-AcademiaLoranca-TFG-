@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const { initDb } = require('./database');
+const { initDb, queryAll } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,10 +17,20 @@ app.use('/api/courses', require('./routes/courses'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/announcements', require('./routes/announcements'));
 app.use('/api/events', require('./routes/events'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/schedules', require('./routes/schedules'));
+app.use('/api/orders', require('./routes/orders'));
 app.use('/api/admin', require('./routes/admin'));
 
+app.get('/api/stats/public', (req, res) => {
+  const courses = queryAll('SELECT COUNT(*) as c FROM courses')[0].c;
+  const announcements = queryAll('SELECT COUNT(*) as c FROM announcements')[0].c;
+  const events = queryAll('SELECT COUNT(*) as c FROM events')[0].c;
+  res.json({ courses, announcements, events });
+});
+
 app.get('*', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
+  res.status(404).sendFile(path.join(publicPath, '404.html'));
 });
 
 async function start() {
@@ -32,4 +42,8 @@ async function start() {
   });
 }
 
-start().catch(console.error);
+if (require.main === module) {
+  start().catch(console.error);
+}
+
+module.exports = { app, start };

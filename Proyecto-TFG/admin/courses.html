@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cursos - Academia Loranca</title>
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="../parte-css/index.css">
   <link rel="stylesheet" href="./admin.css">
   <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -23,7 +25,14 @@
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
     </nav>
   </aside>
@@ -52,9 +61,18 @@
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar curso..." oninput="renderCourses()">
           </div>
           <button class="btn-primary" onclick="openCreate()">+ Nuevo curso</button>
+          <button class="btn btn-secondary" onclick="exportCSV('cursos.csv', ['ID','Nombre','Profesor','Horario','Plazas','Creado'], courses.map(c => [c.id, c.name, c.teacher, c.schedule, c.max_students, c.created_at]))">📥 CSV</button>
         </div>
       </div>
-      <div id="coursesTable"><div class="loading"><div class="spinner"></div>Cargando cursos...</div></div>
+      <div id="coursesTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="coursesPager"></div>
     </div>
   </main>
 
@@ -67,6 +85,7 @@
       <div class="field"><label>Horario</label><input type="text" id="editSchedule" placeholder="Ej: Lunes a Jueves 15:00-20:00"></div>
       <div class="field"><label>M&aacute;ximo de alumnos</label><input type="number" id="editMaxStudents" value="8" min="1"></div>
       <div class="field"><label>Color identificativo</label><input type="color" id="editColor" value="#2a17cf"></div>
+      <div class="field"><label>Precio (€/mes)</label><input type="number" id="editPrice" value="49.90" min="0" step="0.01"></div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
         <button class="btn-save" id="saveCourseBtn" onclick="saveCourse()">Guardar curso</button>
@@ -74,9 +93,21 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="studentsModal">
+    <div class="modal" style="max-width:500px">
+      <h2>👥 Alumnos del curso</h2>
+      <p id="studentsCourseName" style="color:#64748b;margin-bottom:16px;font-size:14px"></p>
+      <div id="studentsList"><p style="color:#94a3b8;text-align:center">Cargando...</p></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeStudentsModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let courses = [];
     let editingId = null;
+    let coursesPager;
 
     (async () => {
       if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
@@ -95,24 +126,29 @@
       try {
         const data = await API.admin.getCourses();
         courses = data.courses;
+        coursesPager = createPager('coursesPager', 10, renderCourses);
         renderCourses();
-      } catch (e) { showToast('Error al cargar cursos', 'error'); }
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar cursos', 'error'); }
     }
 
     function renderCourses() {
       const q = document.getElementById('searchInput').value.toLowerCase();
       const filtered = courses.filter(c => c.name.toLowerCase().includes(q));
       const div = document.getElementById('coursesTable');
-      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">📚</div><p>No hay cursos</p></div>'; return; }
-      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Curso</th><th>Profesor</th><th>Horario</th><th>Plazas</th><th>Acciones</th></tr></thead><tbody>' +
-        filtered.map(c => `
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">📚</div><p>No hay cursos</p></div>'; coursesPager.setTotal(0); return; }
+      coursesPager.setTotal(filtered.length);
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Curso</th><th>Profesor</th><th>Horario</th><th>Plazas</th><th>Precio</th><th>Acciones</th></tr></thead><tbody>' +
+        coursesPager.getPage(filtered).data.map(c => `
           <tr>
             <td><span class="cell-id">#${c.id}</span></td>
             <td><span class="cell-name" style="color:${c.color || '#2a17cf'}">${c.name}</span></td>
             <td>${c.teacher || '—'}</td>
             <td>${c.schedule || '—'}</td>
-            <td>${c.max_students || 8} plazas</td>
+            <td>${c.max_students || 8} plazas <span style="font-size:12px;color:${c.enrolled_count >= c.max_students ? '#dc2626' : '#16a34a'}">(${c.enrolled_count || 0})</span></td>
+            <td>${c.price ? c.price.toFixed(2).replace('.',',') + ' €' : '—'}</td>
             <td class="actions">
+              <button class="btn-icon" onclick="viewStudents(${c.id})" title="Ver alumnos">👥</button>
               <button class="btn-edit btn-icon" onclick="openEdit(${c.id})" title="Editar">✏️</button>
               <button class="btn-delete btn-icon" onclick="deleteCourse(${c.id})" title="Eliminar">🗑️</button>
             </td>
@@ -127,6 +163,7 @@
       ['editName','editDescription','editTeacher','editSchedule'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('editMaxStudents').value = 8;
       document.getElementById('editColor').value = '#2a17cf';
+      document.getElementById('editPrice').value = '49.90';
       document.getElementById('courseModal').classList.add('active');
     }
 
@@ -141,6 +178,7 @@
       document.getElementById('editSchedule').value = c.schedule || '';
       document.getElementById('editMaxStudents').value = c.max_students || 8;
       document.getElementById('editColor').value = c.color || '#2a17cf';
+      document.getElementById('editPrice').value = c.price || '49.90';
       document.getElementById('courseModal').classList.add('active');
     }
 
@@ -151,7 +189,8 @@
         teacher: document.getElementById('editTeacher').value,
         schedule: document.getElementById('editSchedule').value,
         max_students: parseInt(document.getElementById('editMaxStudents').value) || 8,
-        color: document.getElementById('editColor').value
+        color: document.getElementById('editColor').value,
+        price: parseFloat(document.getElementById('editPrice').value) || 0
       };
       if (!data.name) { showToast('El nombre del curso es obligatorio', 'error'); return; }
       try {
@@ -171,7 +210,7 @@
     }
 
     async function deleteCourse(id) {
-      if (!confirm('¿Eliminar este curso definitivamente?')) return;
+      if (!(await showConfirm('¿Eliminar este curso definitivamente?'))) return;
       try {
         await API.admin.deleteCourse(id);
         courses = courses.filter(c => c.id !== id);
@@ -180,11 +219,76 @@
       } catch (e) { showToast(e.error || 'Error', 'error'); }
     }
 
+    let viewingCourseId = null;
+
+    async function viewStudents(id) {
+      viewingCourseId = id;
+      const c = courses.find(x => x.id === id);
+      document.getElementById('studentsCourseName').textContent = c ? c.name : '';
+      document.getElementById('studentsList').innerHTML = '<p style="color:#94a3b8;text-align:center">Cargando...</p>';
+      document.getElementById('studentsModal').classList.add('active');
+      try {
+        const data = await API.admin.getCourseStudents(id);
+        const students = data.students || [];
+        const list = document.getElementById('studentsList');
+        if (students.length === 0) {
+          list.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No hay alumnos inscritos</p></div>';
+        } else {
+          list.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Usuario</th><th>Email</th><th>Inscrito</th><th></th></tr></thead><tbody>' +
+            students.map(s => `
+              <tr>
+                <td>${s.username}</td>
+                <td>${s.email}</td>
+                <td style="font-size:13px;color:#94a3b8">${new Date(s.enrolled_at).toLocaleDateString('es-ES')}</td>
+                <td><button class="btn-delete btn-icon" onclick="removeStudent(${id},${s.id})" title="Quitar">🗑️</button></td>
+              </tr>
+            `).join('') + '</tbody></table></div>';
+        }
+      } catch (e) { document.getElementById('studentsList').innerHTML = `<p style="color:#dc2626;text-align:center">${e.error || 'Error'}</p>`; }
+    }
+
+    async function removeStudent(courseId, userId) {
+      if (!(await showConfirm('¿Quitar este alumno del curso?'))) return;
+      const enrollments = await API.admin.getAll('enrollments');
+      const enr = enrollments.find(e => e.user_id === userId && e.course_id === courseId);
+      if (!enr) return;
+      try {
+        await API.admin.deleteEnrollment(enr.id);
+        viewStudents(courseId);
+        showToast('Alumno eliminado del curso', 'success');
+      } catch (e) { showToast(e.error || 'Error', 'error'); }
+    }
+
+    function closeStudentsModal() {
+      document.getElementById('studentsModal').classList.remove('active');
+      viewingCourseId = null;
+    }
+
     function closeModal() { document.getElementById('courseModal').classList.remove('active'); editingId = null; }
     function showToast(msg, type) {
       const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }
   </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
 </body>
 </html>

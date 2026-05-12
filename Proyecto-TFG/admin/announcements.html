@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anuncios - Academia Loranca</title>
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="../parte-css/index.css">
   <link rel="stylesheet" href="./admin.css">
   <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -23,7 +25,14 @@
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html" class="active"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
     </nav>
   </aside>
@@ -48,9 +57,22 @@
         <h2><span class="card-icon">📢</span> Gesti&oacute;n de anuncios</h2>
         <div class="card-toolbar">
           <button class="btn-primary" onclick="openCreate()">+ Nuevo anuncio</button>
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchAnns" placeholder="Buscar...">
+          </div>
+          <button class="btn btn-secondary" onclick="exportCSV('anuncios.csv', ['Título','Contenido','Fecha'], announcements.map(a => [a.title, a.content, a.created_at]))">📥 CSV</button>
         </div>
       </div>
-      <div id="announcementsTable"><div class="loading"><div class="spinner"></div>Cargando anuncios...</div></div>
+      <div id="announcementsTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="annsPager"></div>
     </div>
   </main>
 
@@ -69,6 +91,7 @@
   <script>
     let announcements = [];
     let editingId = null;
+    let annsPager;
 
     (async () => {
       if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
@@ -77,6 +100,7 @@
       document.getElementById('userName').textContent = user.username;
       document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
       await load();
+      document.getElementById('searchAnns').addEventListener('input', render);
 
       document.getElementById('logoutBtn').addEventListener('click', (e) => {
         e.preventDefault(); API.logout(); window.location.href = '../index.html';
@@ -87,23 +111,29 @@
       try {
         const data = await API.admin.getAnnouncements();
         announcements = data.announcements;
+        annsPager = createPager('annsPager', 10, render);
         render();
-      } catch (e) { showToast('Error al cargar', 'error'); }
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar', 'error'); }
     }
 
     function render() {
+      const q = document.getElementById('searchAnns').value.toLowerCase();
+      const filtered = announcements.filter(a => a.title.toLowerCase().includes(q) || (a.content && a.content.toLowerCase().includes(q)));
       const div = document.getElementById('announcementsTable');
-      if (announcements.length === 0) {
+      if (filtered.length === 0) {
         div.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><p>No hay anuncios. Crea el primero.</p></div>';
+        annsPager.setTotal(0);
         return;
       }
+      annsPager.setTotal(filtered.length);
       div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>T&iacute;tulo</th><th>Contenido</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
-        announcements.map(a => `
+        annsPager.getPage(filtered).data.map(a => `
           <tr>
             <td><span class="cell-id">#${a.id}</span></td>
             <td><span class="cell-name">${a.title}</span></td>
             <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#64748b">${a.content || '—'}</td>
-            <td>${new Date(a.created_at).toLocaleDateString('es-ES')}</td>
+            <td>${formatDate(a.created_at)}</td>
             <td class="actions">
               <button class="btn-edit btn-icon" onclick="openEdit(${a.id})" title="Editar">✏️</button>
               <button class="btn-delete btn-icon" onclick="deleteAnn(${a.id})" title="Eliminar">🗑️</button>
@@ -154,7 +184,7 @@
     }
 
     async function deleteAnn(id) {
-      if (!confirm('¿Eliminar este anuncio?')) return;
+      if (!(await showConfirm('¿Eliminar este anuncio?'))) return;
       try {
         await API.admin.deleteAnnouncement(id);
         announcements = announcements.filter(a => a.id !== id);
@@ -169,5 +199,25 @@
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }
   </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos - Academia Loranca</title>
+  <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
+  <link rel="stylesheet" href="../parte-css/index.css">
+  <link rel="stylesheet" href="./admin.css">
+  <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
+  <style>
+    .status-select {
+      padding:6px 10px; border:2px solid var(--border-color); border-radius:8px;
+      font-size:13px; font-weight:600; background:var(--input-bg); color:var(--text-primary);
+      outline:none; cursor:pointer; transition:0.2s;
+    }
+    .status-select:focus { border-color:#2a17cf; }
+    .status-select option[value="pending"] { color:#d97706; }
+    .status-select option[value="completed"] { color:#16a34a; }
+    .status-select option[value="cancelled"] { color:#dc2626; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-wrap"><img src="../imagenes/logo.png" alt="Logo"></div>
+      <h2>Academia Loranca</h2>
+      <p>Panel Admin</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
+      <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="./orders.html" class="active"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
+      <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
+      <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
+      <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
+      <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="main-header">
+      <div class="main-header-left">
+        <h1>Pedidos</h1>
+        <div class="breadcrumb">Admin / <span>Pedidos</span></div>
+      </div>
+      <div class="user-badge" id="userBadge">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">Administrador</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="statsGrid">
+      <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+      <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+      <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+      <div class="skeleton-stat"><div class="skeleton sk-icon"></div><div class="skeleton sk-number"></div><div class="skeleton sk-label"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><span class="card-icon">📦</span> Gesti&oacute;n de pedidos</h2>
+        <div class="card-toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar pedido..." oninput="renderOrders()">
+          </div>
+          <button class="btn btn-secondary" onclick="exportCSV('pedidos.csv', ['ID','Usuario','Total','Estado','Fecha'], orders.map(o => [o.id, o.username || o.user_id, o.total, o.status, o.created_at]))">📥 CSV</button>
+        </div>
+      </div>
+      <div id="ordersTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="ordersPager"></div>
+    </div>
+  </main>
+
+  <script>
+    let orders = [];
+    let ordersPager;
+
+    (async () => {
+      if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
+      const user = API.getUser();
+      if (!user || user.role !== 'admin') { window.location.href = '../index.html'; return; }
+      document.getElementById('userName').textContent = user.username;
+      document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
+
+      try {
+        const data = await API.admin.getOrders();
+        orders = data.orders || data;
+        document.querySelectorAll('.skeleton-stat').forEach(el => el.remove());
+        renderStats();
+        ordersPager = createPager('ordersPager', 10, renderOrders);
+        renderOrders();
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { console.error(e); document.getElementById('loadingSkeleton')?.remove(); showToast('Error: ' + (e.error || e.message || 'Error al cargar pedidos'), 'error'); }
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault(); API.logout(); window.location.href = '../index.html';
+      });
+    })();
+
+    function renderStats() {
+      const total = orders.length;
+      const revenue = orders.reduce((s, o) => s + (o.total || 0), 0);
+      const pending = orders.filter(o => o.status === 'pending').length;
+      const completed = orders.filter(o => o.status === 'completed').length;
+      const grid = document.getElementById('statsGrid');
+      grid.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon blue">📦</div></div>
+          <div class="number">${total}</div>
+          <div class="label">Total pedidos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon green">💰</div></div>
+          <div class="number">${revenue.toFixed(2).replace('.',',')} €</div>
+          <div class="label">Ingresos totales</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon orange">⏳</div></div>
+          <div class="number">${pending}</div>
+          <div class="label">Pendientes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-icon purple">✅</div></div>
+          <div class="number">${completed}</div>
+          <div class="label">Completados</div>
+        </div>`;
+    }
+
+    function renderOrders() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = orders.filter(o =>
+        String(o.id).includes(q) ||
+        (o.username || '').toLowerCase().includes(q) ||
+        (o.status || '').toLowerCase().includes(q)
+      );
+      const div = document.getElementById('ordersTable');
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>No hay pedidos</p></div>'; ordersPager.setTotal(0); return; }
+      ordersPager.setTotal(filtered.length);
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Usuario</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
+        ordersPager.getPage(filtered).data.map(o => `
+          <tr>
+            <td><span class="cell-id">#${o.id}</span></td>
+            <td><span class="cell-name">${o.username || 'Usuario #' + o.user_id}</span></td>
+            <td><strong>${(o.total || 0).toFixed(2).replace('.',',')} €</strong></td>
+            <td>
+              <select class="status-select" data-id="${o.id}" onchange="updateStatus(${o.id}, this.value)">
+                <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pendiente</option>
+                <option value="completed" ${o.status === 'completed' ? 'selected' : ''}>Pagado</option>
+                <option value="cancelled" ${o.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
+              </select>
+            </td>
+            <td>${formatDate(o.created_at)}</td>
+            <td class="actions">
+              <button class="btn-view btn-icon" onclick="alert('Pedido #${o.id}\\nUsuario: ${o.username || o.user_id}\\nTotal: ${(o.total || 0).toFixed(2).replace('.',',')} €\\nEstado: ${o.status}\\nItems: ${(o.items || []).map(i => i.course_name).join(', ')}')" title="Ver detalle">👁️</button>
+            </td>
+          </tr>
+        `).join('') + '</tbody></table></div>';
+    }
+
+    async function updateStatus(id, status) {
+      const original = orders.find(o => o.id === id)?.status;
+      if (!(await showConfirm('¿Cambiar el estado de este pedido a "' + (status === 'completed' ? 'Pagado' : status === 'cancelled' ? 'Cancelado' : 'Pendiente') + '"?'))) {
+        renderOrders();
+        return;
+      }
+      try {
+        const res = await API.admin.updateOrderStatus(id, status);
+        const idx = orders.findIndex(o => o.id === id);
+        if (idx >= 0) orders[idx] = { ...orders[idx], ...res.order, status };
+        renderOrders();
+        renderStats();
+        showToast('Estado actualizado', 'success');
+      } catch (e) {
+        const idx2 = orders.findIndex(o => o.id === id);
+        if (idx2 >= 0) orders[idx2].status = original;
+        renderOrders();
+        showToast(e.error || 'Error al actualizar', 'error');
+      }
+    }
+  </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
+</body>
+</html>

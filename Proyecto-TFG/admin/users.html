@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Usuarios - Academia Loranca</title>
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="../parte-css/index.css">
   <link rel="stylesheet" href="./admin.css">
   <script src="../parte-logica/api.js"></script>
+  <script src="./admin-utils.js"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -23,7 +25,14 @@
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
+      <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
+      <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
+      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+        <span class="nav-icon" id="adminThemeIcon">🌙</span>
+        <span id="adminThemeLabel">Modo oscuro</span>
+      </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
     </nav>
   </aside>
@@ -51,9 +60,18 @@
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar usuario..." oninput="renderUsers()">
           </div>
+          <button class="btn btn-secondary" onclick="exportCSV('usuarios.csv', ['ID','Usuario','Email','Rol','Fecha'], users.map(u => [u.id, u.username, u.email, u.role, u.created_at]))">📥 CSV</button>
         </div>
       </div>
-      <div id="usersTable"><div class="loading"><div class="spinner"></div>Cargando usuarios...</div></div>
+      <div id="usersTable"><div class="skeleton-card" id="loadingSkeleton">
+  <div class="skeleton sk-title"></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w40"></div><div class="skeleton sk-line w30"></div><div class="skeleton sk-line w20"></div></div>
+  <div class="skeleton-row"><div class="skeleton sk-line w60"></div><div class="skeleton sk-line w20"></div><div class="skeleton sk-line w30"></div></div>
+</div></div>
+      <div id="usersPager"></div>
     </div>
   </main>
 
@@ -74,6 +92,7 @@
   <script>
     let users = [];
     let editingId = null;
+    let usersPager;
 
     (async () => {
       if (!API.isLoggedIn()) { window.location.href = '../login.html'; return; }
@@ -85,8 +104,10 @@
       try {
         const data = await API.admin.getUsers();
         users = data.users;
+        usersPager = createPager('usersPager', 10, renderUsers);
         renderUsers();
-      } catch (e) { console.error(e); showToast('Error: ' + (e.error || e.message || 'Error al cargar usuarios'), 'error'); }
+        document.getElementById('loadingSkeleton')?.remove();
+      } catch (e) { console.error(e); document.getElementById('loadingSkeleton')?.remove(); showToast('Error: ' + (e.error || e.message || 'Error al cargar usuarios'), 'error'); }
 
       document.getElementById('logoutBtn').addEventListener('click', (e) => {
         e.preventDefault(); API.logout(); window.location.href = '../index.html';
@@ -97,15 +118,16 @@
       const q = document.getElementById('searchInput').value.toLowerCase();
       const filtered = users.filter(u => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
       const div = document.getElementById('usersTable');
-      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No hay usuarios</p></div>'; return; }
+      if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No hay usuarios</p></div>'; usersPager.setTotal(0); return; }
+      usersPager.setTotal(filtered.length);
       div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead><tbody>' +
-        filtered.map(u => `
+        usersPager.getPage(filtered).data.map(u => `
           <tr>
             <td><span class="cell-id">#${u.id}</span></td>
             <td><span class="cell-name">${u.username}</span></td>
             <td>${u.email}</td>
             <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}">${u.role === 'admin' ? 'Administrador' : 'Usuario'}</span></td>
-            <td>${new Date(u.created_at).toLocaleDateString('es-ES')}</td>
+            <td>${formatDate(u.created_at)}</td>
             <td class="actions">
               <button class="btn-edit btn-icon" onclick="openEdit(${u.id})" title="Editar">✏️</button>
               <button class="btn-delete btn-icon" onclick="deleteUser(${u.id})" title="Eliminar">🗑️</button>
@@ -139,7 +161,7 @@
     }
 
     async function deleteUser(id) {
-      if (!confirm('¿Eliminar este usuario definitivamente?')) return;
+      if (!(await showConfirm('¿Eliminar este usuario definitivamente?'))) return;
       try {
         await API.admin.deleteUser(id);
         users = users.filter(u => u.id !== id);
@@ -154,5 +176,25 @@
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }
   </script>
+<script>
+(function(){
+  const btn = document.getElementById('adminThemeToggle');
+  const icon = document.getElementById('adminThemeIcon');
+  const label = document.getElementById('adminThemeLabel');
+  if(btn){
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    icon.textContent = isDark ? '☀️' : '🌙';
+    label.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+      icon.textContent = dark ? '☀️' : '🌙';
+      label.textContent = dark ? 'Modo claro' : 'Modo oscuro';
+    });
+  }
+})();
+</script>
 </body>
 </html>
