@@ -166,18 +166,48 @@ async function initDb() {
     }
   } catch {}
   try {
-    db.exec("SELECT id FROM enrollments LIMIT 1");
-  } catch {
-    db.exec(`CREATE TABLE IF NOT EXISTS enrollments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      course_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id),
-      FOREIGN KEY (course_id) REFERENCES courses(id),
-      UNIQUE(user_id, course_id)
-    )`);
+    db.exec("CREATE TABLE IF NOT EXISTS teachers (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE NOT NULL, title TEXT DEFAULT '', bio TEXT DEFAULT '', years_experience INTEGER DEFAULT 0, specialties TEXT DEFAULT '', image TEXT DEFAULT '')");
     save();
+  } catch {}
+  const teacherCount = queryOne('SELECT COUNT(*) as c FROM teachers').c;
+  if (teacherCount === 0) {
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Isabel Rodriguez', 'Profesora de Refuerzo Integral',
+       'Isabel es una apasionada de la enseñanza con una amplia experiencia en educación primaria y primer ciclo de secundaria. Su método se basa en la paciencia, la empatía y la creación de una base sólida de conocimientos. Especialista en detectar dificultades de aprendizaje tempranas y convertirlas en fortalezas.',
+       12, 'Primaria, 1º ESO, Matemáticas, Lengua, Inglés', './imagenes/profeIsabel.png']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Laura Barroso', 'Profesora de Refuerzo Integral y Preparación EVAU',
+       'Laura es una docente vocacional con una trayectoria brillante preparando a estudiantes de secundaria y bachillerato para sus exámenes más importantes. Su energía y cercanía conectan con los adolescentes, ayudándoles a desarrollar confianza y autonomía. Especialista en técnicas de estudio y preparación de la EVAU.',
+       10, '2º-4º ESO, Bachillerato, EVAU, Física, Química, Matemáticas', './imagenes/profeLaura.png']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Carlos Mendoza', 'Ingeniero de Ciberseguridad',
+       'Carlos es un experto en seguridad informática con experiencia en auditoría de sistemas y hacking ético. Ha trabajado como consultor para varias empresas tecnológicas y ahora comparte sus conocimientos en el aula. Sus clases son prácticas, con laboratorios reales y ejercicios de penetración controlados.',
+       8, 'Ciberseguridad, Hacking Ético, Redes, Criptografía', '']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Ana Beltrán', 'Científica de Datos e IA',
+       'Ana es investigadora en inteligencia artificial con publicaciones en revistas internacionales. Combina su experiencia académica con proyectos empresariales de machine learning. Sus cursos son intensivos y prácticos, enfocados en aplicaciones reales de IA con Python y TensorFlow.',
+       7, 'IA, Machine Learning, Python, TensorFlow, NLP', '']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['David Soler', 'Analista de Datos Senior',
+       'David ha trabajado como data scientist en startups y grandes corporaciones, manejando volúmenes masivos de datos. Su enfoque pedagógico se centra en enseñar a pensar con datos, combinando estadística, visualización y storytelling con datos.',
+       9, 'Data Science, Big Data, SQL, Python, R, Visualización', '']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['María León', 'Desarrolladora Full Stack',
+       'María es desarrolladora web con más de 8 años construyendo aplicaciones para clientes internacionales. Domina tanto el frontend como el backend y enseña con metodologías ágiles. Sus alumnos aprenden construyendo proyectos reales desde el primer día.',
+       8, 'HTML, CSS, JavaScript, React, Node.js, Bases de Datos', '']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Sofía Rivas', 'Especialista en Marketing Digital',
+       'Sofía ha liderado estrategias de marketing digital para marcas reconocidas, generando campañas de alto impacto en redes sociales y motores de búsqueda. Su formación es práctica y actualizada, enseñando las últimas tendencias del marketing online.',
+       6, 'SEO, SEM, Redes Sociales, Email Marketing, Analytics', '']);
+    runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      ['Javier Torres', 'Diseñador Gráfico Senior',
+        'Javier es diseñador gráfico con más de 10 años de experiencia en agencias de publicidad y estudios de diseño. Ha liderado proyectos de branding, diseño UX/UI y campañas visuales para diversas empresas.\n\n' +
+        '🎯 Metodología:\n' +
+        'Sus clases combinan teoría del diseño con práctica intensiva en Adobe Creative Suite y Figma. Cada alumno desarrolla un portafolio profesional real durante el curso, con proyectos que van desde diseño de logotipos hasta prototipos interactivos de apps.\n\n' +
+        '💡 Ideal para:\n' +
+        'Creativos que quieren profesionalizar su talento, estudiantes de diseño que buscan portafolio, y profesionales que necesitan dominar herramientas Adobe para destacar en el mercado laboral.',
+        10, 'Diseño Gráfico, Adobe Suite, UX/UI, Branding, Tipografía', '']);
+    console.log('[DB] Teachers seeded');
   }
 
   const admin = queryOne('SELECT id FROM users WHERE username=?', ['admin']);
@@ -193,32 +223,32 @@ async function initDb() {
       VALUES (?,?,?,?,?,?,?)`,
       ['Refuerzo Integral - Grupo 1',
        'Clases de refuerzo escolar para Primaria y 1º ESO. Atención personalizada en grupos reducidos.',
-       'Isabel Rodriguez', 'Lunes a Jueves 15:00-20:00', 8, '#2a17cf', 49.90]);
+        'Isabel Rodriguez', 'Lunes a Jueves 15:00-20:00', 20, '#2a17cf', 49.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Refuerzo Integral - Grupo 2',
        'Clases de refuerzo escolar para 2º-4º ESO y Bachillerato. Preparación de exámenes y EVAU.',
-       'Laura Barroso', 'Lunes a Jueves 16:00-21:00', 8, '#00d5ff', 49.90]);
+        'Laura Barroso', 'Lunes a Jueves 16:00-21:00', 20, '#00d5ff', 49.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Ciberseguridad y Hacking Ético',
        'Aprende los fundamentos de la ciberseguridad, análisis de vulnerabilidades, cifrado y pruebas de penetración. Curso práctico con laboratorios virtuales.',
-       'Carlos Mendoza', 'Martes y Jueves 18:00-20:00', 15, '#dc2626', 79.90]);
+        'Carlos Mendoza', 'Martes y Jueves 18:00-20:00', 20, '#dc2626', 79.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Inteligencia Artificial y Machine Learning',
        'Domina los conceptos de IA, redes neuronales, procesamiento del lenguaje natural y visión por computadora. Proyectos reales con Python y TensorFlow.',
-       'Ana Beltrán', 'Lunes y Miércoles 17:00-19:00', 12, '#7c3aed', 89.90]);
+        'Ana Beltrán', 'Lunes y Miércoles 17:00-19:00', 20, '#7c3aed', 89.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Data Science y Análisis de Datos',
        'Big Data, estadística avanzada, visualización de datos con Python, R y SQL. Ideal para quienes buscan dominar el análisis de datos empresariales.',
-       'David Soler', 'Miércoles y Viernes 16:00-18:00', 12, '#0891b2', 69.90]);
+        'David Soler', 'Miércoles y Viernes 16:00-18:00', 20, '#0891b2', 69.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Desarrollo Web Full Stack',
        'Aprende HTML, CSS, JavaScript, React, Node.js y bases de datos. Construye aplicaciones web completas desde cero hasta producción.',
-       'María León', 'Lunes a Viernes 10:00-12:00', 10, '#059669', 99.90]);
+        'María León', 'Lunes a Viernes 10:00-12:00', 20, '#059669', 99.90]);
     runSql(`INSERT INTO courses (name,description,teacher,schedule,max_students,color,price)
       VALUES (?,?,?,?,?,?,?)`,
       ['Marketing Digital y Redes Sociales',
@@ -228,7 +258,7 @@ async function initDb() {
       VALUES (?,?,?,?,?,?,?)`,
       ['Diseño Gráfico y Adobe Creative Suite',
        'Photoshop, Illustrator, InDesign y Figma. Desde fundamentos del diseño hasta proyectos profesionales para portafolio.',
-       'Pablo Herrera', 'Lunes, Miércoles y Viernes 18:00-20:00', 14, '#db2777', 74.90]);
+        'Javier Torres', 'Lunes, Miércoles y Viernes 18:00-20:00', 20, '#db2777', 74.90]);
     console.log('[DB] Cursos creados');
   }
 

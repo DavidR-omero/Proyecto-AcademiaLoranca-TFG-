@@ -209,8 +209,47 @@ router.delete('/schedules/:id', (req, res) => {
   res.json({ success: true });
 });
 
+router.get('/teachers', (req, res) => {
+  const teachers = queryAll('SELECT * FROM teachers ORDER BY id');
+  res.json({ teachers });
+});
+
+router.post('/teachers', (req, res) => {
+  const { name, title, bio, years_experience, specialties, image } = req.body;
+  if (!name) return res.status(400).json({ error: 'El nombre es obligatorio' });
+  try {
+    const r = runSql('INSERT INTO teachers (name,title,bio,years_experience,specialties,image) VALUES (?,?,?,?,?,?)',
+      [name, title || '', bio || '', years_experience || 0, specialties || '', image || '']);
+    const t = queryOne('SELECT * FROM teachers WHERE id=?', [r.lastInsertRowid]);
+    res.status(201).json({ teacher: t });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.put('/teachers/:id', (req, res) => {
+  const t = queryOne('SELECT id FROM teachers WHERE id=?', [req.params.id]);
+  if (!t) return res.status(404).json({ error: 'Profesor no encontrado' });
+  const { name, title, bio, years_experience, specialties, image } = req.body;
+  try {
+    runSql(`UPDATE teachers SET name=?, title=?, bio=?, years_experience=?, specialties=?, image=? WHERE id=?`,
+      [name, title, bio, years_experience, specialties, image, req.params.id]);
+    const updated = queryOne('SELECT * FROM teachers WHERE id=?', [req.params.id]);
+    res.json({ teacher: updated });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.delete('/teachers/:id', (req, res) => {
+  const t = queryOne('SELECT id FROM teachers WHERE id=?', [req.params.id]);
+  if (!t) return res.status(404).json({ error: 'Profesor no encontrado' });
+  runSql('DELETE FROM teachers WHERE id=?', [req.params.id]);
+  res.json({ success: true });
+});
+
 router.get('/table/:name', (req, res) => {
-  const allowed = ['users', 'courses', 'contact_messages', 'announcements', 'events', 'enrollments', 'schedules'];
+  const allowed = ['users', 'courses', 'contact_messages', 'announcements', 'events', 'enrollments', 'schedules', 'teachers'];
   const name = req.params.name;
   if (!allowed.includes(name)) return res.status(400).json({ error: 'Tabla no permitida' });
 

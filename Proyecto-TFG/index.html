@@ -11,7 +11,7 @@
     <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
     <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
     <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
-    <script type="module" src="./parte-logica/Componentes/lector-pagina.js"></script>
+    
     <script src="./parte-logica/carrusel.js" defer></script>
     <script src="./parte-logica/animaciones.js" defer></script>
 </head>
@@ -22,7 +22,6 @@
 
     <!--------HEADER---------->
     <header-componente></header-componente>
-    <lector-pagina></lector-pagina>
     <whatsapp-componente></whatsapp-componente>
 
 
@@ -66,18 +65,36 @@
     <main class="academia-loranca">
 
         <section class="hero-academia">
+            <div class="hero-bg-shapes">
+                <div class="shape s1"></div>
+                <div class="shape s2"></div>
+                <div class="shape s3"></div>
+            </div>
             <div class="hero-content">
                 <h1>Academia Loranca</h1>
-                <h2>Clases extraescolares que transforman el aprendizaje</h2>
+                <h2>Refuerzo escolar, tecnología y desarrollo profesional</h2>
                 <p>
-                    En <strong>Academia Loranca</strong> ayudamos a niños y jóvenes a mejorar sus resultados académicos,
-                    reforzar sus conocimientos y desarrollar <strong>hábitos de estudio sólidos</strong> en un entorno
-                    cercano,
-                    moderno y motivador.
+                    En <strong>Academia Loranca</strong> ofrecemos clases de refuerzo integral para <strong>Primaria, ESO y Bachillerato</strong>, además de cursos especializados en <strong>ciberseguridad, desarrollo web, IA, diseño gráfico y marketing digital</strong>. Grupos reducidos de máximo 8 alumnos, atención personalizada y seguimiento continuo.
                 </p>
+                <div class="hero-stats-live" id="heroLiveStats">
+                    <div class="hsl-item"><span class="hsl-num" id="hslCourses">0</span><span class="hsl-label">Cursos</span></div>
+                    <div class="hsl-item"><span class="hsl-num" id="hslTeachers">0</span><span class="hsl-label">Profesores</span></div>
+                    <div class="hsl-item"><span class="hsl-num" id="hslStudents">0</span><span class="hsl-label">Plazas</span></div>
+                </div>
                 <div class="hero-buttons">
                     <a href="./contactos.html" class="btn-primary">Solicitar información</a>
-                    <a href="#inscripcion" class="btn-secondary">Inscripción abierta</a>
+                    <a href="./grupos.html" class="btn-secondary">Ver cursos</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CURSOS DESTACADOS (dinámico) -->
+        <section class="course-preview">
+            <h2>📚 Nuestros cursos</h2>
+            <p class="cp-sub">Desliza para ver todos los cursos disponibles — <a href="./grupos.html" style="color:#2a17cf;font-weight:600">Ver todos →</a></p>
+            <div class="container">
+                <div class="cp-grid" id="cpGrid">
+                    <div style="flex:0 0 280px;padding:40px;text-align:center;color:var(--text-muted)">Cargando cursos...</div>
                 </div>
             </div>
         </section>
@@ -87,19 +104,16 @@
             <div class="container">
                 <h2 class="SOBRE">Sobre Academia Loranca</h2>
                 <p class="intro">
-                    Somos una academia de refuerzo escolar especializada en educación personalizada para
-                    primaria, ESO y bachillerato. Acompañamos a cada alumno en su proceso educativo con
-                    <strong>cercanía, profesionalidad y motivación</strong>.
+                    Somos una academia de refuerzo escolar y formación tecnológica ubicada en <strong>Fuenlabrada - Loranca</strong>. Trabajamos con alumnos desde <strong>Primaria hasta Bachillerato</strong>, ofreciendo clases presenciales de refuerzo integral con Isabel y Laura, además de cursos especializados en tecnología, diseño y desarrollo profesional impartidos por profesores expertos en cada área.
                 </p>
                 <p class="experiencia">
-                    🎓 Contamos con <strong>más de 10 años de experiencia</strong> formando estudiantes y ayudándolos a
-                    alcanzar sus metas académicas.
+                    🎓 Contamos con <strong>más de 10 años de experiencia</strong> formando estudiantes y <strong>8 cursos activos</strong> con plazas limitadas para garantizar la calidad educativa.
                 </p>
 
                 <div class="valores-grid">
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/atencionPersonalizada.jpg" alt="">
+                            <img src="./imagenes/atencionPersonalizada.jpg" alt="Atención personalizada al alumno en Academia Loranca">
                         </div>
                         <h3>🎯 <strong>Atención personalizada</strong></h3>
                         <p>Adaptamos el <strong>ritmo de aprendizaje</strong>, los objetivos y la metodología a las
@@ -109,7 +123,7 @@
 
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/grupos.jpg" alt="">
+                            <img src="./imagenes/grupos.jpg" alt="Grupos reducidos de máximo 8 alumnos en Academia Loranca">
                         </div>
                         <h3>👥 <strong>Grupos reducidos</strong></h3>
                         <p>Clases con un máximo de <strong>8 alumnos</strong>, lo que permite una enseñanza cercana,
@@ -120,7 +134,7 @@
 
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/seguimiento2.jpg" alt="">
+                            <img src="./imagenes/seguimiento2.jpg" alt="Seguimiento continuo del progreso académico del alumno">
                         </div>
                         <h3>📈 <strong>Seguimiento continuo</strong></h3>
                         <p>Evaluamos semanalmente la <strong>evolución académica</strong> para detectar dificultades a
@@ -130,7 +144,7 @@
 
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/comunicacion.jpg" alt="">
+                            <img src="./imagenes/comunicacion.jpg" alt="Comunicación directa con familias sobre el progreso académico">
                         </div>
                         <h3>🤝 <strong>Comunicación con familias</strong></h3>
                         <p>Mantenemos <strong>contacto directo</strong> con padres y madres para informar del progreso,
@@ -140,7 +154,7 @@
 
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/metodologia2.jpg" alt="">
+                            <img src="./imagenes/metodologia2.jpg" alt="Metodología adaptativa y técnicas modernas de estudio">
                         </div>
                         <h3>📚 <strong>Metodología adaptativa</strong></h3>
                         <p>Aplicamos <strong>técnicas modernas</strong> que fomentan la <strong>comprensión,
@@ -150,7 +164,7 @@
 
                     <div class="valor-card">
                         <div class="asignatura-img">
-                            <img src="./imagenes/educacion integral (2).jpg" alt="">
+                            <img src="./imagenes/educacion integral (2).jpg" alt="Educación integral que desarrolla autonomía y responsabilidad">
                         </div>
                         <h3>🧠 <strong>Educación integral</strong></h3>
                         <p>No solo enseñamos contenidos académicos, también desarrollamos <strong>organización</strong>,
@@ -211,17 +225,9 @@
       <div class="container">
         <h2>Nuestros profesores</h2>
         <div class="profesores-grid" id="profesoresGrid">
-          <div class="profesor-card placeholder">
+          <div class="profesor-card placeholder" style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:40px">
             <div class="profesor-avatar">👩‍🏫</div>
-            <h3>Isabel Rodríguez</h3>
-            <p>Refuerzo Integral - Grupo 1</p>
-            <span class="profesor-badge">Primaria y 1º ESO</span>
-          </div>
-          <div class="profesor-card placeholder">
-            <div class="profesor-avatar">👩‍🏫</div>
-            <h3>Laura Barroso</h3>
-            <p>Refuerzo Integral - Grupo 2</p>
-            <span class="profesor-badge">2º-4º ESO y Bachillerato</span>
+            <h3>Cargando profesores...</h3>
           </div>
         </div>
       </div>
@@ -230,10 +236,141 @@
     <script>
       (async () => {
         try {
+          const res = await fetch('/api/courses');
+          const { courses } = await res.json();
+          const tRes = await fetch('/api/teachers');
+          const { teachers } = await tRes.json();
+          if (!courses) return;
+
+          const teacherMap = {};
+          const teacherData = {};
+          if (teachers) {
+            teachers.forEach(t => { teacherData[t.name.toLowerCase().trim()] = t; });
+          }
+
+          courses.forEach(c => {
+            const t = (c.teacher || '').trim();
+            if (!t) return;
+            if (!teacherMap[t]) teacherMap[t] = [];
+            teacherMap[t].push(c);
+          });
+
+          const featuredNames = ['isabel', 'laura'];
+          const teachersList = Object.keys(teacherMap);
+          const sorted = [...teachersList].sort((a, b) => {
+            const aFav = featuredNames.some(n => a.toLowerCase().includes(n));
+            const bFav = featuredNames.some(n => b.toLowerCase().includes(n));
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            return 0;
+          });
+
+          const grid = document.getElementById('profesoresGrid');
+          const colors = ['#2a17cf','#00d5ff','#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626'];
+
+          grid.innerHTML = sorted.map((t, idx) => {
+            const isFeatured = featuredNames.some(n => t.toLowerCase().includes(n));
+            const tc = teacherMap[t];
+            const mainCourse = tc[0];
+            const subjects = tc.map(c => c.name).join(', ');
+            const courseLevel = isFeatured && t.toLowerCase().includes('isabel') ? 'Primaria y 1º ESO'
+              : isFeatured && t.toLowerCase().includes('laura') ? '2º-4º ESO y Bachillerato'
+              : '';
+            const color = mainCourse?.color || colors[idx % colors.length];
+            const td = teacherData[t.toLowerCase().trim()];
+            const avatarLetter = t.charAt(0);
+            const avatarColors = ['#2a17cf','#00d5ff','#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626'];
+            const avatarColor = avatarColors[idx % avatarColors.length];
+
+            return `
+            <div class="profesor-card${isFeatured ? ' featured' : ''}" onclick='openTeacherPopup(${JSON.stringify({name:t, title:(td?.title||''), bio:(td?.bio||''), years:(td?.years_experience||0), specialties:(td?.specialties||''), subjects, schedule: (mainCourse?.schedule || ''), courseLevel, isFeatured, color}).replace(/'/g,"&#39;")})'>
+              <div class="profesor-avatar" style="background:${avatarColor}18;color:${avatarColor}">${avatarLetter}</div>
+              <div class="profesor-body">
+                <h3>${t}${isFeatured ? ' ⭐' : ''}</h3>
+                ${td?.title ? '<div class="profesor-title">' + escHtml(td.title) + '</div>' : ''}
+                <div class="profesor-meta">
+                  ${td?.years_experience ? '<span class="profesor-meta-item">📅 ' + td.years_experience + ' años</span>' : ''}
+                  ${td?.specialties ? '<span class="profesor-meta-item">🎯 ' + escHtml(td.specialties.split(',')[0]) + '</span>' : ''}
+                </div>
+                <p class="profesor-courses">📚 ${escHtml(subjects)}</p>
+                ${courseLevel ? '<span class="profesor-badge">' + courseLevel + '</span>' : ''}
+              </div>
+            </div>`;
+          }).join('');
+          document.getElementById('loadingSkeleton')?.remove();
+        } catch {}
+      })();
+
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    </script>
+
+    <!-- Teacher Popup Modal -->
+    <div class="teacher-modal-overlay" id="teacherModal" onclick="closeTeacherPopup(event)">
+      <div class="teacher-modal">
+        <button class="teacher-modal-close" onclick="closeTeacherPopup()">✕</button>
+        <div id="teacherModalContent"></div>
+      </div>
+    </div>
+
+    <script>
+      function openTeacherPopup(data) {
+        const modal = document.getElementById('teacherModal');
+        const content = document.getElementById('teacherModalContent');
+        const whatsappPhone = data.name.toLowerCase().includes('laura') ? '665927240' : '652081700';
+        const whatsappMsg = encodeURIComponent(`¡Hola! Me gustaría recibir información sobre los cursos impartidos por ${data.name}.`);
+        content.innerHTML = `
+          <div class="tm-header" style="border-bottom:2px solid ${data.color || '#2a17cf'}">
+            <div class="tm-avatar" style="background:${data.color || '#2a17cf'}22;color:${data.color || '#2a17cf'}">👨‍🏫</div>
+            <div>
+              <h2 class="tm-name">${data.name}${data.isFeatured ? ' ⭐' : ''}</h2>
+              ${data.title ? '<div class="tm-title">' + data.title + '</div>' : ''}
+            </div>
+          </div>
+          ${data.bio ? '<div class="tm-section"><h3 class="tm-section-title">📖 Sobre el profesor</h3><div class="tm-bio">' + data.bio.replace(/\n/g, '<br>') + '</div></div>' : ''}
+          <div class="tm-details">
+            ${data.years ? '<div class="tm-detail"><span class="tm-detail-icon">📅</span><span><strong>' + data.years + ' años</strong> de experiencia</span></div>' : ''}
+            ${data.specialties ? '<div class="tm-detail"><span class="tm-detail-icon">🎯</span><span><strong>Especialidades:</strong> ' + data.specialties + '</span></div>' : ''}
+            ${data.subjects ? '<div class="tm-detail"><span class="tm-detail-icon">📚</span><span><strong>Cursos:</strong> ' + data.subjects + '</span></div>' : ''}
+            ${data.schedule ? '<div class="tm-detail"><span class="tm-detail-icon">🕐</span><span><strong>Horario:</strong> ' + data.schedule + '</span></div>' : ''}
+            ${data.courseLevel ? '<div class="tm-detail"><span class="tm-detail-icon">🎓</span><span><strong>Nivel:</strong> ' + data.courseLevel + '</span></div>' : ''}
+          </div>
+          <div class="tm-actions">
+            <a href="https://wa.me/${whatsappPhone}?text=${whatsappMsg}" target="_blank" class="tm-btn tm-btn-wa">💬 Consultar por WhatsApp</a>
+            <a href="./contactos.html" class="tm-btn tm-btn-contact">📝 Formulario de contacto</a>
+          </div>
+        `;
+        modal.classList.add('active');
+      }
+      function closeTeacherPopup(e) {
+        if (e && e.target !== document.getElementById('teacherModal')) return;
+        document.getElementById('teacherModal').classList.remove('active');
+      }
+    </script>
+
+    <script>
+      (async () => {
+        try {
           const res = await fetch('/api/stats/public');
           const data = await res.json();
           const el = document.getElementById('statCourses');
           if (el) el.dataset.target = data.courses || 8;
+          /* Live hero stats */
+          const hc = document.getElementById('hslCourses');
+          const ht = document.getElementById('hslTeachers');
+          const hs = document.getElementById('hslStudents');
+          if (hc) hc.textContent = data.courses || 0;
+          if (ht) ht.textContent = data.teachers || '—';
+          /* Also load teachers count from courses */
+          if (ht || hs) {
+            const cRes = await fetch('/api/courses');
+            const { courses } = await cRes.json();
+            if (courses) {
+              const teachers = new Set(courses.map(c => c.teacher)).size;
+              if (ht) ht.textContent = teachers || '—';
+              const totalPlazas = courses.reduce((s, c) => s + (c.max_students || 0), 0);
+              if (hs) hs.textContent = totalPlazas || '—';
+            }
+          }
         } catch {}
       })();
     </script>
@@ -350,27 +487,24 @@
     </script>
 
     </main>
-    <section class="servicios" id="servicios">
+        <section class="servicios" id="servicios">
         <div class="container">
-            <h2>Servicios educativos</h2>
+            <h2>Nuestros servicios educativos</h2>
 
             <!-- BLOQUE 1 -->
             <div class="servicio-item">
                 <div class="servicio-img">
-                    <img src="./imagenes/clasesRefuerzo.jpg" alt="">
+                    <img src="./imagenes/clasesRefuerzo.jpg" alt="Clases de refuerzo escolar en grupo reducido">
                 </div>
                 <div class="servicio-text">
-                    <h3>📘 <strong>Clases de refuerzo escolar</strong></h3>
-                    <p>Nuestras clases de refuerzo están diseñadas para fortalecer los conocimientos de los alumnos en
-                        asignaturas troncales. Buscamos que comprendan los <strong>conceptos a fondo</strong> y ganen
-                        <strong>confianza académica</strong>.
-                    </p>
+                    <h3>📘 <strong>Refuerzo Integral - Primaria y 1º ESO</strong></h3>
+                    <p>Grupo impartido por <strong>Isabel Rodríguez</strong>, especialista en educación primaria y primer ciclo de secundaria con más de 12 años de experiencia. Clases de lunes a jueves en grupos reducidos para garantizar atención personalizada.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Resolución de dudas</strong> de manera individual.</li>
-                        <li><strong>Ejercicios guiados paso a paso</strong>.</li>
-                        <li><strong>Explicaciones adaptadas</strong> al nivel de cada alumno.</li>
-                        <li><strong>Refuerzo constante</strong> para afianzar los conocimientos.</li>
+                        <li><strong>Refuerzo en Matemáticas, Lengua, Inglés y Ciencias</strong>.</li>
+                        <li><strong>Técnicas de estudio y organización</strong> adaptadas a cada alumno.</li>
+                        <li><strong>Seguimiento semanal</strong> del progreso académico.</li>
+                        <li><strong>Comunicación directa</strong> con las familias.</li>
                     </ul>
                 </div>
             </div>
@@ -378,113 +512,107 @@
             <!-- BLOQUE 2 -->
             <div class="servicio-item reverse">
                 <div class="servicio-img">
-                    <img src="./imagenes/preparacion.jpg" alt="">
+                    <img src="./imagenes/preparacion.jpg" alt="Preparación de exámenes y EVAU">
                 </div>
                 <div class="servicio-text">
-                    <h3>📝 <strong>Preparación de exámenes</strong></h3>
-                    <p>Preparamos a los alumnos para afrontar cualquier prueba con <strong>seguridad</strong> y
-                        <strong>planificación</strong>. Nuestro enfoque incluye <strong>simulacros, técnicas de
-                            estudio</strong> y <strong>organización del tiempo</strong>.
-                    </p>
+                    <h3>📝 <strong>Refuerzo Integral - Secundaria y Bachillerato</strong></h3>
+                    <p>Grupo impartido por <strong>Laura Barroso</strong>, docente vocacional con 10 años preparando estudiantes para exámenes de secundaria, bachillerato y la EVAU. Grupos de máximo 8 alumnos con horario de lunes a jueves.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Simulacros</strong> con condiciones reales de examen.</li>
-                        <li><strong>Técnicas de repaso y memorización</strong> eficientes.</li>
-                        <li><strong>Planificación semanal de estudio</strong>.</li>
+                        <li><strong>Preparación específica</strong> para exámenes y recuperaciones.</li>
+                        <li><strong>Simulacros de EVAU</strong> con condiciones reales.</li>
+                        <li><strong>Técnicas avanzadas de estudio</strong> y planificación.</li>
+                        <li><strong>Refuerzo en Física, Química, Matemáticas</strong> y asignaturas troncales.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- BLOQUE 3 -->
+            <!-- BLOQUE 3: Ciberseguridad -->
             <div class="servicio-item">
                 <div class="servicio-img">
-                    <img src="./imagenes/recuperaciones.jpg" alt="">
+                    <img src="./imagenes/recuperaciones.jpg" alt="Curso de Ciberseguridad y Hacking Ético con laboratorios virtuales">
                 </div>
                 <div class="servicio-text">
-                    <h3>🔁 <strong>Recuperaciones</strong></h3>
-                    <p>Planes intensivos para superar asignaturas pendientes, reforzando los <strong>contenidos
-                            clave</strong> de manera <strong>estructurada</strong> y <strong>eficiente</strong>.</p>
+                    <h3>🛡️ <strong>Ciberseguridad y Hacking Ético</strong></h3>
+                    <p>Impartido por <strong>Carlos Mendoza</strong>, ingeniero de ciberseguridad con 8 años de experiencia. Aprende los fundamentos de la seguridad informática con laboratorios virtuales y ejercicios prácticos de penetración.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Refuerzo intensivo</strong> de los temas más difíciles.</li>
-                        <li><strong>Preparación específica</strong> para exámenes de recuperación.</li>
-                        <li><strong>Evaluación continua</strong> del progreso.</li>
-                        <li><strong>Apoyo personalizado</strong> según necesidades individuales.</li>
+                        <li><strong>Análisis de vulnerabilidades</strong> y pruebas de penetración.</li>
+                        <li><strong>Cifrado y criptografía</strong> aplicada.</li>
+                        <li><strong>Laboratorios virtuales</strong> con entornos reales.</li>
+                        <li><strong>Certificación práctica</strong> al completar el curso.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- BLOQUE 4 -->
+            <!-- BLOQUE 4: IA y Machine Learning -->
             <div class="servicio-item reverse">
                 <div class="servicio-img">
-                    <img src="./imagenes/evau.jpg" alt="">
+                    <img src="./imagenes/evau.jpg" alt="Curso de Inteligencia Artificial y Machine Learning con Python">
                 </div>
                 <div class="servicio-text">
-                    <h3>🎓 <strong>Preparación EVAU/PAU</strong></h3>
-                    <p>Entrenamiento especializado para superar la <strong>prueba de acceso a la universidad</strong>
-                        con seguridad y confianza.</p>
+                    <h3>🤖 <strong>Inteligencia Artificial y Machine Learning</strong></h3>
+                    <p>Impartido por <strong>Ana Beltrán</strong>, científica de datos con 7 años de experiencia en IA. Domina redes neuronales, procesamiento del lenguaje natural y visión por computadora con proyectos reales.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Resolución de exámenes reales</strong> de años anteriores.</li>
-                        <li><strong>Técnicas avanzadas de estudio</strong> y gestión del tiempo.</li>
-                        <li><strong>Simulación completa</strong> de pruebas.</li>
-                        <li><strong>Orientación académica</strong> para seleccionar materias y estrategias.</li>
+                        <li><strong>Redes neuronales</strong> y deep learning con TensorFlow.</li>
+                        <li><strong>Procesamiento del lenguaje natural</strong> (NLP).</li>
+                        <li><strong>Visión por computadora</strong> con proyectos prácticos.</li>
+                        <li><strong>Despliegue de modelos</strong> en producción.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- BLOQUE 5 -->
+            <!-- BLOQUE 5: Data Science -->
             <div class="servicio-item">
                 <div class="servicio-img">
-                    <img src="./imagenes/apoyo.jpg" alt="">
+                    <img src="./imagenes/apoyo.jpg" alt="Curso de Data Science y Análisis de Datos con Python y SQL">
                 </div>
                 <div class="servicio-text">
-                    <h3>🏫 <strong>Apoyo escolar diario</strong></h3>
-                    <p>Acompañamiento constante en las tareas, <strong>estudio</strong> y <strong>organización</strong>
-                        de los trabajos escolares para garantizar progreso diario.</p>
+                    <h3>📊 <strong>Data Science y Análisis de Datos</strong></h3>
+                    <p>Impartido por <strong>David Soler</strong>, analista de datos senior con 9 años de experiencia. Aprende a manejar Big Data, estadística avanzada y visualización de datos con Python, R y SQL.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Supervisión de deberes y trabajos</strong>.</li>
-                        <li><strong>Refuerzo diario</strong> de contenidos clave.</li>
-                        <li><strong>Resolución inmediata de dudas</strong>.</li>
-                        <li><strong>Fomento de hábitos de estudio</strong> sólidos.</li>
+                        <li><strong>Big Data</strong> y procesamiento de grandes volúmenes de datos.</li>
+                        <li><strong>Estadística avanzada</strong> y análisis predictivo.</li>
+                        <li><strong>Visualización de datos</strong> con herramientas modernas.</li>
+                        <li><strong>Proyectos con datos reales</strong> empresariales.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- BLOQUE 6 -->
+            <!-- BLOQUE 6: Desarrollo Web -->
             <div class="servicio-item reverse">
                 <div class="servicio-img">
-                    <img src="./imagenes/seguimiento.jpg" alt="">
+                    <img src="./imagenes/seguimiento.jpg" alt="Curso de Desarrollo Web Full Stack con HTML, CSS, JavaScript y React">
                 </div>
                 <div class="servicio-text">
-                    <h3>📊 <strong>Seguimiento académico</strong></h3>
-                    <p>Monitoreamos el progreso de cada alumno mediante <strong>informes periódicos</strong> y
-                        evaluaciones continuas.</p>
+                    <h3>💻 <strong>Desarrollo Web Full Stack</strong></h3>
+                    <p>Impartido por <strong>María León</strong>, desarrolladora full stack con 8 años de experiencia. Construye aplicaciones web completas desde cero con HTML, CSS, JavaScript, React, Node.js y bases de datos.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Evaluación continua</strong> y ajustes personalizados.</li>
-                        <li><strong>Comunicación constante</strong> con familias.</li>
-                        <li><strong>Planes de mejora individualizados</strong>.</li>
+                        <li><strong>Frontend</strong> con HTML, CSS y React.</li>
+                        <li><strong>Backend</strong> con Node.js y Express.</li>
+                        <li><strong>Bases de datos</strong> SQL y NoSQL.</li>
+                        <li><strong>Despliegue</strong> de aplicaciones en producción.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- BLOQUE 7 -->
+            <!-- BLOQUE 7: Marketing Digital -->
             <div class="servicio-item">
                 <div class="servicio-img">
-                    <img src="./imagenes/plan.jpg" alt="">
+                    <img src="./imagenes/plan.jpg" alt="Curso de Marketing Digital y Redes Sociales con SEO y SEM">
                 </div>
                 <div class="servicio-text">
-                    <h3>🧩 <strong>Plan educativo personalizado</strong></h3>
-                    <p>Diseño de <strong>programas formativos</strong> individuales adaptados al nivel y necesidades de
-                        cada alumno, para garantizar un <strong>aprendizaje efectivo</strong> y progresivo.</p>
+                    <h3>📈 <strong>Marketing Digital y Redes Sociales</strong></h3>
+                    <p>Impartido por <strong>Sofía Rivas</strong>, especialista en marketing digital con 6 años de experiencia. Aprende estrategias de SEO, SEM, email marketing y gestión de redes sociales con certificación práctica incluida.</p>
                     <p>Incluye:</p>
                     <ul>
-                        <li><strong>Evaluación inicial</strong> y diseño de plan individual.</li>
-                        <li><strong>Objetivos progresivos y medibles</strong>.</li>
-                        <li><strong>Seguimiento y adaptación continua</strong>.</li>
-                        <li><strong>Material y actividades personalizadas</strong> según necesidades.</li>
+                        <li><strong>SEO y SEM</strong> para posicionamiento web.</li>
+                        <li><strong>Gestión de redes sociales</strong> y content marketing.</li>
+                        <li><strong>Email marketing</strong> y automatización.</li>
+                        <li><strong>Analítica web</strong> y medición de resultados.</li>
                     </ul>
                 </div>
             </div>
@@ -506,7 +634,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/matematicas.jpg" alt="">
+                        <img src="./imagenes/matematicas.jpg" alt="Clase de matemáticas con ejercicios guiados paso a paso">
                     </div>
                     <h3><strong>Matemáticas</strong></h3>
                     <p>Refuerzo desde primaria hasta bachillerato: <strong>cálculo, álgebra, problemas</strong> y
@@ -516,7 +644,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/lengua.jpg" alt="">
+                        <img src="./imagenes/lengua.jpg" alt="Clase de lengua y literatura con comprensión lectora">
                     </div>
                     <h3><strong>Lengua</strong></h3>
                     <p><strong>Comprensión lectora, ortografía, sintaxis, redacción</strong> y preparación de pruebas
@@ -525,7 +653,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/ingles.jpg" alt="">
+                        <img src="./imagenes/ingles.jpg" alt="Clase de inglés con gramática y conversación">
                     </div>
                     <h3><strong>Inglés</strong></h3>
                     <p><strong>Gramática, vocabulario, conversación</strong> y refuerzo adaptado al centro.</p>
@@ -533,7 +661,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/fisica.jpg" alt="">
+                        <img src="./imagenes/fisica.jpg" alt="Clase de física con resolución práctica de problemas">
                     </div>
                     <h3><strong>Física</strong></h3>
                     <p><strong>Conceptos teóricos</strong> y resolución práctica de problemas adaptados al nivel
@@ -542,7 +670,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/quimica.png" alt="">
+                        <img src="./imagenes/quimica.png" alt="Clase de química con formulación y reacciones">
                     </div>
                     <h3><strong>Química</strong></h3>
                     <p><strong>Formulación, reacciones químicas</strong> y ejercicios guiados para mejorar la
@@ -551,7 +679,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/biologia.png" alt="">
+                        <img src="./imagenes/biologia.png" alt="Clase de biología y ciencias naturales">
                     </div>
                     <h3><strong>Biología</strong></h3>
                     <p>Refuerzo en <strong>ciencias naturales, anatomía</strong> y contenidos científicos clave.</p>
@@ -559,7 +687,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/tecnologia.jpg" alt="">
+                        <img src="./imagenes/tecnologia.jpg" alt="Clase de tecnología con proyectos prácticos">
                     </div>
                     <h3><strong>Tecnología</strong></h3>
                     <p><strong>Conceptos técnicos</strong>, resolución de ejercicios y apoyo en proyectos escolares.</p>
@@ -567,7 +695,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/geografia.png" alt="">
+                        <img src="./imagenes/geografia.png" alt="Clase de geografía con mapas y análisis territorial">
                     </div>
                     <h3><strong>Geografía</strong></h3>
                     <p><strong>Mapas, análisis territorial</strong> y comprensión de contenidos sociales y naturales.
@@ -576,7 +704,7 @@
 
                 <div class="asignatura-card">
                     <div class="asignatura-img">
-                        <img src="./imagenes/historia.jpg" alt="">
+                        <img src="./imagenes/historia.jpg" alt="Clase de historia con esquemas cronológicos">
                     </div>
                     <h3><strong>Historia</strong></h3>
                     <p><strong>Comprensión histórica, esquemas cronológicos</strong> y preparación de exámenes.</p>
@@ -595,7 +723,7 @@
             <div class="niveles-grid">
                 <div class="nivel-card">
                     <div class="nivel-img">
-                        <img src="./imagenes/primaria.jpg" alt="">
+                        <img src="./imagenes/primaria.jpg" alt="Educación Primaria con refuerzo integral en todas las asignaturas">
                     </div>
                     <div class="nivel-content">
                         <h3><strong>Educación Primaria</strong></h3>
@@ -606,7 +734,7 @@
 
                 <div class="nivel-card">
                     <div class="nivel-img">
-                        <img src="./imagenes/secundaria.jpg" alt="">
+                        <img src="./imagenes/secundaria.jpg" alt="Educación Secundaria con apoyo académico completo">
                     </div>
                     <div class="nivel-content">
                         <h3><strong>Educación Secundaria (ESO)</strong></h3>
@@ -617,7 +745,7 @@
 
                 <div class="nivel-card">
                     <div class="nivel-img">
-                        <img src="./imagenes/bachillerato.jpg" alt="">
+                        <img src="./imagenes/bachillerato.jpg" alt="Bachillerato con refuerzo avanzado y preparación universitaria">
                     </div>
                     <div class="nivel-content">
                         <h3><strong>Bachillerato</strong></h3>
@@ -637,7 +765,7 @@
             <!-- BLOQUE 1 -->
             <div class="metodologia-item">
                 <div class="metodo-img">
-                    <img src="./imagenes/evaluacion inicial.jpg" alt="">
+                    <img src="./imagenes/evaluacion inicial.jpg" alt="Evaluación inicial del nivel del alumno antes de comenzar">
                 </div>
                 <div class="metodo-text">
                     <h3>📋 <strong>Evaluación inicial</strong></h3>
@@ -658,7 +786,7 @@
             <!-- BLOQUE 2 -->
             <div class="metodologia-item reverse">
                 <div class="metodo-img">
-                    <img src="./imagenes/objetivos.jpg" alt="">
+                    <img src="./imagenes/objetivos.jpg" alt="Objetivos personalizados y metas académicas alcanzables">
                 </div>
                 <div class="metodo-text">
                     <h3>🎯 <strong>Objetivos personalizados</strong></h3>
@@ -680,7 +808,7 @@
             <!-- BLOQUE 3 -->
             <div class="metodologia-item">
                 <div class="metodo-img">
-                    <img src="./imagenes/plan-educativo.jpg" alt="">
+                    <img src="./imagenes/plan-educativo.jpg" alt="Plan educativo individual adaptado a cada alumno">
                 </div>
                 <div class="metodo-text">
                     <h3>📚 <strong>Plan educativo individual</strong></h3>
@@ -702,7 +830,7 @@
             <!-- BLOQUE 4 -->
             <div class="metodologia-item reverse">
                 <div class="metodo-img">
-                    <img src="./imagenes/seguimiento-mensual.jpg" alt="">
+                    <img src="./imagenes/seguimiento-mensual.jpg" alt="Seguimiento mensual del progreso académico">
                 </div>
                 <div class="metodo-text">
                     <h3>📈 <strong>Seguimiento mensual</strong></h3>
@@ -722,7 +850,7 @@
             <!-- BLOQUE 5 -->
             <div class="metodologia-item">
                 <div class="metodo-img">
-                    <img src="./imagenes/refuerzo-continuo.jpg" alt="">
+                    <img src="./imagenes/refuerzo-continuo.jpg" alt="Refuerzo continuo para consolidar conocimientos">
                 </div>
                 <div class="metodo-text">
                     <h3>🧠 <strong>Refuerzo continuo</strong></h3>
@@ -743,7 +871,7 @@
             <!-- BLOQUE 6 -->
             <div class="metodologia-item reverse">
                 <div class="metodo-img">
-                    <img src="./imagenes/acompañamiento.jpg" alt="">
+                    <img src="./imagenes/acompañamiento.jpg" alt="Acompañamiento educativo personalizado y apoyo emocional">
                 </div>
                 <div class="metodo-text">
                     <h3>🤝 <strong>Acompañamiento educativo</strong></h3>
@@ -793,34 +921,86 @@
             </p>
             <div class="inscripcion-cta">
                 <a href="./contactos.html" class="btn-primary">Solicitar información</a>
-                <a href="./contactos.html" class="btn-secondary">Contactar ahora</a>
             </div>
         </div>
     </section>
 
     </main>
 
-
+    <!-- HORARIOS -->
+    <section class="horarios-section" id="horarios">
+        <div class="container">
+            <h2>Horarios</h2>
+            <div class="horarios-grid">
+                <div class="horario-card">
+                    <h3>🏫 Academia Loranca</h3>
+                    <ul class="horario-lista">
+                        <li><span>Lunes a Jueves</span><span>15:00 — 21:00</span></li>
+                        <li><span>Viernes</span><span>16:00 — 20:00</span></li>
+                        <li><span>Sábado</span><span>Cerrado</span></li>
+                        <li><span>Domingo</span><span>Cerrado</span></li>
+                    </ul>
+                </div>
+                <div class="horario-card">
+                    <h3>📚 Cursos con horario propio</h3>
+                    <p style="font-size:0.9rem;color:var(--text-secondary,#475569);margin-bottom:12px;line-height:1.5">Algunos cursos especializados tienen horarios específicos según el profesor. Consulta los horarios directamente en cada curso.</p>
+                    <a href="./grupos.html" class="btn-horario">Horarios de curso →</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- UBICACIÓN -->
     <section class="ubicacion" id="contacto">
         <div class="container">
-            <h2>Encuéntranos</h2>
-            <p>Visítanos en nuestra academia para más información o para una clase de prueba gratuita.</p><br>
-
-            <div class="mapa">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3043.037095040079!2d-3.8388983999999993!3d40.2971353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418d004f4a4791%3A0xa943d1af28b87dc2!2sAcademia%20Loranca!5e0!3m2!1ses!2ses!4v1777016648252!5m2!1ses!2ses" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="ubicacion-grid">
+                <div class="ubicacion-mapa">
+                    <h2>Encuéntranos</h2>
+                    <p>Visítanos en nuestra academia para más información o para una clase de prueba gratuita.</p><br>
+                    <div class="mapa">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3043.037095040079!2d-3.8388983999999993!3d40.2971353!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd418d004f4a4791%3A0xa943d1af28b87dc2!2sAcademia%20Loranca!5e0!3m2!1ses!2ses!4v1777016648252!5m2!1ses!2ses" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+                <div class="ubicacion-contacto">
+                    <h2>Contactar ahora</h2>
+                    <p>¿Tienes dudas? Llámanos o escríbenos.</p>
+                    <div class="contacto-telefonos">
+                        <div class="contacto-fila">
+                            <span class="cf-icon">🧒</span>
+                            <span class="cf-name">Isabel Rodríguez</span>
+                            <span class="cf-nivel">Primaria y 1º ESO</span>
+                            <a href="tel:+34652081700" class="cf-phone">652 08 17 00</a>
+                        </div>
+                        <div class="contacto-fila">
+                            <span class="cf-icon">📚</span>
+                            <span class="cf-name">Laura Barroso</span>
+                            <span class="cf-nivel">2º-4º ESO y Bachillerato</span>
+                            <a href="tel:+34665927240" class="cf-phone">665 92 72 40</a>
+                        </div>
+                    </div>
+                    <div class="contacto-cta">
+                        <a href="https://wa.me/652081700" target="_blank" class="btn-primary" style="background:#25d366;border-color:#25d366">💬 WhatsApp</a>
+                        <a href="./contactos.html" class="btn-secondary">📝 Formulario</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
     <footer-componente id="footer"></footer-componente>
 
-
-
-
-
-
-
+<script>
+  (function() {
+    var hash = window.location.hash;
+    if (!hash) return;
+    var scrollToHash = function() {
+      var el = document.querySelector(hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    setTimeout(scrollToHash, 300);
+    setTimeout(scrollToHash, 800);
+    setTimeout(scrollToHash, 1500);
+  })();
+</script>
 
 </body>
 

@@ -20,13 +20,15 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/schedules', require('./routes/schedules'));
 app.use('/api/orders', require('./routes/orders'));
+app.use('/api/teachers', require('./routes/teachers'));
 app.use('/api/admin', require('./routes/admin'));
 
 app.get('/api/stats/public', (req, res) => {
   const courses = queryAll('SELECT COUNT(*) as c FROM courses')[0].c;
+  const teachers = queryAll('SELECT COUNT(*) as c FROM teachers')[0].c;
   const announcements = queryAll('SELECT COUNT(*) as c FROM announcements')[0].c;
   const events = queryAll('SELECT COUNT(*) as c FROM events')[0].c;
-  res.json({ courses, announcements, events });
+  res.json({ courses, teachers, announcements, events });
 });
 
 app.get('*', (req, res) => {

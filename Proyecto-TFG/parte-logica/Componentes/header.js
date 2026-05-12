@@ -434,16 +434,29 @@ class HeaderComponent extends HTMLElement {
 
         @media (max-width: 480px){
             #menu-header{
-                width:50vw;
+                width:75vw;
             }
 
             #logo{
-                height:52px;
+                height:42px;
             }
 
             #nombre_academia{
-                font-size:13px;
+                font-size:11px;
             }
+
+            .link-encabezado, .btn-login, .auth-name { font-size: 13px; padding: 6px 10px; }
+            .cart-btn { font-size: 16px; padding: 4px 8px; }
+            .cart-panel { width: 100vw; right: -100vw; }
+            .cart-panel .btn-checkout { font-size: 13px; padding: 10px; }
+            .cart-panel-inner { padding: 16px 16px 0 16px; }
+            .cart-panel .cart-footer { padding: 12px 16px 16px; }
+        }
+
+        @media (max-width: 360px){
+            #menu-header { width: 85vw; }
+            #div-logo a:last-child { display: none; }
+            .link-encabezado, .btn-login { font-size: 12px; padding: 5px 8px; }
         }
 
         </style>
@@ -468,8 +481,8 @@ class HeaderComponent extends HTMLElement {
                     <button class="theme-toggle" id="themeToggle" title="Cambiar tema">🌙</button>
                     <a class="link-encabezado" href="./Index.html">Inicio</a>
                     <a class="link-encabezado" href="./grupos.html">Cursos</a>
-                    <a class="link-encabezado" href="./Index.html#servicios">Servicios</a>
-                    <a class="link-encabezado" href="#horarios">Horarios</a>
+                    <a class="link-encabezado" href="./index.html#servicios">Servicios</a>
+                    <a class="link-encabezado" href="./index.html#horarios">Horarios</a>
                     <a class="link-encabezado" href="./contactos.html">Contacto</a>
                     <a class="cart-btn" id="cartToggle" title="Carrito">
                         🛒<span class="cart-badge" id="cartBadge" style="display:none">0</span>
@@ -525,11 +538,12 @@ class HeaderComponent extends HTMLElement {
             });
         }
 
-        /* Cart */
-        const isAdminUser = user?.role === 'admin';
+        /* Cart — only for logged-in non-admin users */
+        const isLoggedIn = !!token;
+        const isRegularUser = isLoggedIn && user?.role !== 'admin';
 
         function renderCart() {
-            if (isAdminUser) return;
+            if (!isRegularUser) return;
             const cart = (function(){ try { return JSON.parse(localStorage.getItem('cart')) || []; } catch { return []; } })();
             const badge = shadow.getElementById('cartBadge');
             const itemsEl = shadow.getElementById('cartItems');
@@ -570,7 +584,7 @@ class HeaderComponent extends HTMLElement {
         }
 
         function openCart() {
-            if (isAdminUser) return;
+            if (!isRegularUser) return;
             shadow.getElementById('cartPanel')?.classList.add('open');
             shadow.getElementById('cartOverlay')?.classList.add('open');
             renderCart();
@@ -581,10 +595,21 @@ class HeaderComponent extends HTMLElement {
             shadow.getElementById('cartOverlay')?.classList.remove('open');
         }
 
-        /* Remove cart elements entirely if user is admin */
-        if (isAdminUser) {
+        if (!isRegularUser) {
             const ct = shadow.getElementById('cartToggle');
-            if (ct) ct.remove();
+            if (ct) {
+                ct.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (!isLoggedIn) {
+                        const toast = document.createElement('div');
+                        toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:16px 28px;border-radius:50px;font-weight:600;font-size:15px;z-index:99999;box-shadow:0 8px 30px rgba(220,38,38,0.4);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:14px';
+                        toast.innerHTML = `<span>Debes iniciar sesión para usar el carrito</span><a href="./login.html" style="background:rgba(255,255,255,0.2);color:#fff;text-decoration:none;padding:8px 18px;border-radius:50px;font-size:13px;font-weight:600;white-space:nowrap">Iniciar sesión</a>`;
+                        document.body.appendChild(toast);
+                        requestAnimationFrame(() => toast.style.opacity = '1');
+                        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 5000);
+                    }
+                });
+            }
             const cp = shadow.getElementById('cartPanel');
             if (cp) cp.remove();
             const co = shadow.getElementById('cartOverlay');
@@ -596,6 +621,19 @@ class HeaderComponent extends HTMLElement {
             window.addEventListener('cart-changed', () => renderCart());
             renderCart();
         }
+
+        /* Cart login required toast (always registered) */
+        window.addEventListener('cart-login-required', (e) => {
+            const existing = document.querySelector('[data-cart-toast]');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.setAttribute('data-cart-toast', '');
+            toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:16px 28px;border-radius:50px;font-weight:600;font-size:15px;z-index:99999;box-shadow:0 8px 30px rgba(220,38,38,0.4);opacity:0;transition:opacity 0.3s;display:flex;align-items:center;gap:14px';
+            toast.innerHTML = `<span>${e.detail}</span><a href="./login.html" style="background:rgba(255,255,255,0.2);color:#fff;text-decoration:none;padding:8px 18px;border-radius:50px;font-size:13px;font-weight:600;white-space:nowrap">Iniciar sesión</a>`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => toast.style.opacity = '1');
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 5000);
+        });
 
         btn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -640,16 +678,6 @@ class HeaderComponent extends HTMLElement {
             } catch {}
           })();
         }
-
-        const horariosLink = this._shadow.querySelector('.link-encabezado[href="#horarios"]');
-        horariosLink?.addEventListener("click", (e) => {
-            e.preventDefault();
-            const footer = document.querySelector("footer-componente");
-            if (footer) {
-                const target = footer.shadowRoot?.querySelector("#horarios");
-                target?.scrollIntoView({ behavior: "smooth" });
-            }
-        });
     }
 }
 

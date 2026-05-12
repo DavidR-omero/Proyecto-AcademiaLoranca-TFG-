@@ -15,18 +15,16 @@
         <script type="module" src="./parte-logica/Componentes/header.js" defer></script>
         <script type="module" src="./parte-logica/Componentes/whatsapp.js?v=1.0.0"></script>
         <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
-        <script type="module" src="./parte-logica/Componentes/lector-pagina.js" defer></script>
     </head>
 
     <body>
         
         <header-componente></header-componente>
-        <lector-pagina></lector-pagina>
         <whatsapp-componente></whatsapp-componente>
         
         <!-- CURSOS -->
         <main>
-            <section class="clases">
+            <section class="clases" id="cursos-disponibles">
                 <h1 class="titulo-seccion">Nuestros Cursos</h1>
 
                 
@@ -127,7 +125,7 @@
                             : '';
 
                         return `
-                        <div class="zona-grupos${isFeatured ? ' featured' : ''}" data-course-id="${c.id}"${t.includes('isabel') ? ' id="grupo1"' : t.includes('laura') ? ' id="grupo2"' : ''}>
+                        <div class="zona-grupos${isFeatured ? ' featured' : ''}" data-course-id="${c.id}" id="curso-${c.id}">
                             <div class="card-img-wrap">
                                 ${isFeatured && imgSrc ? `<img class="card-img" src="${imgSrc}" alt="" loading="lazy">` : `<div class="card-img-placeholder" style="background:linear-gradient(135deg,${placeholderColor},${placeholderColor}88)">${icon}</div>`}
                                 ${isFeatured ? '<span class="featured-badge">⭐ Destacado</span>' : ''}
@@ -154,7 +152,11 @@
                     window.coursesData = courses;
 
                     const hash = window.location.hash;
-                    if (hash === '#grupo1' || hash === '#grupo2') {
+                    if (hash && hash.startsWith('#curso-')) {
+                      const id = hash.replace('#curso-', '');
+                      const el = document.getElementById('curso-' + id);
+                      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+                    } else if (hash === '#grupo1' || hash === '#grupo2') {
                       const el = document.getElementById(hash.slice(1));
                       if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
                     }
@@ -234,6 +236,10 @@
           document.addEventListener('click', function(e) {
             const btn = e.target.closest('.btn-add-cart');
             if (!btn || btn.classList.contains('in-cart')) return;
+            if (!API.isLoggedIn()) {
+                API.addToCart({ course_id: +btn.dataset.courseId });
+                return;
+            }
             API.addToCart({ course_id: +btn.dataset.courseId, course_name: btn.dataset.courseName, teacher: btn.dataset.teacher, price: +btn.dataset.price });
             btn.textContent = '✓ En carrito';
             btn.classList.add('in-cart');

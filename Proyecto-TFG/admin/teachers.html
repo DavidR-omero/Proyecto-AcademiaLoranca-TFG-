@@ -4,7 +4,7 @@
 <script>if(localStorage.getItem('theme')==='dark'||(!localStorage.getItem('theme')&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark');</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Horarios - Academia Loranca</title>
+  <title>Profesores - Academia Loranca</title>
   <link rel="shortcut icon" href="../imagenes/logo.png" type="image/png">
   <link rel="stylesheet" href="../parte-css/index.css">
   <link rel="stylesheet" href="./admin.css">
@@ -22,7 +22,7 @@
       <a href="./dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a>
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
-      <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./teachers.html" class="active"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
@@ -40,8 +40,8 @@
   <main class="main-content">
     <div class="main-header">
       <div class="main-header-left">
-        <h1>Horarios</h1>
-        <div class="breadcrumb">Admin / <span>Horarios</span></div>
+        <h1>Profesores</h1>
+        <div class="breadcrumb">Admin / <span>Profesores</span></div>
       </div>
       <div class="user-badge" id="userBadge">
         <div class="avatar" id="userAvatar">A</div>
@@ -54,14 +54,14 @@
 
     <div class="card">
       <div class="card-header">
-        <h2><span class="card-icon">🕐</span>Gestión de horarios</h2>
+        <h2><span class="card-icon">👨‍🏫</span>Gestión de profesores</h2>
         <div class="card-toolbar">
-          <button class="btn btn-primary" id="addBtn">+ Nuevo horario</button>
+          <button class="btn btn-primary" id="addBtn">+ Nuevo profesor</button>
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" id="searchSched" placeholder="Buscar...">
+            <input type="text" class="search-input" id="searchTeacher" placeholder="Buscar...">
           </div>
-          <button class="btn btn-secondary" onclick="exportCSV('horarios.csv', ['Grupo','Días','Inicio','Fin','Orden'], schedules.map(s => [s.group_name, s.days, s.start_time, s.end_time, s.sort_order]))">📥 CSV</button>
+          <button class="btn btn-secondary" onclick="exportCSV('profesores.csv', ['Nombre','Título','Años experiencia','Especialidades'], teachers.map(t => [t.name, t.title, t.years_experience, t.specialties]))">📥 CSV</button>
         </div>
       </div>
       <div id="loadingSkeleton" class="skeleton-card">
@@ -75,44 +75,48 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Grupo</th><th>Días</th><th>Hora inicio</th><th>Hora fin</th><th>Orden</th><th>Acciones</th></tr>
+            <tr><th>Nombre</th><th>Título</th><th>Experiencia</th><th>Especialidades</th><th>Acciones</th></tr>
           </thead>
-          <tbody id="schedulesBody"></tbody>
+          <tbody id="teachersBody"></tbody>
         </table>
       </div>
-      <div id="schedPager"></div>
+      <div id="teacherPager"></div>
     </div>
   </main>
 
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-header">
-        <h3 id="modalTitle">Nuevo horario</h3>
+        <h3 id="modalTitle">Nuevo profesor</h3>
         <button class="modal-close" id="modalClose">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="editId">
         <div class="form-group">
-          <label>Grupo</label>
-          <input id="fGroup" class="form-control" placeholder="ej. Grupo 1 - Isabel">
+          <label>Nombre completo *</label>
+          <input id="fName" class="form-control" placeholder="ej. Javier Torres">
         </div>
         <div class="form-group">
-          <label>Días</label>
-          <input id="fDays" class="form-control" placeholder="ej. Lunes a Jueves">
+          <label>Título / Cargo</label>
+          <input id="fTitle" class="form-control" placeholder="ej. Diseñador Gráfico Senior">
         </div>
         <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="form-group">
-            <label>Hora inicio</label>
-            <input id="fStart" class="form-control" placeholder="ej. 15:00">
+            <label>Años de experiencia</label>
+            <input id="fYears" type="number" class="form-control" value="0" min="0">
           </div>
           <div class="form-group">
-            <label>Hora fin</label>
-            <input id="fEnd" class="form-control" placeholder="ej. 20:00">
+            <label>URL de imagen</label>
+            <input id="fImage" class="form-control" placeholder="ej. ./imagenes/profePablo.png">
           </div>
         </div>
         <div class="form-group">
-          <label>Orden</label>
-          <input id="fOrder" type="number" class="form-control" value="0" style="width:100px">
+          <label>Especialidades</label>
+          <input id="fSpecialties" class="form-control" placeholder="ej. Adobe Suite, UX/UI, Branding">
+        </div>
+        <div class="form-group">
+          <label>Biografía</label>
+          <textarea id="fBio" class="form-control" rows="4" placeholder="Descripción del profesor..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -130,32 +134,31 @@
       document.getElementById('userName').textContent = user.username;
       document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
 
-      let schedules = [];
-      let schedPager;
+      let teachers = [];
+      let teacherPager;
 
       async function load() {
-        const res = await API.request('/api/admin/schedules');
-        schedules = res.schedules;
-        schedPager = createPager('schedPager', 10, render);
+        const res = await API.admin.getTeachers();
+        teachers = res.teachers;
+        teacherPager = createPager('teacherPager', 10, render);
         render();
         document.getElementById('loadingSkeleton')?.remove();
       }
 
       function render() {
-        const q = document.getElementById('searchSched').value.toLowerCase();
-        const filtered = schedules.filter(s => s.group_name.toLowerCase().includes(q) || (s.days && s.days.toLowerCase().includes(q)));
-        schedPager.setTotal(filtered.length);
-        const tbody = document.getElementById('schedulesBody');
-        tbody.innerHTML = schedPager.getPage(filtered).data.map(s => `
+        const q = document.getElementById('searchTeacher').value.toLowerCase();
+        const filtered = teachers.filter(t => t.name.toLowerCase().includes(q) || (t.specialties && t.specialties.toLowerCase().includes(q)));
+        teacherPager.setTotal(filtered.length);
+        const tbody = document.getElementById('teachersBody');
+        tbody.innerHTML = teacherPager.getPage(filtered).data.map(t => `
           <tr>
-            <td><strong>${esc(s.group_name)}</strong></td>
-            <td>${esc(s.days)}</td>
-            <td>${esc(s.start_time)}</td>
-            <td>${esc(s.end_time)}</td>
-            <td>${s.sort_order}</td>
+            <td><strong>${esc(t.name)}</strong></td>
+            <td>${esc(t.title)}</td>
+            <td>${t.years_experience || 0} años</td>
+            <td>${esc(t.specialties)}</td>
             <td class="actions-cell">
-              <button class="btn btn-sm btn-secondary" onclick="editSchedule(${s.id})">✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteSchedule(${s.id})">🗑️</button>
+              <button class="btn btn-sm btn-secondary" onclick="editTeacher(${t.id})">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteTeacher(${t.id})">🗑️</button>
             </td>
           </tr>
         `).join('');
@@ -163,35 +166,37 @@
 
       function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-      window.editSchedule = async (id) => {
-        const s = schedules.find(x => x.id === id);
-        if (!s) return;
+      window.editTeacher = async (id) => {
+        const t = teachers.find(x => x.id === id);
+        if (!t) return;
         document.getElementById('editId').value = id;
-        document.getElementById('fGroup').value = s.group_name;
-        document.getElementById('fDays').value = s.days;
-        document.getElementById('fStart').value = s.start_time;
-        document.getElementById('fEnd').value = s.end_time;
-        document.getElementById('fOrder').value = s.sort_order;
-        document.getElementById('modalTitle').textContent = 'Editar horario';
+        document.getElementById('fName').value = t.name;
+        document.getElementById('fTitle').value = t.title;
+        document.getElementById('fYears').value = t.years_experience;
+        document.getElementById('fImage').value = t.image;
+        document.getElementById('fSpecialties').value = t.specialties;
+        document.getElementById('fBio').value = t.bio;
+        document.getElementById('modalTitle').textContent = 'Editar profesor';
         document.getElementById('modal').classList.add('active');
       };
 
-      window.deleteSchedule = async (id) => {
-        if (!(await showConfirm('¿Eliminar este horario?'))) return;
-        await API.request(`/api/admin/schedules/${id}`, { method: 'DELETE' });
-        schedules = schedules.filter(s => s.id !== id);
+      window.deleteTeacher = async (id) => {
+        if (!(await showConfirm('¿Eliminar este profesor?'))) return;
+        await API.admin.deleteTeacher(id);
+        teachers = teachers.filter(t => t.id !== id);
         render();
-        showToast('Horario eliminado', 'success');
+        showToast('Profesor eliminado', 'success');
       };
 
       document.getElementById('addBtn').onclick = () => {
         document.getElementById('editId').value = '';
-        document.getElementById('fGroup').value = '';
-        document.getElementById('fDays').value = '';
-        document.getElementById('fStart').value = '';
-        document.getElementById('fEnd').value = '';
-        document.getElementById('fOrder').value = '0';
-        document.getElementById('modalTitle').textContent = 'Nuevo horario';
+        document.getElementById('fName').value = '';
+        document.getElementById('fTitle').value = '';
+        document.getElementById('fYears').value = '0';
+        document.getElementById('fImage').value = '';
+        document.getElementById('fSpecialties').value = '';
+        document.getElementById('fBio').value = '';
+        document.getElementById('modalTitle').textContent = 'Nuevo profesor';
         document.getElementById('modal').classList.add('active');
       };
 
@@ -202,22 +207,23 @@
       document.getElementById('modalSave').onclick = async () => {
         const id = document.getElementById('editId').value;
         const data = {
-          group_name: document.getElementById('fGroup').value.trim(),
-          days: document.getElementById('fDays').value.trim(),
-          start_time: document.getElementById('fStart').value.trim(),
-          end_time: document.getElementById('fEnd').value.trim(),
-          sort_order: parseInt(document.getElementById('fOrder').value) || 0
+          name: document.getElementById('fName').value.trim(),
+          title: document.getElementById('fTitle').value.trim(),
+          years_experience: parseInt(document.getElementById('fYears').value) || 0,
+          image: document.getElementById('fImage').value.trim(),
+          specialties: document.getElementById('fSpecialties').value.trim(),
+          bio: document.getElementById('fBio').value.trim()
         };
-        if (!data.group_name) { showToast('El nombre del grupo es obligatorio', 'error'); return; }
+        if (!data.name) { showToast('El nombre del profesor es obligatorio', 'error'); return; }
         if (id) {
-          const res = await API.request(`/api/admin/schedules/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-          const idx = schedules.findIndex(s => s.id === parseInt(id));
-          if (idx !== -1) schedules[idx] = res.schedule;
-          showToast('Horario actualizado', 'success');
+          const res = await API.admin.updateTeacher(id, data);
+          const idx = teachers.findIndex(t => t.id === parseInt(id));
+          if (idx !== -1) teachers[idx] = res.teacher;
+          showToast('Profesor actualizado', 'success');
         } else {
-          const res = await API.request('/api/admin/schedules', { method: 'POST', body: JSON.stringify(data) });
-          schedules.push(res.schedule);
-          showToast('Horario creado', 'success');
+          const res = await API.admin.createTeacher(data);
+          teachers.push(res.teacher);
+          showToast('Profesor creado', 'success');
         }
         render();
         document.getElementById('modal').classList.remove('active');
@@ -234,7 +240,7 @@
       }
 
       await load();
-      document.getElementById('searchSched').addEventListener('input', render);
+      document.getElementById('searchTeacher').addEventListener('input', render);
       document.getElementById('logoutBtn').onclick = (e) => { e.preventDefault(); API.logout(); window.location.href = '../index.html'; };
     })();
   </script>

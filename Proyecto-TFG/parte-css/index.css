@@ -2,6 +2,9 @@
   --bg-body: #ffffff;
   --bg-card: #ffffff;
   --bg-section: #f8faff;
+  --bg-alt: linear-gradient(135deg, #f0f4ff, #f8faff);
+  --bg-alt-2: linear-gradient(135deg, #f5f0ff, #faf5ff);
+  --bg-alt-3: linear-gradient(135deg, #ecfdf5, #f0fdf4);
   --text-primary: #1e293b;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
@@ -13,6 +16,9 @@
   --bg-body: #0b1324;
   --bg-card: #1a2332;
   --bg-section: #131d2b;
+  --bg-alt: linear-gradient(135deg, #0d1a30, #101d33);
+  --bg-alt-2: linear-gradient(135deg, #150d30, #1a1035);
+  --bg-alt-3: linear-gradient(135deg, #0d2a1e, #102d22);
   --text-primary: #e8edf5;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -25,17 +31,104 @@
   color: var(--text-primary);
 }
 
-/* fondo de secciones */
-[data-theme="dark"] .sobre-nosotros { background: var(--bg-section); }
-[data-theme="dark"] .servicios { background: var(--bg-section); }
-[data-theme="dark"] .asignaturas { background: var(--bg-body); }
-[data-theme="dark"] .metodologia { background: var(--bg-body); }
-[data-theme="dark"] .beneficios { background: var(--bg-section); }
-[data-theme="dark"] .profesores-section { background: var(--bg-section); }
+/* fondo de secciones - light */
+.course-preview { background: var(--bg-alt-2); }
+.sobre-nosotros { background: #ffffff; }
+.stats-section { background: linear-gradient(135deg, #2a17cf, #00d5ff); }
+.news-section { background: var(--bg-alt); }
+.profesores-section { background: var(--bg-alt-2); }
+.servicios { background: #ffffff; }
+.asignaturas { background: var(--bg-alt-3); }
+.metodologia { background: var(--bg-alt); }
+.beneficios { background: linear-gradient(135deg, #e0f2fe, #f0fdf4); }
+.ubicacion { background: #f8faff; }
+
+/* decorative section accents */
+.course-preview { position: relative; }
+.course-preview::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2a17cf, #00d5ff, #f59e0b);
+    opacity: 0.3;
+}
+
+.stats-section { position: relative; }
+.stats-section::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 40px;
+    background: var(--bg-body);
+    border-radius: 50% 50% 0 0;
+    opacity: 0.5;
+}
+
+.profesores-section { position: relative; }
+.profesores-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(42,23,207,0.03) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(0,213,255,0.03) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.beneficios { position: relative; }
+.beneficios::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 30%, rgba(5,150,105,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 70%, rgba(42,23,207,0.03) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.ubicacion { position: relative; }
+.ubicacion::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #2a17cf, #00d5ff, transparent);
+    opacity: 0.2;
+}
+
+/* fondo de secciones - dark */
+[data-theme="dark"] .course-preview { background: var(--bg-alt-2); }
+[data-theme="dark"] .sobre-nosotros { background: var(--bg-body); }
+[data-theme="dark"] .stats-section { background: linear-gradient(135deg, #1a1040, #003060); }
+[data-theme="dark"] .news-section { background: var(--bg-alt); }
+[data-theme="dark"] .profesores-section { background: var(--bg-alt-2); }
+[data-theme="dark"] .servicios { background: var(--bg-body); }
+[data-theme="dark"] .asignaturas { background: var(--bg-alt-3); }
+[data-theme="dark"] .metodologia { background: var(--bg-alt); }
+[data-theme="dark"] .beneficios { background: linear-gradient(135deg, #0b1a2e, #0d1f1a); }
 [data-theme="dark"] .niveles { background: transparent; }
 [data-theme="dark"] .niveles::before { background: rgba(59,130,246,0.05); opacity: 1; }
 [data-theme="dark"] .nivelesTitulo { color: var(--text-primary); }
-[data-theme="dark"] .ubicacion { background: transparent; }
+[data-theme="dark"] .horario-card { background: #1a2332; border-color: #2a3a4a; }
+[data-theme="dark"] .horario-lista li { border-bottom-color: #2a3a4a; }
+[data-theme="dark"] .ubicacion { background: transparent; padding: 70px 0; }
+[data-theme="dark"] .ubicacion h2 { color: var(--text-primary); }
+[data-theme="dark"] .ubicacion-contacto { background: #1a2332; border-color: #2a3a4a; }
+[data-theme="dark"] .contacto-fila { background: #1e2d40; border-color: #2a3a4a; }
+[data-theme="dark"] .contacto-fila:hover { border-color: #25d366; background: #1a3a2e; }
+[data-theme="dark"] .contacto-fila .cf-phone { background: rgba(147,197,253,0.12); color: #93c5fd; }
+[data-theme="dark"] .contacto-fila .cf-phone:hover { background: rgba(147,197,253,0.22); }
+[data-theme="dark"] .contacto-fila .cf-name { color: var(--text-primary, #e8edf5); }
+
+/* decorative accents - dark */
+[data-theme="dark"] .stats-section::after { background: var(--bg-body); }
+[data-theme="dark"] .profesores-section::before {
+    background: radial-gradient(ellipse at 20% 50%, rgba(42,23,207,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(0,213,255,0.06) 0%, transparent 60%);
+}
+[data-theme="dark"] .beneficios::before {
+    background: radial-gradient(ellipse at 30% 30%, rgba(5,150,105,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 70%, rgba(42,23,207,0.06) 0%, transparent 50%);
+}
 
 /* cards */
 [data-theme="dark"] .valor-card,
@@ -386,12 +479,14 @@ body {
 .hero-academia::after {
     content: "";
     position: absolute;
-    bottom: -60px;
+    bottom: -2px;
     left: 0;
     width: 100%;
-    height: 120px;
-    background: white;
+    height: 60px;
+    background: var(--bg-body);
     border-radius: 50% 50% 0 0;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .hero-content {
@@ -419,12 +514,13 @@ body {
     color: #eef2ff;
 }
 
-.hero-buttons,
-.inscripcion-cta {
+.hero-buttons {
+    margin-bottom: 70px;
     display: flex;
     gap: 18px;
     justify-content: center;
     flex-wrap: wrap;
+    margin-top: 10px;
 }
 
 
@@ -472,7 +568,6 @@ section h2 {
 }
 
 .sobre-nosotros {
-    background: #f8faff;
     padding: 60px 20px 40px 20px;
 }
 
@@ -538,7 +633,7 @@ section h2 {
 
 .servicios {
     padding: 70px 20px 20px 20px;
-    background-color: #f9fafb;
+    scroll-margin-top: 80px;
 }
 
 .servicios h2 {
@@ -613,7 +708,6 @@ section h2 {
 }
 
 .asignaturas {
-    background: #ffffff;
     padding: 10px 20px 20px 20px;
 }
 
@@ -750,7 +844,6 @@ section h2 {
 
 .metodologia {
     padding: 40px 20px 40px 20px;
-    background-color: #ffffff;
 }
 
 .metodologia h2 {
@@ -826,9 +919,16 @@ section h2 {
 }
 
 .beneficios {
-    background: var(--bg-soft);
-    background-color: #e8f3f3;
-    padding-bottom: 100px;
+    padding: 70px 20px 100px;
+    background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+}
+
+.beneficios h2 {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 50px;
+    color: #1e293b;
 }
 
 .beneficios-lista {
@@ -838,13 +938,25 @@ section h2 {
 }
 
 .beneficios-lista li {
-    background: rgb(255, 255, 255);
-    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 18px 24px;
     margin-bottom: 14px;
     border-radius: 14px;
     font-weight: 500;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+    color: #1e293b;
+    transition: 0.3s;
 }
+
+.beneficios-lista li:hover {
+    transform: translateX(6px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] .beneficios { background: linear-gradient(135deg, #0b1a2e, #0d1f1a); }
+[data-theme="dark"] .beneficios h2 { color: var(--text-primary); }
+[data-theme="dark"] .beneficios-lista li { background: rgba(26, 35, 50, 0.9); color: var(--text-primary); border-left-color: #93c5fd; }
 
 .inscripcion {
     background:
@@ -927,19 +1039,9 @@ section h2 {
     transition: width 0.3s ease;
 }
 
+
 .link-encabezado:hover::after {
     width: 100%;
-}
-
-.reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: 0.8s ease;
-}
-
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 section {
@@ -990,30 +1092,161 @@ section::after {
     border-radius: 20px;
 }
 
-.ubicacion {
-    padding: 50px 0;
-    text-align: center;
+/* HORARIOS SECTION */
+.horarios-section {
+    padding: 70px 20px;
+    background: linear-gradient(135deg, #f0f4ff, #f8faff);
 }
-
-.ubicacion h2 {
-    font-size: 2rem;
+.horarios-section h2 {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--text-primary, #1e293b);
+    margin-bottom: 50px;
+}
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.horario-card {
+    background: var(--bg-card, #fff);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    border: 1px solid var(--border-color, #e2e8f0);
+}
+.horario-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #1e293b);
     margin-bottom: 20px;
 }
+.horario-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.horario-lista li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color, #e2e8f0);
+    font-size: 0.95rem;
+    color: var(--text-primary, #1e293b);
+}
+.horario-lista li:last-child { border-bottom: none; }
+.horario-lista li span:last-child {
+    font-weight: 600;
+    color: var(--text-secondary, #475569);
+}
+.btn-horario {
+    display: inline-block;
+    background: linear-gradient(135deg, #2a17cf, #00d5ff);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+.btn-horario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(42,23,207,0.3);
+}
+[data-theme="dark"] .horarios-section { background: linear-gradient(135deg, #0b1324, #131d2b); }
 
+.ubicacion {
+    padding: 70px 0;
+    text-align: left;
+}
+.ubicacion-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 40px;
+    align-items: start;
+}
+.ubicacion-mapa h2,
+.ubicacion-contacto h2 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+}
+.ubicacion-mapa p {
+    color: var(--text-secondary, #475569);
+    line-height: 1.6;
+}
 .ubicacion .mapa iframe {
     width: 100%;
-    max-width: 900px;
-    height: 450px;
-    border-radius: 10px;
+    max-width: 100%;
+    height: 350px;
+    border-radius: 12px;
 }
-
-.beneficios-lista li {
-    opacity: 0;
-    transition: opacity 0.8s ease; 
+.ubicacion-contacto {
+    background: var(--bg-card, #fff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: var(--shadow-sm, 0 4px 20px rgba(0,0,0,0.03));
 }
+.ubicacion-contacto p {
+    color: var(--text-secondary, #475569);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+.contacto-telefonos {
+    margin: 20px 0;
+}
+.contacto-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    background: var(--bg-section, #f8faff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    transition: 0.2s;
+}
+.contacto-fila:hover {
+    border-color: #25d366;
+    background: #f0fdf4;
+}
+.contacto-fila .cf-icon { font-size: 20px; flex-shrink: 0; }
+.contacto-fila .cf-name { font-weight: 600; font-size: 14px; color: var(--text-primary, #1e293b); white-space: nowrap; }
+.contacto-fila .cf-nivel { font-size: 12px; color: var(--text-muted, #94a3b8); flex: 1; }
+.contacto-fila .cf-phone {
+    font-weight: 700;
+    font-size: 14px;
+    color: #2a17cf;
+    text-decoration: none;
+    white-space: nowrap;
+    background: rgba(42,23,207,0.08);
+    padding: 6px 14px;
+    border-radius: 50px;
+    transition: 0.2s;
+}
+.contacto-fila .cf-phone:hover { background: rgba(42,23,207,0.18); }
 
-.beneficios-lista li.active {
-    opacity: 1;
+.contacto-cta {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+.contacto-cta .btn-primary,
+.contacto-cta .btn-secondary {
+    flex: 1;
+    text-align: center;
+    min-width: 140px;
+}
+@media (max-width: 768px) {
+    .ubicacion-grid { grid-template-columns: 1fr; }
+    .ubicacion-mapa { text-align: center; }
 }
 
 .btn.right {
@@ -1593,7 +1826,6 @@ img {
 /* ===== PROFESORES ===== */
 .profesores-section {
     padding: 70px 20px;
-    background: #f8faff;
 }
 .profesores-section h2 {
     text-align: center;
@@ -1612,11 +1844,16 @@ img {
 .profesor-card {
     background: white;
     border-radius: 20px;
-    padding: 36px 24px;
-    text-align: center;
+    padding: 28px 24px;
+    text-align: left;
     box-shadow: 0 4px 20px rgba(0,0,0,0.04);
     border: 1px solid rgba(59,130,246,0.06);
     transition: 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 .profesor-card:hover {
     transform: translateY(-6px);
@@ -1624,19 +1861,54 @@ img {
     border-color: #c7d2fe;
 }
 .profesor-avatar {
-    font-size: 3.5rem;
-    margin-bottom: 12px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+.profesor-body {
+    width: 100%;
 }
 .profesor-card h3 {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     color: #1e293b;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+}
+.profesor-title {
+    font-size: 0.82rem;
+    color: #2a17cf;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+.profesor-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.profesor-meta-item {
+    font-size: 0.75rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 .profesor-card p {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #64748b;
     margin-bottom: 12px;
+    line-height: 1.4;
 }
 .profesor-badge {
     display: inline-block;
@@ -1647,11 +1919,192 @@ img {
     font-size: 0.8rem;
     font-weight: 600;
 }
+.profesor-card.featured {
+    border-color: #fbbf24;
+    box-shadow: 0 4px 20px rgba(251,191,36,0.12);
+    background: linear-gradient(135deg, #fffef5, #ffffff);
+}
+.profesor-card.featured:hover {
+    border-color: #f59e0b;
+    box-shadow: 0 12px 40px rgba(251,191,36,0.2);
+}
+[data-theme="dark"] .profesor-card.featured {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-color: #f59e0b;
+}
+[data-theme="dark"] .profesor-card { background: #1a2332; border-color: #2a3a4a; }
+[data-theme="dark"] .profesor-card p { color: var(--text-secondary); }
+[data-theme="dark"] .profesor-card h3 { color: var(--text-primary); }
+[data-theme="dark"] .profesor-badge { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .profesor-card:hover { border-color: rgba(59,130,246,0.2); }
+[data-theme="dark"] .profesor-title { color: #93c5fd; }
+[data-theme="dark"] .profesor-meta-item { background: #1e293b; color: #94a3b8; }
+
+/* TEACHER MODAL */
+.teacher-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+}
+.teacher-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.teacher-modal {
+    background: var(--bg-card, #fff);
+    border-radius: 24px;
+    max-width: 520px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 40px 36px;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+    transform: scale(0.9);
+    transition: 0.3s;
+}
+.teacher-modal::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.teacher-modal-overlay.active .teacher-modal {
+    transform: scale(1);
+}
+.teacher-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: var(--border-color, #e2e8f0);
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary, #1e293b);
+}
+.teacher-modal-close:hover {
+    background: #dc2626;
+    color: white;
+}
+.tm-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+}
+.tm-avatar {
+    font-size: 3rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tm-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary, #1e293b);
+    margin: 0;
+}
+.tm-title {
+    font-size: 0.9rem;
+    color: var(--text-secondary, #475569);
+    margin-top: 4px;
+}
+.tm-bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-secondary, #475569);
+    margin-bottom: 20px;
+}
+.tm-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tm-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-primary, #1e293b);
+    padding: 10px 14px;
+    background: var(--bg-section, #f8faff);
+    border-radius: 12px;
+}
+.tm-detail-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+[data-theme="dark"] .teacher-modal { background: #1a2332; }
+[data-theme="dark"] .tm-bio { color: var(--text-secondary, #94a3b8); }
+[data-theme="dark"] .tm-detail { background: #131d2b; }
+
+.tm-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+.tm-btn {
+    flex: 1;
+    min-width: 160px;
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.tm-btn-wa {
+    background: #25d366;
+    color: white;
+}
+.tm-btn-wa:hover {
+    background: #1da851;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37,211,102,0.3);
+}
+.tm-btn-contact {
+    background: var(--bg-section, #f8faff);
+    color: var(--text-primary, #1e293b);
+    border: 1px solid var(--border-color, #e2e8f0);
+}
+.tm-btn-contact:hover {
+    border-color: #2a17cf;
+    color: #2a17cf;
+    transform: translateY(-2px);
+}
+[data-theme="dark"] .tm-btn-contact {
+    background: #1e2d40;
+    border-color: #2a3a4a;
+    color: var(--text-primary, #e8edf5);
+}
+[data-theme="dark"] .tm-btn-contact:hover {
+    border-color: #93c5fd;
+    color: #93c5fd;
+}
 
 /* NEWS SECTION */
 .news-section {
     padding: 80px 0;
-    background: var(--bg-section);
 }
 .news-section h2 {
     text-align: center;
@@ -1783,4 +2236,190 @@ img {
 @keyframes modalFade {
     from { opacity: 0; transform: translateY(30px) scale(0.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* SCROLL REVEAL */
+
+
+/* DYNAMIC COURSE PREVIEW */
+.course-preview {
+    padding: 60px 0;
+}
+.course-preview h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 12px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+.course-preview .cp-sub {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-size: 15px;
+}
+.course-preview .cp-grid {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0 20px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+.course-preview .cp-grid::-webkit-scrollbar { height: 0; width: 0; display: none; }
+.course-preview .cp-grid { scrollbar-width: none; -ms-overflow-style: none; }
+.cp-card {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    transition: 0.3s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.cp-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+.cp-card .cp-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+.cp-card .cp-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+.cp-card .cp-teacher {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+.cp-card .cp-price {
+    display: inline-block;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+}
+.cp-card.cp-featured {
+    border-color: #f59e0b;
+    box-shadow: 0 4px 20px rgba(245,158,11,0.15);
+    position: relative;
+}
+.cp-card.cp-featured::after {
+    content: '⭐ Destacado';
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: #1e293b;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+.cp-cta {
+    text-align: center;
+    margin-top: 30px;
+}
+.cp-cta a {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #2a17cf, #00d5ff);
+    color: white;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.cp-cta a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(42,23,207,0.3);
+}
+@media (max-width: 768px) {
+    .course-preview { padding: 40px 0; }
+    .course-preview h2 { font-size: 1.6rem; }
+    .cp-card { flex: 0 0 240px; padding: 18px; }
+}
+
+/* HERO SHAPES */
+.hero-academia { position: relative; overflow: hidden; }
+.hero-bg-shapes { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.06;
+}
+.s1 {
+    width: 400px; height: 400px;
+    background: #2a17cf;
+    top: -100px; right: -100px;
+    animation: floatShape 8s ease-in-out infinite;
+}
+.s2 {
+    width: 250px; height: 250px;
+    background: #00d5ff;
+    bottom: -50px; left: -50px;
+    animation: floatShape 10s ease-in-out infinite reverse;
+}
+.s3 {
+    width: 150px; height: 150px;
+    background: #f59e0b;
+    top: 50%; left: 30%;
+    animation: floatShape 6s ease-in-out infinite 2s;
+}
+@keyframes floatShape {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+.hero-content { position: relative; z-index: 1; }
+
+/* HERO LIVE STATS */
+.hero-stats-live {
+    display: flex;
+    gap: 16px;
+    margin: 24px 0;
+    justify-content: center;
+}
+.hsl-item {
+    text-align: center;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    padding: 14px 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex: 1;
+    max-width: 160px;
+}
+.hsl-num {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff, #c7d2fe);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
+.hsl-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    display: block;
+}
+@media (max-width: 600px) {
+    .hero-stats-live { gap: 10px; flex-wrap: wrap; }
+    .hsl-item { padding: 10px 14px; max-width: none; flex: 1 1 calc(33% - 10px); }
+    .hsl-num { font-size: 1.4rem; }
 }

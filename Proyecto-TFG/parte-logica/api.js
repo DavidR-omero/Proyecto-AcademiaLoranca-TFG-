@@ -161,6 +161,20 @@ var API = {
       return API.request(`/api/admin/orders/${id}/status`, {
         method: 'PUT', body: JSON.stringify({ status })
       });
+    },
+    getTeachers() { return API.request('/api/admin/teachers'); },
+    createTeacher(data) {
+      return API.request('/api/admin/teachers', {
+        method: 'POST', body: JSON.stringify(data)
+      });
+    },
+    updateTeacher(id, data) {
+      return API.request(`/api/admin/teachers/${id}`, {
+        method: 'PUT', body: JSON.stringify(data)
+      });
+    },
+    deleteTeacher(id) {
+      return API.request(`/api/admin/teachers/${id}`, { method: 'DELETE' });
     }
   },
 
@@ -173,6 +187,10 @@ var API = {
     window.dispatchEvent(new CustomEvent('cart-changed', { detail: items }));
   },
   addToCart(item) {
+    if (!API.isLoggedIn()) {
+      window.dispatchEvent(new CustomEvent('cart-login-required', { detail: 'Debes iniciar sesión para añadir cursos al carrito' }));
+      return;
+    }
     const cart = API.getCart();
     if (!cart.find(c => c.course_id === item.course_id)) {
       cart.push(item);
