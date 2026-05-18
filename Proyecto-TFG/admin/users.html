@@ -23,18 +23,21 @@
       <a href="./users.html" class="active"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -155,7 +158,7 @@
         if (idx >= 0) users[idx] = res.user;
         renderUsers();
         closeModal();
-        const msg = pwd ? `Contraseña de "${username}" cambiada a: ${pwd}` : 'Usuario actualizado';
+        const msg = pwd ? 'Contraseña actualizada correctamente' : 'Usuario actualizado';
         showToast(msg, 'success');
       } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
     }
@@ -172,6 +175,8 @@
 
     function closeModal() { document.getElementById('editModal').classList.remove('active'); editingId = null; }
     function showToast(msg, type) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
       const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }

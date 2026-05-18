@@ -122,6 +122,8 @@ async function initDb() {
       user_id INTEGER NOT NULL,
       total REAL NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'pending',
+      payment_method TEXT DEFAULT '',
+      payment_last4 TEXT DEFAULT '',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
@@ -134,6 +136,16 @@ async function initDb() {
       price REAL NOT NULL DEFAULT 0,
       FOREIGN KEY (order_id) REFERENCES orders(id),
       FOREIGN KEY (course_id) REFERENCES courses(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS password_resets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL,
+      token TEXT DEFAULT '',
+      expires_at DATETIME NOT NULL,
+      used INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
@@ -159,10 +171,29 @@ async function initDb() {
     }
   } catch {}
   try {
+    const orderCols = db.exec("PRAGMA table_info(orders)")[0]?.values.map(v => v[1]);
+    if (orderCols && !orderCols.includes('payment_method')) {
+      db.exec("ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT ''");
+      db.exec("ALTER TABLE orders ADD COLUMN payment_last4 TEXT DEFAULT ''");
+      save();
+    }
+  } catch {}
+  try {
     const schedCount = queryOne('SELECT COUNT(*) as c FROM schedules').c;
-    if (schedCount === 0) {
-      runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)', ['Grupo 1 - Isabel', 'Lunes a Jueves', '15:00', '20:00', 1]);
-      runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)', ['Grupo 2 - Laura', 'Lunes a Jueves', '16:00', '21:00', 2]);
+    if (schedCount < 8) {
+      db.exec('DELETE FROM schedules');
+      const allSchedules = [
+        ['Refuerzo Integral - Grupo 1 (Isabel)', 'Lunes a Jueves', '15:00', '20:00', 1],
+        ['Refuerzo Integral - Grupo 2 (Laura)', 'Lunes a Jueves', '16:00', '21:00', 2],
+        ['Ciberseguridad y Hacking Ético (Carlos)', 'Martes y Jueves', '18:00', '20:00', 3],
+        ['IA y Machine Learning (Ana)', 'Lunes y Miércoles', '17:00', '19:00', 4],
+        ['Data Science y Análisis de Datos (David)', 'Miércoles y Viernes', '16:00', '18:00', 5],
+        ['Desarrollo Web Full Stack (María)', 'Lunes a Viernes', '10:00', '12:00', 6],
+        ['Marketing Digital y Redes Sociales (Sofía)', 'Martes y Jueves', '10:00', '12:00', 7],
+        ['Diseño Gráfico y Adobe Suite (Javier)', 'Lunes, Miércoles y Viernes', '18:00', '20:00', 8],
+      ];
+      allSchedules.forEach(s => runSql('INSERT INTO schedules (group_name,days,start_time,end_time,sort_order) VALUES (?,?,?,?,?)', s));
+      console.log('[DB] Horarios de todos los profesores registrados');
     }
   } catch {}
   try {

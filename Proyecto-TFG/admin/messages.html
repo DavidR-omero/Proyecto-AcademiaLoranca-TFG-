@@ -23,18 +23,21 @@
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./messages.html" class="active"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -85,8 +88,16 @@
         <div class="field"><label>Curso escolar</label><p style="color:#1e293b" id="msgCourse"></p></div>
         <div class="field"><label>Fecha</label><p style="color:#64748b" id="msgDate"></p></div>
         <div class="field"><label>Mensaje</label>
-          <div style="background:#f8fafc;padding:16px;border-radius:12px;line-height:1.7;color:#1e293b;font-size:14px;border:1px solid #e2e8f0" id="msgText"></div>
+          <div style="background:var(--input-bg);padding:16px;border-radius:12px;line-height:1.7;color:var(--text-primary);font-size:14px;border:1px solid var(--border-color)" id="msgText"></div>
         </div>
+        <div class="field" id="replySection" style="display:none">
+          <label>Responder</label>
+          <textarea id="replyText" rows="3" style="width:100%;padding:11px 16px;border:2px solid var(--border-color);border-radius:12px;font-size:14px;outline:none;background:var(--input-bg);color:var(--text-primary);resize:vertical" placeholder="Escribe tu respuesta..."></textarea>
+        </div>
+      </div>
+      <div class="modal-actions" id="replyActions" style="display:none">
+        <button class="btn-cancel" onclick="toggleReply()">Cancelar respuesta</button>
+        <button class="btn-save" onclick="sendReply()">✉️ Enviar respuesta</button>
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal()">Cerrar</button>
@@ -132,29 +143,60 @@
       div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Estado</th><th>Nombre</th><th>Email</th><th>Tel&eacute;fono</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
         messagesPager.getPage(filtered).data.map(m => `
           <tr style="${!m.is_read ? 'background:#f8faff' : ''}">
-            <td><span class="badge ${m.is_read ? 'badge-read' : 'badge-unread'}">${m.is_read ? 'Le&iacute;do' : 'Nuevo'}</span></td>
+            <td><span class="badge ${m.is_read ? 'badge-read' : 'badge-unread'}">${m.is_read ? 'Leído' : 'Nuevo'}</span></td>
             <td><span class="cell-name">${m.name}</span></td>
             <td>${m.email}</td>
             <td>${m.phone || '—'}</td>
             <td>${formatDate(m.created_at)}</td>
             <td class="actions">
               <button class="btn-view btn-icon" onclick="viewMessage(${m.id})" title="Ver">👁️</button>
-              ${!m.is_read ? `<button class="btn-read btn-icon" onclick="markRead(${m.id})" title="Marcar le&iacute;do">✅</button>` : ''}
+              ${!m.is_read ? `<button class="btn-read btn-icon" onclick="markRead(${m.id})" title="Marcar leído">✅</button>` : ''}
               <button class="btn-delete btn-icon" onclick="deleteMessage(${m.id})" title="Eliminar">🗑️</button>
             </td>
           </tr>
         `).join('') + '</tbody></table></div>';
     }
 
+    let viewingMsgId = null;
+
     function viewMessage(id) {
       const m = messages.find(x => x.id === id); if (!m) return;
+      viewingMsgId = id;
       document.getElementById('msgName').textContent = m.name;
       document.getElementById('msgEmail').innerHTML = '<a href="mailto:' + m.email + '" style="color:#2563eb;text-decoration:none;font-weight:500">' + m.email + '</a>';
       document.getElementById('msgPhone').textContent = m.phone || '—';
       document.getElementById('msgCourse').textContent = m.course_level || '—';
       document.getElementById('msgDate').textContent = formatDate(m.created_at);
       document.getElementById('msgText').textContent = m.message || '(sin mensaje)';
+      document.getElementById('replyText').value = '';
+      const hasReply = m.reply && m.reply.trim();
+      document.getElementById('replySection').style.display = hasReply ? 'block' : 'none';
+      document.getElementById('replyActions').style.display = 'block';
+      if (hasReply) {
+        document.getElementById('replyText').value = m.reply;
+        document.getElementById('replyText').disabled = true;
+      } else {
+        document.getElementById('replyText').disabled = false;
+      }
       document.getElementById('messageModal').classList.add('active');
+    }
+
+    function toggleReply() {
+      const sec = document.getElementById('replySection');
+      sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function sendReply() {
+      const reply = document.getElementById('replyText').value.trim();
+      if (!reply) { showToast('Escribe una respuesta', 'error'); return; }
+      try {
+        await API.admin.replyMessage(viewingMsgId, reply);
+        const m = messages.find(x => x.id === viewingMsgId);
+        if (m) m.reply = reply;
+        showToast('Respuesta enviada', 'success');
+        document.getElementById('replySection').style.display = 'block';
+        document.getElementById('replyText').disabled = true;
+      } catch (e) { showToast(e.error || 'Error al enviar respuesta', 'error'); }
     }
 
     async function markRead(id) {
@@ -163,7 +205,7 @@
         const m = messages.find(x => x.id === id);
         if (m) m.is_read = 1;
         renderMessages();
-        showToast('Mensaje marcado como le&iacute;do', 'success');
+        showToast('Mensaje marcado como leído', 'success');
       } catch (e) { showToast('Error', 'error'); }
     }
 
@@ -179,6 +221,8 @@
 
     function closeModal() { document.getElementById('messageModal').classList.remove('active'); }
     function showToast(msg, type) {
+      const existing = document.querySelector('.toast');
+      if (existing) existing.remove();
       const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
       document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
     }

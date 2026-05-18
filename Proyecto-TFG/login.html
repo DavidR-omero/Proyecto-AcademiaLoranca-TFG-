@@ -11,64 +11,188 @@
   <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
   <script src="./parte-logica/api.js"></script>
   <style>
+    /* ── Layout ── */
     .auth-page {
       min-height: 80vh; display: flex; align-items: center; justify-content: center;
-      padding: 60px 20px; background: #f8faff;
+      padding: clamp(24px,5vw,60px) clamp(12px,3vw,20px);
+      background: linear-gradient(135deg, #f0f4ff 0%, #f8faff 50%, #f5f0ff 100%);
+      animation: authBg 8s ease infinite alternate;
     }
+    @keyframes authBg { 0% { background-position: 0% 50% } 100% { background-position: 100% 50% } }
     .auth-card {
-      background: #ffffff; border-radius: 24px; padding: 48px 40px;
+      background: #fff; border-radius: 28px; padding: clamp(32px,5vw,52px) clamp(24px,4vw,44px);
       width: 100%; max-width: 420px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.08);
-      text-align: center; border: 1px solid rgba(59,130,246,0.08);
+      box-shadow: 0 14px 40px rgba(0,0,0,.06), 0 2px 8px rgba(42,23,207,.04);
+      text-align: center; border: 1px solid rgba(59,130,246,.08);
+      animation: cardPop .5s ease;
     }
-    .auth-logo { width: 80px; margin-bottom: 16px; }
+    @keyframes cardPop { from { opacity:0; transform:translateY(24px) scale(.97) } to { opacity:1; transform:translateY(0) scale(1) } }
+    .auth-logo { width: clamp(64px,10vw,84px); margin-bottom: clamp(12px,2vw,18px); }
     .auth-card h1 {
-      font-size: 26px; color: #1e293b; margin-bottom: 4px; font-weight: 800;
+      font-size: clamp(22px,3.5vw,28px); color: #1e293b; margin-bottom: 4px;
+      font-weight: 800; letter-spacing: -.02em;
     }
-    .auth-sub { color: #64748b; font-size: 14px; margin-bottom: 28px; }
+    .auth-sub { color: #64748b; font-size: clamp(13px,1.6vw,14px); margin-bottom: clamp(20px,3vw,28px); }
+
+    /* ── Error ── */
     .auth-error {
-      background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 10px;
+      background: #fef2f2; color: #dc2626; padding: 12px 16px; border-radius: 12px;
       font-size: 14px; margin-bottom: 20px; border: 1px solid #fecaca; text-align: left;
+      display: none; align-items: center; gap: 8px;
     }
-    .auth-form { display: flex; flex-direction: column; gap: 18px; text-align: left; }
+    .auth-error.show { display: flex; }
+
+    /* ── Form ── */
+    .auth-form { display: flex; flex-direction: column; gap: clamp(14px,2vw,18px); text-align: left; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label { font-weight: 600; font-size: 13px; color: #1e293b; }
-    .field input {
-      padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
+    .field .input-wrap { position: relative; }
+    .field input, .fp-field input {
+      width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
       font-size: 15px; background: #f8fafc; color: #1e293b;
-      transition: border-color 0.3s, box-shadow 0.3s; outline: none;
+      transition: border-color .3s, box-shadow .3s, background .3s; outline: none;
+      box-sizing: border-box;
     }
-    .field input:focus {
-      border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); background: #fff;
+    .field input:focus, .fp-field input:focus {
+      border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,.1); background: #fff;
     }
+    .field input.input-pwd { padding-right: 44px; }
+    .field .toggle-pwd {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      cursor: pointer; font-size: 18px; user-select: none; color: #94a3b8; line-height: 1;
+    }
+
+    /* ── Forgot link ── */
+    .forgot-link {
+      display: block; text-align: right; font-size: 13px; color: #64748b;
+      cursor: pointer; transition: .2s; margin-top: -10px; font-weight: 500;
+    }
+    .forgot-link:hover { color: #2563eb; }
+
+    /* ── Button ── */
     .btn-auth {
       padding: 14px; margin-top: 6px;
       background: linear-gradient(60deg, #2f3f95, #000c8c);
-      color: white; border: none; border-radius: 50px; font-weight: 700;
-      font-size: 16px; cursor: pointer; transition: 0.3s;
-      box-shadow: 0 8px 25px rgba(47,63,149,0.35);
+      color: #fff; border: none; border-radius: 50px; font-weight: 700;
+      font-size: 16px; cursor: pointer; transition: all .3s ease;
+      box-shadow: 0 8px 25px rgba(47,63,149,.35);
     }
-    .btn-auth:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(47,63,149,0.45); }
-    .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
-    .auth-footer { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
-    .auth-footer p { font-size: 14px; color: #64748b; }
+    .btn-auth:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(47,63,149,.45); }
+    .btn-auth:active:not(:disabled) { transform: translateY(-1px); }
+    .btn-auth:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Footer ── */
+    .auth-footer { margin-top: clamp(20px,3vw,24px); padding-top: clamp(16px,2vw,20px); border-top: 1px solid #e2e8f0; }
+    .auth-footer p { font-size: 14px; color: #64748b; margin: 0; }
     .auth-footer a { color: #2563eb; font-weight: 600; text-decoration: none; }
     .auth-footer a:hover { text-decoration: underline; }
     .auth-footer small { display: block; margin-top: 8px; color: #94a3b8; font-size: 12px; }
-    @media (max-width: 480px) {
-      .auth-card { padding: 32px 24px; }
+
+    /* ── Forgot password modal ── */
+    .fp-overlay {
+      display: none; position: fixed; inset: 0; z-index: 99999;
+      background: rgba(15,23,42,.7); backdrop-filter: blur(4px);
+      justify-content: center; align-items: center; padding: clamp(12px,3vw,20px);
     }
-    [data-theme="dark"] .auth-page { background: var(--bg-body); }
-    [data-theme="dark"] .auth-card { background: var(--bg-card); border-color: var(--border-color); box-shadow: 0 14px 40px rgba(0,0,0,0.2); }
+    .fp-overlay.active { display: flex; }
+    .fp-modal {
+      background: #fff; border-radius: 24px; padding: clamp(24px,4vw,40px) clamp(20px,3vw,36px);
+      max-width: 420px; width: 100%; animation: fpIn .35s ease;
+      box-shadow: 0 30px 80px rgba(0,0,0,.25); max-height: 90vh; overflow-y: auto;
+    }
+    @keyframes fpIn { from { opacity:0; transform:translateY(20px) scale(.96) } to { opacity:1; transform:translateY(0) scale(1) } }
+    .fp-modal .fp-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .fp-modal .fp-head h2 { font-size: clamp(18px,2.5vw,20px); font-weight: 800; color: #1e293b; margin: 0; }
+    .fp-modal .fp-head .fp-close {
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      color: #94a3b8; line-height: 1; padding: 4px 6px; border-radius: 8px; transition: .2s;
+    }
+    .fp-modal .fp-head .fp-close:hover { color: #475569; background: #f1f5f9; }
+    .fp-modal .fp-desc { font-size: 14px; color: #64748b; margin: 0 0 20px 0; }
+    .fp-modal .fp-step { display: none; }
+    .fp-modal .fp-step.active { display: block; }
+    .fp-modal .fp-step.success-step { text-align: center; padding: 16px 0; }
+    .fp-modal .fp-step.success-step .fp-icon { font-size: 48px; margin-bottom: 12px; }
+    .fp-modal .fp-step.success-step h2 { margin-bottom: 8px; }
+    .fp-modal .fp-step.success-step p { margin-bottom: 20px; }
+
+    /* ── Fields inside modal ── */
+    .fp-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .fp-field label { font-weight: 600; font-size: 13px; color: #1e293b; }
+    .fp-field input { width: 100%; box-sizing: border-box; }
+    .fp-field input.code-input {
+      text-align: center; letter-spacing: 6px; font-weight: 700;
+      font-family: monospace; font-size: 20px;
+    }
+
+    /* ── Messages ── */
+    .fp-msg {
+      font-size: 13px; margin-top: 12px; padding: 10px 14px;
+      border-radius: 10px; display: none; word-break: break-word;
+    }
+    .fp-msg.success { display: block; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .fp-msg.error { display: block; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+    /* ── Modal buttons ── */
+    .btn-fp {
+      padding: 12px; margin-top: 4px; width: 100%;
+      background: linear-gradient(60deg, #2f3f95, #000c8c); color: #fff;
+      border: none; border-radius: 50px; font-weight: 700; font-size: 15px;
+      cursor: pointer; transition: all .3s ease;
+    }
+    .btn-fp:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(47,63,149,.35); }
+    .btn-fp:active:not(:disabled) { transform: translateY(0); }
+    .btn-fp:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .fp-back {
+      background: none; border: none; color: #64748b; cursor: pointer;
+      font-size: 13px; margin-top: 12px; display: inline-block; transition: .2s; padding: 4px 8px;
+    }
+    .fp-back:hover { color: #2563eb; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .auth-page { padding: 16px 12px; }
+      .auth-card { border-radius: 20px; }
+      .field input, .fp-field input { font-size: 16px; } /* prevent zoom on iOS */
+    }
+    @media (max-width: 480px) {
+      .auth-card { border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+      .auth-card h1 { font-size: 20px; }
+      .auth-sub { font-size: 13px; }
+      .btn-auth { font-size: 15px; padding: 13px; }
+      .fp-modal { padding: 20px 16px; }
+      .auth-footer small { font-size: 11px; }
+    }
+    @media (max-width: 360px) {
+      .auth-card { padding: 20px 16px; }
+      .auth-logo { width: 56px; }
+      .auth-footer p { font-size: 13px; }
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] .auth-page { background: var(--bg-body); animation: none; }
+    [data-theme="dark"] .auth-card { background: var(--bg-card); border-color: var(--border-color); box-shadow: 0 14px 40px rgba(0,0,0,.2); }
     [data-theme="dark"] .auth-card h1 { color: var(--text-primary); }
     [data-theme="dark"] .auth-sub { color: var(--text-muted); }
-    [data-theme="dark"] .field label { color: var(--text-primary); }
-    [data-theme="dark"] .field input { background: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); }
-    [data-theme="dark"] .field input:focus { background: var(--bg-card); border-color: #3b82f6; }
+    [data-theme="dark"] .field label, [data-theme="dark"] .fp-field label { color: var(--text-primary); }
+    [data-theme="dark"] .field input, [data-theme="dark"] .fp-field input { background: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); }
+    [data-theme="dark"] .field input:focus, [data-theme="dark"] .fp-field input:focus { background: var(--bg-card); border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,.06); }
     [data-theme="dark"] .auth-footer { border-top-color: var(--border-color); }
     [data-theme="dark"] .auth-footer p { color: var(--text-muted); }
     [data-theme="dark"] .auth-footer small { color: var(--text-muted); }
     [data-theme="dark"] .auth-error { background: #3b1a1a; border-color: #6a2a2a; color: #fca5a5; }
+    [data-theme="dark"] .forgot-link { color: var(--text-muted); }
+    [data-theme="dark"] .forgot-link:hover { color: #93c5fd; }
+    [data-theme="dark"] .toggle-pwd { color: var(--text-muted) !important; }
+    [data-theme="dark"] .fp-modal { background: var(--bg-card); }
+    [data-theme="dark"] .fp-modal .fp-head h2 { color: var(--text-primary); }
+    [data-theme="dark"] .fp-modal .fp-head .fp-close { color: var(--text-muted); }
+    [data-theme="dark"] .fp-modal .fp-head .fp-close:hover { color: var(--text-primary); background: var(--border-color); }
+    [data-theme="dark"] .fp-modal .fp-desc { color: var(--text-muted); }
+    [data-theme="dark"] .fp-msg.success { background: #1a3b2a; border-color: #22c55e33; color: #86efac; }
+    [data-theme="dark"] .fp-msg.error { background: #3b1a1a; border-color: #6a2a2a; color: #fca5a5; }
+    [data-theme="dark"] .fp-back { color: var(--text-muted); }
+    [data-theme="dark"] .fp-back:hover { color: #93c5fd; }
   </style>
 </head>
 <body>
@@ -79,7 +203,7 @@
       <img src="./imagenes/logo.png" alt="Academia Loranca" class="auth-logo">
       <h1>Iniciar Sesión</h1>
       <p class="auth-sub">Accede a tu panel personalizado</p>
-      <div id="authError" class="auth-error" style="display:none"></div>
+      <div id="authError" class="auth-error"></div>
 
       <form id="loginForm" class="auth-form">
         <div class="field">
@@ -88,10 +212,11 @@
         </div>
         <div class="field">
           <label>Contraseña</label>
-          <div style="position:relative">
-            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Tu contraseña" style="padding-right:44px">
-            <span id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;user-select:none;color:#94a3b8">👁️</span>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Tu contraseña" class="input-pwd">
+            <span class="toggle-pwd" id="togglePass">👁️</span>
           </div>
+          <span class="forgot-link" id="forgotLink">¿Olvidaste tu contraseña?</span>
         </div>
         <button type="submit" class="btn-auth" id="submitBtn">Entrar</button>
       </form>
@@ -103,6 +228,57 @@
     </div>
   </main>
 
+  <div class="fp-overlay" id="fpOverlay">
+    <div class="fp-modal">
+      <div class="fp-head">
+        <h2>Recuperar contraseña</h2>
+        <button class="fp-close" id="fpClose">✕</button>
+      </div>
+      <p class="fp-desc">Te enviaremos un código de verificación a tu correo electrónico.</p>
+
+      <div class="fp-step active" id="fpStep1">
+        <div class="fp-field">
+          <label>Email o nombre de usuario</label>
+          <input type="text" id="fpEmail" placeholder="ejemplo@correo.com o tu usuario">
+        </div>
+        <div class="fp-msg" id="fpMsg1"></div>
+        <button class="btn-fp" id="fpSendBtn">Enviar código</button>
+      </div>
+
+      <div class="fp-step" id="fpStep2">
+        <p class="fp-desc" style="margin-bottom:12px">Te hemos enviado un código de 6 dígitos a tu correo electrónico.</p>
+        <div class="fp-field">
+          <label>Código de verificación</label>
+          <input type="text" id="fpCode" placeholder="000000" maxlength="6" class="code-input">
+        </div>
+        <div class="fp-msg" id="fpMsg2"></div>
+        <button class="btn-fp" id="fpVerifyBtn">Verificar código</button>
+        <br><button class="fp-back" id="fpBack1">← Volver</button>
+      </div>
+
+      <div class="fp-step" id="fpStep3">
+        <div class="fp-field">
+          <label>Nueva contraseña</label>
+          <input type="password" id="fpNewPass" placeholder="Mínimo 4 caracteres">
+        </div>
+        <div class="fp-field">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="fpConfirmPass" placeholder="Repite la contraseña">
+        </div>
+        <div class="fp-msg" id="fpMsg3"></div>
+        <button class="btn-fp" id="fpResetBtn">Restablecer contraseña</button>
+        <br><button class="fp-back" id="fpBack2">← Volver</button>
+      </div>
+
+      <div class="fp-step success-step" id="fpStep4">
+        <div class="fp-icon">✅</div>
+        <h2>Contraseña actualizada</h2>
+        <p>Ya puedes iniciar sesión con tu nueva contraseña.</p>
+        <button class="btn-fp" id="fpDoneBtn">Ir a iniciar sesión</button>
+      </div>
+    </div>
+  </div>
+
   <footer-componente></footer-componente>
 
   <script>
@@ -111,7 +287,7 @@
       const btn = document.getElementById('submitBtn');
       const errDiv = document.getElementById('authError');
       btn.disabled = true; btn.textContent = 'Entrando...';
-      errDiv.style.display = 'none';
+      errDiv.classList.remove('show');
 
       try {
         const data = await API.login(
@@ -122,7 +298,7 @@
         window.location.href = data.user.role === 'admin' ? './admin/dashboard.html' : './panel.html';
       } catch (err) {
         errDiv.textContent = err.error || 'Error al iniciar sesión';
-        errDiv.style.display = 'block';
+        errDiv.classList.add('show');
         btn.disabled = false; btn.textContent = 'Entrar';
       }
       });
@@ -133,6 +309,116 @@
         inp.type = inp.type === 'password' ? 'text' : 'password';
         this.textContent = inp.type === 'password' ? '👁️' : '👁️‍🗨️';
       };
+    </script>
+    <script>
+      const fpOverlay = document.getElementById('fpOverlay');
+      const fpClose = document.getElementById('fpClose');
+      const fpEmail = document.getElementById('fpEmail');
+      const fpCode = document.getElementById('fpCode');
+      const fpStep1 = document.getElementById('fpStep1');
+      const fpStep2 = document.getElementById('fpStep2');
+      const fpStep3 = document.getElementById('fpStep3');
+      const fpStep4 = document.getElementById('fpStep4');
+      const fpMsg1 = document.getElementById('fpMsg1');
+      const fpMsg2 = document.getElementById('fpMsg2');
+      const fpMsg3 = document.getElementById('fpMsg3');
+      let verifiedEmail = '';
+      let resetToken = '';
+
+      function showStep(step) {
+        [fpStep1, fpStep2, fpStep3, fpStep4].forEach(s => s.classList.remove('active'));
+        step.classList.add('active');
+      }
+
+      function showMsg(el, text, type) {
+        el.textContent = text;
+        el.className = 'fp-msg ' + type;
+        el.style.display = 'block';
+      }
+
+      function hideMsg(el) { el.style.display = 'none'; }
+
+      document.getElementById('forgotLink').onclick = () => {
+        fpOverlay.classList.add('active');
+        showStep(fpStep1);
+        [fpMsg1, fpMsg2, fpMsg3].forEach(hideMsg);
+        fpEmail.value = '';
+        fpCode.value = '';
+        verifiedEmail = '';
+        resetToken = '';
+        document.getElementById('fpSendBtn').disabled = false;
+        document.getElementById('fpSendBtn').textContent = 'Enviar código';
+      };
+
+      function closeFp() { fpOverlay.classList.remove('active'); }
+      fpClose.onclick = closeFp;
+      fpOverlay.onclick = (e) => { if (e.target === fpOverlay) closeFp(); };
+
+      document.getElementById('fpSendBtn').onclick = async function() {
+        const email = fpEmail.value.trim();
+        if (!email) { showMsg(fpMsg1, 'Introduce tu email o usuario', 'error'); return; }
+        this.disabled = true; this.textContent = 'Enviando...';
+        hideMsg(fpMsg1);
+        try {
+          const data = await API.sendResetCode(email);
+          if (!data.sent && data.devCode) {
+            showMsg(fpMsg1, `⚠️ Modo desarrollo — Código: ${data.devCode}`, 'error');
+          }
+          showStep(fpStep2);
+          fpCode.value = '';
+          fpCode.focus();
+          hideMsg(fpMsg2);
+        } catch (e) {
+          showMsg(fpMsg1, e.error || 'Error al enviar el código', 'error');
+        }
+        this.disabled = false; this.textContent = 'Enviar código';
+      };
+
+      document.getElementById('fpVerifyBtn').onclick = async function() {
+        const email = fpEmail.value.trim();
+        const code = fpCode.value.trim();
+        if (!code || code.length !== 6) { showMsg(fpMsg2, 'Introduce el código de 6 dígitos', 'error'); return; }
+        this.disabled = true; this.textContent = 'Verificando...';
+        hideMsg(fpMsg2);
+        try {
+          const data = await API.verifyResetCode(email, code);
+          verifiedEmail = data.email;
+          resetToken = data.token;
+          showStep(fpStep3);
+          document.getElementById('fpNewPass').value = '';
+          document.getElementById('fpConfirmPass').value = '';
+          hideMsg(fpMsg3);
+        } catch (e) {
+          showMsg(fpMsg2, e.error || 'Código incorrecto', 'error');
+        }
+        this.disabled = false; this.textContent = 'Verificar código';
+      };
+
+      document.getElementById('fpResetBtn').onclick = async function() {
+        const np = document.getElementById('fpNewPass').value;
+        const cp = document.getElementById('fpConfirmPass').value;
+        if (!np || np.length < 4) { showMsg(fpMsg3, 'Mínimo 4 caracteres', 'error'); return; }
+        if (np !== cp) { showMsg(fpMsg3, 'Las contraseñas no coinciden', 'error'); return; }
+        this.disabled = true; this.textContent = 'Restableciendo...';
+        hideMsg(fpMsg3);
+        try {
+          await API.resetPassword(verifiedEmail, resetToken, np);
+          showStep(fpStep4);
+        } catch (e) {
+          showMsg(fpMsg3, e.error || 'Error al restablecer', 'error');
+        }
+        this.disabled = false; this.textContent = 'Restablecer contraseña';
+      };
+
+      document.getElementById('fpDoneBtn').onclick = closeFp;
+      document.getElementById('fpBack1').onclick = () => { showStep(fpStep1); hideMsg(fpMsg2); };
+      document.getElementById('fpBack2').onclick = () => { showStep(fpStep2); hideMsg(fpMsg3); };
+
+      fpEmail.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('fpSendBtn').click(); });
+      fpCode.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('fpVerifyBtn').click(); });
+      document.getElementById('fpConfirmPass').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('fpResetBtn').click();
+      });
     </script>
 </body>
 </html>

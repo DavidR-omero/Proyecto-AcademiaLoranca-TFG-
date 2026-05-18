@@ -89,11 +89,14 @@
             <div id="popupContainer"></div>
 
         <script>
-            (async () => {
+            let coursesData = [];
+
+            async function renderCourses() {
                 try {
-                    const { courses } = await API.getCourses();
                     const container = document.getElementById('coursesContainer');
                     const popupContainer = document.getElementById('popupContainer');
+                    const { courses } = await API.getCourses();
+                    coursesData = courses || [];
 
                     if (!courses || courses.length === 0) {
                         container.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:40px;grid-column:1/-1">No hay cursos disponibles actualmente</p>';
@@ -101,6 +104,7 @@
                     }
 
                     const isAdminUser = (function(){ try { const u = JSON.parse(localStorage.getItem('user')); return u && u.role === 'admin'; } catch { return false; } })();
+                    const cart = API.getCart();
 
                     const sorted = [...courses].sort((a, b) => {
                         const aFeatured = (a.teacher || '').toLowerCase().includes('isabel') || (a.teacher || '').toLowerCase().includes('laura');
@@ -113,7 +117,7 @@
                     container.innerHTML = sorted.map(c => {
                         const t = (c.teacher || '').toLowerCase();
                         const isFeatured = t.includes('isabel') || t.includes('laura');
-                        const inCart = API.getCart().some(x => x.course_id === c.id);
+                        const inCart = cart.some(x => x.course_id === c.id);
 
                         const colors = ['#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626','#2a17cf','#00d5ff'];
                         const placeholderColor = colors[c.id % colors.length];
@@ -134,7 +138,7 @@
                                 <h3>${c.name}</h3>
                                 <div class="card-teacher">👨‍🏫 ${c.teacher || 'Pendiente'}</div>
                                 <div class="card-schedule">🕐 ${c.schedule || 'Consultar'}</div>
-                                <div class="card-plazas" style="color:${c.enrolled_count >= c.max_students ? '#dc2626' : '#16a34a}'}">
+                                <div class="card-plazas" style="color:${c.enrolled_count >= c.max_students ? '#dc2626' : '#16a34a'}'}">
                                     ${c.enrolled_count || 0}/${c.max_students} plazas ${c.enrolled_count >= c.max_students ? '🔴 Completas' : '✅ Disponibles'}
                                 </div>
                                 <div class="card-desc">${c.description || ''}</div>
@@ -148,8 +152,6 @@
                             </div>
                         </div>`;
                     }).join('');
-
-                    window.coursesData = courses;
 
                     const hash = window.location.hash;
                     if (hash && hash.startsWith('#curso-')) {
@@ -167,7 +169,9 @@
                         const t = (c.teacher || '').toLowerCase();
                         if (t.includes('isabel')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-isabel.mp4" type="video/mp4"></video>';
                         if (t.includes('laura')) return '<video class="video-avatar" autoplay muted playsinline><source src="./imagenes/avatar-laura.mp4" type="video/mp4"></video>';
-                        return '<div style="font-size:5rem;text-align:center;padding:20px">👩‍🏫</div>';
+                        const femaleNames = ['isabel', 'laura', 'ana', 'maria', 'sofia'];
+                        const emoji = femaleNames.some(n => t.startsWith(n)) ? '👩‍🏫' : '👨‍🏫';
+                        return '<div style="font-size:5rem;text-align:center;padding:20px">' + emoji + '</div>';
                     }
 
                     window.openCoursePopup = function(id) {
@@ -192,15 +196,15 @@
                                     <p><strong>Horario:</strong> ${c.schedule || 'Consultar disponibilidad'}</p>
                                     <p><strong>Plazas:</strong> ${c.enrolled_count || 0}/${c.max_students} ocupadas</p>
                                     ${c.description ? `<p style="margin-top:12px">${c.description}</p>` : ''}
-                                    <h3 style="margin-top:16px">Información adicional:</h3>
+                                    <h3 style="margin-top:16px">Informacion adicional:</h3>
                                     <ul>
-                                        <li>Día de prueba gratuito para conocer nuestra metodología.</li>
+                                        <li>Dia de prueba gratuito para conocer nuestra metodologia.</li>
                                         <li>Disponibilidad de contacto directo fuera del horario de clase.</li>
-                                        <li>Evaluaciones periódicas y comunicación constante con padres.</li>
-                                        <li>Atención personalizada en grupos reducidos.</li>
+                                        <li>Evaluaciones periodicas y comunicacion constante con padres.</li>
+                                        <li>Atencion personalizada en grupos reducidos.</li>
                                     </ul>
                                     <div class="div-apuntarme">
-                                        <a href="contactos.html" class="boton-apuntarse">Solicitar información</a>
+                                        <a href="contactos.html" class="boton-apuntarse">Solicitar informacion</a>
                                     </div>
                                 </div>
                             `;
@@ -229,7 +233,10 @@
                     document.getElementById('coursesContainer').innerHTML =
                         '<p style="color:#dc2626;text-align:center;padding:40px;grid-column:1/-1">Error al cargar cursos</p>';
                 }
-            })();
+            }
+
+            renderCourses();
+            window.addEventListener('cart-changed', renderCourses);
         </script>
 
         <script>

@@ -1,7 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { queryOne, runSql } = require('../database');
+const crypto = require('crypto');
+const { queryOne, queryAll, runSql } = require('../database');
 const { generateToken, authenticateToken } = require('../middleware/auth');
+const { sendResetCode } = require('../email');
 const router = express.Router();
 
 router.post('/register', (req, res) => {
@@ -60,6 +62,79 @@ router.put('/me', authenticateToken, (req, res) => {
   }
   const user = queryOne('SELECT id,username,email,role,created_at FROM users WHERE id=?', [req.user.id]);
   res.json({ user });
+});
+
+router.post('/send-reset-code', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'El email o usuario es obligatorio' });
+
+  const user = queryOne('SELECT id,username,email FROM users WHERE LOWER(email)=LOWER(?) OR LOWER(username)=LOWER(?)', [email, email]);
+  if (!user) return res.status(404).json({ error: 'No existe una cuenta con ese email o usuario' });
+
+  /* Clean up old codes for this email */
+  runSql('DELETE FROM password_resets WHERE email=? OR expires_at < datetime("now")', [user.email]);
+
+  /* Generate 6-digit code */
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const token = crypto.randomBytes(32).toString('hex');
+
+  runSql(
+    'INSERT INTO password_resets (email, code, token, expires_at) VALUES (?,?,?, datetime("now","+15 minutes"))',
+    [user.email, code, token]
+  );
+
+  /* Try to send email */
+  const sent = await sendResetCode(user.email, code);
+
+  res.json({
+    sent,
+    message: sent
+      ? 'Revisa tu correo electrónico. El código ha sido enviado.'
+      : 'No se pudo enviar el email. Modo desarrollo: revisa la consola del servidor.',
+    ...(sent ? {} : { devCode: code })
+  });
+});
+
+router.post('/verify-reset-code', (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) return res.status(400).json({ error: 'Email y código son obligatorios' });
+
+  const record = queryOne(
+    `SELECT id,email,token FROM password_resets
+     WHERE LOWER(email)=LOWER(?) AND code=? AND used=0 AND expires_at > datetime("now")
+     ORDER BY id DESC LIMIT 1`,
+    [email, code]
+  );
+
+  if (!record) return res.status(401).json({ error: 'Código inválido o expirado' });
+
+  /* Mark as used so it can't be reused */
+  runSql('UPDATE password_resets SET used=1 WHERE id=?', [record.id]);
+
+  res.json({ verified: true, token: record.token, email: record.email });
+});
+
+router.post('/reset-password', (req, res) => {
+  const { email, token, newPassword } = req.body;
+  if (!email || !token || !newPassword)
+    return res.status(400).json({ error: 'Email, token y nueva contraseña son obligatorios' });
+  if (newPassword.length < 4)
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
+
+  const record = queryOne(
+    'SELECT id FROM password_resets WHERE LOWER(email)=LOWER(?) AND token=? AND used=1 AND expires_at > datetime("now")',
+    [email, token]
+  );
+
+  if (!record) return res.status(401).json({ error: 'Token inválido o expirado. Solicita un nuevo código' });
+
+  const hash = bcrypt.hashSync(newPassword, 10);
+  runSql('UPDATE users SET password=? WHERE LOWER(email)=LOWER(?)', [hash, email]);
+
+  /* Clean up used records */
+  runSql('DELETE FROM password_resets WHERE email=?', [email]);
+
+  res.json({ success: true });
 });
 
 module.exports = router;

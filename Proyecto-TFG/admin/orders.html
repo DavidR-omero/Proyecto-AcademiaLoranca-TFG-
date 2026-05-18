@@ -34,18 +34,21 @@
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./orders.html" class="active"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -158,12 +161,13 @@
       const div = document.getElementById('ordersTable');
       if (filtered.length === 0) { div.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>No hay pedidos</p></div>'; ordersPager.setTotal(0); return; }
       ordersPager.setTotal(filtered.length);
-      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Usuario</th><th>Total</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
+      div.innerHTML = '<div class="table-wrap"><table><thead><tr><th>ID</th><th>Usuario</th><th>Total</th><th>Pago</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead><tbody>' +
         ordersPager.getPage(filtered).data.map(o => `
           <tr>
             <td><span class="cell-id">#${o.id}</span></td>
             <td><span class="cell-name">${o.username || 'Usuario #' + o.user_id}</span></td>
             <td><strong>${(o.total || 0).toFixed(2).replace('.',',')} €</strong></td>
+            <td><span style="font-size:13px;color:var(--text-muted)">${o.payment_method ? (o.payment_method.charAt(0).toUpperCase() + o.payment_method.slice(1)) + (o.payment_last4 ? ' ····' + o.payment_last4 : '') : '-'}</span></td>
             <td>
               <select class="status-select" data-id="${o.id}" onchange="updateStatus(${o.id}, this.value)">
                 <option value="pending" ${o.status === 'pending' ? 'selected' : ''}>Pendiente</option>
@@ -173,7 +177,7 @@
             </td>
             <td>${formatDate(o.created_at)}</td>
             <td class="actions">
-              <button class="btn-view btn-icon" onclick="alert('Pedido #${o.id}\\nUsuario: ${o.username || o.user_id}\\nTotal: ${(o.total || 0).toFixed(2).replace('.',',')} €\\nEstado: ${o.status}\\nItems: ${(o.items || []).map(i => i.course_name).join(', ')}')" title="Ver detalle">👁️</button>
+              <button class="btn-view btn-icon" onclick="alert('Pedido #${o.id}\\nUsuario: ${o.username || o.user_id}\\nTotal: ${(o.total || 0).toFixed(2).replace('.',',')} €\\nEstado: ${o.status}\\nPago: ${o.payment_method || '-'} ${o.payment_last4 ? '····'+o.payment_last4 : ''}\\nItems: ${(o.items || []).map(i => i.course_name).join(', ')}')" title="Ver detalle">👁️</button>
             </td>
           </tr>
         `).join('') + '</tbody></table></div>';

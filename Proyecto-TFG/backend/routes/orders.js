@@ -23,16 +23,24 @@ router.get('/:id', authenticateToken, (req, res) => {
   res.json(order);
 });
 
-router.post('/', authenticateToken, (req, res) => {
-  const { items } = req.body;
+router.post('/', authenticateToken, async (req, res) => {
+  const { items, payment_method, payment_last4 } = req.body;
   if (!items || !items.length) return res.status(400).json({ error: 'Carrito vacío' });
   const total = items.reduce((sum, it) => sum + (it.price || 0), 0);
-  const order = runSql('INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)',
-    [req.user.id, total, 'completed']);
+
+  const order = runSql(`INSERT INTO orders (user_id, total, status, payment_method, payment_last4)
+    VALUES (?, ?, 'pending', ?, ?)`,
+    [req.user.id, total, payment_method || '', payment_last4 || '']);
+
   items.forEach(it => {
     runSql('INSERT INTO order_items (order_id, course_id, course_name, price) VALUES (?, ?, ?, ?)',
       [order.lastInsertRowid, it.course_id || 0, it.course_name, it.price]);
   });
+
+  await new Promise(r => setTimeout(r, 1500));
+
+  runSql('UPDATE orders SET status = ? WHERE id = ?', ['completed', order.lastInsertRowid]);
+
   const created = queryOne('SELECT * FROM orders WHERE id = ?', [order.lastInsertRowid]);
   created.items = queryAll('SELECT * FROM order_items WHERE order_id = ?', [created.id]);
   res.status(201).json(created);

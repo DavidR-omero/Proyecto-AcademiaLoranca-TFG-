@@ -126,7 +126,7 @@
                             <img src="./imagenes/grupos.jpg" alt="Grupos reducidos de máximo 8 alumnos en Academia Loranca">
                         </div>
                         <h3>👥 <strong>Grupos reducidos</strong></h3>
-                        <p>Clases con un máximo de <strong>8 alumnos</strong>, lo que permite una enseñanza cercana,
+                        <p>Clases con un máximo de <strong>20 alumnos</strong>, lo que permite una enseñanza cercana,
                             participación activa y
                             <strong>seguimiento individual constante</strong>.
                         </p>
@@ -282,8 +282,9 @@
             const avatarColors = ['#2a17cf','#00d5ff','#7c3aed','#0891b2','#059669','#d97706','#db2777','#dc2626'];
             const avatarColor = avatarColors[idx % avatarColors.length];
 
+            const initial = t.charAt(0);
             return `
-            <div class="profesor-card${isFeatured ? ' featured' : ''}" onclick='openTeacherPopup(${JSON.stringify({name:t, title:(td?.title||''), bio:(td?.bio||''), years:(td?.years_experience||0), specialties:(td?.specialties||''), subjects, schedule: (mainCourse?.schedule || ''), courseLevel, isFeatured, color}).replace(/'/g,"&#39;")})'>
+            <div class="profesor-card${isFeatured ? ' featured' : ''}" onclick='openTeacherPopup(${JSON.stringify({name:t, initial, title:(td?.title||''), bio:(td?.bio||''), years:(td?.years_experience||0), specialties:(td?.specialties||''), subjects, schedule: (mainCourse?.schedule || ''), courseLevel, isFeatured, color}).replace(/'/g,"&#39;")})'>
               <div class="profesor-avatar" style="background:${avatarColor}18;color:${avatarColor}">${avatarLetter}</div>
               <div class="profesor-body">
                 <h3>${t}${isFeatured ? ' ⭐' : ''}</h3>
@@ -318,9 +319,10 @@
         const content = document.getElementById('teacherModalContent');
         const whatsappPhone = data.name.toLowerCase().includes('laura') ? '665927240' : '652081700';
         const whatsappMsg = encodeURIComponent(`¡Hola! Me gustaría recibir información sobre los cursos impartidos por ${data.name}.`);
+        const initial = data.initial || data.name.charAt(0);
         content.innerHTML = `
           <div class="tm-header" style="border-bottom:2px solid ${data.color || '#2a17cf'}">
-            <div class="tm-avatar" style="background:${data.color || '#2a17cf'}22;color:${data.color || '#2a17cf'}">👨‍🏫</div>
+            <div class="tm-avatar" style="background:${data.color || '#2a17cf'}22;color:${data.color || '#2a17cf'}">${initial}</div>
             <div>
               <h2 class="tm-name">${data.name}${data.isFeatured ? ' ⭐' : ''}</h2>
               ${data.title ? '<div class="tm-title">' + data.title + '</div>' : ''}
@@ -512,7 +514,7 @@
             <!-- BLOQUE 2 -->
             <div class="servicio-item reverse">
                 <div class="servicio-img">
-                    <img src="./imagenes/preparacion.jpg" alt="Preparación de exámenes y EVAU">
+                    <img src="./imagenes/secundaria.jpg" alt="Preparación de exámenes y EVAU">
                 </div>
                 <div class="servicio-text">
                     <h3>📝 <strong>Refuerzo Integral - Secundaria y Bachillerato</strong></h3>

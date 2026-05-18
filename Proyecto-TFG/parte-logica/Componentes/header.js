@@ -663,21 +663,7 @@ class HeaderComponent extends HTMLElement {
         }
 
         const badge = this._shadow.getElementById("notifBadge");
-        if (badge && token) {
-          (async () => {
-            try {
-              const res = await fetch('/api/notifications', {
-                headers: { 'Authorization': 'Bearer ' + token }
-              });
-              if (!res.ok) throw new Error();
-              const data = await res.json();
-              if (data.total > 0) {
-                badge.textContent = data.total > 99 ? '99+' : data.total;
-                badge.style.display = 'flex';
-              }
-            } catch {}
-          })();
-        }
+        if (badge) badge.style.display = 'none';
     }
 }
 

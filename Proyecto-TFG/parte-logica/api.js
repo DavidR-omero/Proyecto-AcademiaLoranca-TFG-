@@ -66,6 +66,22 @@ var API = {
     return this.request('/api/events');
   },
 
+  sendResetCode(email) {
+    return this.request('/api/auth/send-reset-code', {
+      method: 'POST', body: JSON.stringify({ email })
+    });
+  },
+  verifyResetCode(email, code) {
+    return this.request('/api/auth/verify-reset-code', {
+      method: 'POST', body: JSON.stringify({ email, code })
+    });
+  },
+  resetPassword(email, token, newPassword) {
+    return this.request('/api/auth/reset-password', {
+      method: 'POST', body: JSON.stringify({ email, token, newPassword })
+    });
+  },
+
   getMyMessages() {
     return this.request('/api/contact/my');
   },
@@ -207,9 +223,9 @@ var API = {
   getCartCount() { return API.getCart().length; },
 
   /* Orders */
-  createOrder(items) {
+  createOrder(items, payment_method = '', payment_last4 = '') {
     return API.request('/api/orders', {
-      method: 'POST', body: JSON.stringify({ items })
+      method: 'POST', body: JSON.stringify({ items, payment_method, payment_last4 })
     });
   },
   getMyOrders() {

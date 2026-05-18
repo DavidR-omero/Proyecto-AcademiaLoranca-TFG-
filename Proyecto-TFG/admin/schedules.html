@@ -23,18 +23,21 @@
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html" class="active"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -56,7 +59,7 @@
       <div class="card-header">
         <h2><span class="card-icon">🕐</span>Gestión de horarios</h2>
         <div class="card-toolbar">
-          <button class="btn btn-primary" id="addBtn">+ Nuevo horario</button>
+          <button class="btn-primary" id="addBtn">+ Nuevo horario</button>
           <div class="search-wrap">
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" id="searchSched" placeholder="Buscar...">
@@ -86,38 +89,36 @@
 
   <div class="modal-overlay" id="modal">
     <div class="modal">
-      <div class="modal-header">
-        <h3 id="modalTitle">Nuevo horario</h3>
-        <button class="modal-close" id="modalClose">&times;</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+        <h2 id="modalTitle" style="margin:0">➕ Nuevo horario</h2>
+        <button id="modalClose" style="background:none;border:none;font-size:24px;color:var(--text-muted);cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center">&times;</button>
       </div>
-      <div class="modal-body">
-        <input type="hidden" id="editId">
-        <div class="form-group">
-          <label>Grupo</label>
-          <input id="fGroup" class="form-control" placeholder="ej. Grupo 1 - Isabel">
+      <input type="hidden" id="editId">
+      <div class="field">
+        <label>Grupo</label>
+        <input id="fGroup" placeholder="ej. Grupo 1 - Isabel">
+      </div>
+      <div class="field">
+        <label>Días</label>
+        <input id="fDays" placeholder="ej. Lunes a Jueves">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label>Hora inicio</label>
+          <input id="fStart" placeholder="ej. 15:00">
         </div>
-        <div class="form-group">
-          <label>Días</label>
-          <input id="fDays" class="form-control" placeholder="ej. Lunes a Jueves">
-        </div>
-        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div class="form-group">
-            <label>Hora inicio</label>
-            <input id="fStart" class="form-control" placeholder="ej. 15:00">
-          </div>
-          <div class="form-group">
-            <label>Hora fin</label>
-            <input id="fEnd" class="form-control" placeholder="ej. 20:00">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Orden</label>
-          <input id="fOrder" type="number" class="form-control" value="0" style="width:100px">
+        <div class="field">
+          <label>Hora fin</label>
+          <input id="fEnd" placeholder="ej. 20:00">
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="modalCancel">Cancelar</button>
-        <button class="btn btn-primary" id="modalSave">Guardar</button>
+      <div class="field">
+        <label>Orden</label>
+        <input id="fOrder" type="number" value="0" style="width:100px">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="modalCancel">Cancelar</button>
+        <button class="btn-save" id="modalSave">💾 Guardar</button>
       </div>
     </div>
   </div>
@@ -134,11 +135,13 @@
       let schedPager;
 
       async function load() {
-        const res = await API.request('/api/admin/schedules');
-        schedules = res.schedules;
-        schedPager = createPager('schedPager', 10, render);
-        render();
-        document.getElementById('loadingSkeleton')?.remove();
+        try {
+          const res = await API.request('/api/admin/schedules');
+          schedules = res.schedules;
+          schedPager = createPager('schedPager', 10, render);
+          render();
+          document.getElementById('loadingSkeleton')?.remove();
+        } catch (e) { document.getElementById('loadingSkeleton')?.remove(); showToast('Error al cargar horarios', 'error'); }
       }
 
       function render() {
@@ -153,9 +156,9 @@
             <td>${esc(s.start_time)}</td>
             <td>${esc(s.end_time)}</td>
             <td>${s.sort_order}</td>
-            <td class="actions-cell">
-              <button class="btn btn-sm btn-secondary" onclick="editSchedule(${s.id})">✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteSchedule(${s.id})">🗑️</button>
+            <td class="actions">
+              <button class="btn-icon btn-edit" onclick="editSchedule(${s.id})" title="Editar">✏️</button>
+              <button class="btn-icon btn-delete" onclick="deleteSchedule(${s.id})" title="Eliminar">🗑️</button>
             </td>
           </tr>
         `).join('');
@@ -178,10 +181,12 @@
 
       window.deleteSchedule = async (id) => {
         if (!(await showConfirm('¿Eliminar este horario?'))) return;
-        await API.request(`/api/admin/schedules/${id}`, { method: 'DELETE' });
-        schedules = schedules.filter(s => s.id !== id);
-        render();
-        showToast('Horario eliminado', 'success');
+        try {
+          await API.request(`/api/admin/schedules/${id}`, { method: 'DELETE' });
+          schedules = schedules.filter(s => s.id !== id);
+          render();
+          showToast('Horario eliminado', 'success');
+        } catch (e) { showToast(e.error || 'Error al eliminar', 'error'); }
       };
 
       document.getElementById('addBtn').onclick = () => {
@@ -209,28 +214,27 @@
           sort_order: parseInt(document.getElementById('fOrder').value) || 0
         };
         if (!data.group_name) { showToast('El nombre del grupo es obligatorio', 'error'); return; }
-        if (id) {
-          const res = await API.request(`/api/admin/schedules/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-          const idx = schedules.findIndex(s => s.id === parseInt(id));
-          if (idx !== -1) schedules[idx] = res.schedule;
-          showToast('Horario actualizado', 'success');
-        } else {
-          const res = await API.request('/api/admin/schedules', { method: 'POST', body: JSON.stringify(data) });
-          schedules.push(res.schedule);
-          showToast('Horario creado', 'success');
-        }
-        render();
-        document.getElementById('modal').classList.remove('active');
+        try {
+          if (id) {
+            const res = await API.request(`/api/admin/schedules/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+            const idx = schedules.findIndex(s => s.id === parseInt(id));
+            if (idx !== -1) schedules[idx] = res.schedule;
+            showToast('Horario actualizado', 'success');
+          } else {
+            const res = await API.request('/api/admin/schedules', { method: 'POST', body: JSON.stringify(data) });
+            schedules.push(res.schedule);
+            showToast('Horario creado', 'success');
+          }
+          render();
+          document.getElementById('modal').classList.remove('active');
+        } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
       };
 
       function showToast(msg, type) {
         const existing = document.querySelector('.toast');
         if (existing) existing.remove();
-        const t = document.createElement('div');
-        t.className = `toast ${type}`;
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+        const t = document.createElement('div'); t.className = 'toast ' + type; t.textContent = msg;
+        document.body.appendChild(t); setTimeout(() => t.remove(), 3000);
       }
 
       await load();

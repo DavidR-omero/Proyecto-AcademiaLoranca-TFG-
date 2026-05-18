@@ -11,115 +11,327 @@
   <script type="module" src="./parte-logica/Componentes/footer.js" defer></script>
   <script src="./parte-logica/api.js"></script>
   <style>
-    .auth-page {
-      min-height: 80vh; display: flex; align-items: center; justify-content: center;
-      padding: 60px 20px; background: #f8faff;
+    .checkout-page {
+      min-height: 80vh; display: flex; align-items: flex-start; justify-content: center;
+      padding: 60px 20px; background: var(--bg-body);
     }
-    .auth-card {
-      background: #ffffff; border-radius: 24px; padding: 48px 40px;
-      width: 100%; max-width: 520px;
+    .checkout-card {
+      background: var(--bg-card); border-radius: 24px; padding: 48px 40px;
+      width: 100%; max-width: 540px;
       box-shadow: 0 14px 40px rgba(0,0,0,0.08);
-      border: 1px solid rgba(59,130,246,0.08);
+      border: 1px solid var(--border-color);
+      transition: background 0.3s;
     }
-    .auth-card h1 {
-      font-size: 26px; color: #1e293b; margin-bottom: 4px; font-weight: 800; text-align: center;
+    .checkout-card h1 {
+      font-size: 26px; color: var(--text-primary); margin-bottom: 4px;
+      font-weight: 800; text-align: center;
     }
-    .auth-sub { color: #64748b; font-size: 14px; margin-bottom: 28px; text-align: center; }
+    .checkout-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 28px; text-align: center; }
+
+    .order-summary { margin-bottom: 24px; }
+    .order-summary h2 {
+      font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
     .cart-item {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+      padding: 10px 0; border-bottom: 1px solid var(--border-color);
     }
-    .cart-item:last-child { border-bottom: none; }
-    .cart-item-name { font-weight: 600; font-size: 14px; color: #1e293b; }
-    .cart-item-teacher { font-size: 12px; color: #94a3b8; }
-    .cart-item-price { font-weight: 700; font-size: 15px; color: #1e293b; }
+    .cart-item:last-of-type { border-bottom: none; }
+    .cart-item-name { font-weight: 600; font-size: 14px; color: var(--text-primary); }
+    .cart-item-teacher { font-size: 12px; color: var(--text-muted); }
+    .cart-item-price { font-weight: 700; font-size: 15px; color: var(--text-primary); }
     .cart-total {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 0; margin-top: 8px; border-top: 2px solid #e2e8f0;
-      font-size: 18px; font-weight: 800; color: #1e293b;
+      padding: 14px 0 0; margin-top: 4px; border-top: 2px solid var(--border-color);
+      font-size: 18px; font-weight: 800; color: var(--text-primary);
     }
-    .payment-section { margin-top: 24px; }
-    .payment-section h2 { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
-    .payment-row { display: flex; gap: 12px; }
-    .payment-row .field { flex: 1; }
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-    .field label { font-weight: 600; font-size: 13px; color: #1e293b; }
+
+    .section-title {
+      font-size: 15px; font-weight: 700; color: var(--text-primary);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .card-preview {
+      background: linear-gradient(135deg, #1e3a8a, #2a17cf);
+      border-radius: 16px; padding: 24px; margin-bottom: 24px;
+      color: white; position: relative; overflow: hidden;
+      min-height: 120px; transition: background 0.5s;
+    }
+    .card-preview.visa { background: linear-gradient(135deg, #1a1f71, #2563eb); }
+    .card-preview.mastercard { background: linear-gradient(135deg, #1a1a1a, #f59e0b); }
+    .card-preview.amex { background: linear-gradient(135deg, #1b6ba5, #2d8fd5); }
+    .card-preview::before {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+    .card-preview .card-brand {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+      opacity: 0.7; margin-bottom: 20px;
+    }
+    .card-preview .card-number-display {
+      font-size: 20px; letter-spacing: 3px; font-weight: 600;
+      font-family: 'Courier New', monospace; margin-bottom: 16px;
+    }
+    .card-preview .card-bottom {
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .card-preview .card-holder {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .card-preview .card-holder small {
+      display: block; font-size: 9px; opacity: 0.6; letter-spacing: 0;
+    }
+    .card-preview .card-expiry {
+      font-size: 13px; font-weight: 600;
+    }
+    .card-preview .card-expiry small {
+      display: block; font-size: 9px; opacity: 0.6; font-weight: 400;
+    }
+
+    .card-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: flex; gap: 12px; }
+    .form-row .field { flex: 1; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-weight: 600; font-size: 12px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .field label .card-icon {
+      width: 28px; height: 18px; border-radius: 3px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700; color: white; margin-left: auto;
+    }
+    .field label .card-icon.visa { background: #1a1f71; }
+    .field label .card-icon.mastercard { background: linear-gradient(135deg, #ff5f00, #eb001b); }
+    .field label .card-icon.amex { background: #1b6ba5; }
     .field input {
-      padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
-      font-size: 15px; background: #f8fafc; color: #1e293b;
+      padding: 12px 14px; border: 2px solid var(--border-color); border-radius: 12px;
+      font-size: 15px; background: var(--input-bg); color: var(--text-primary);
       transition: border-color 0.3s, box-shadow 0.3s; outline: none;
     }
     .field input:focus {
-      border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); background: #fff;
+      border-color: #2a17cf; box-shadow: 0 0 0 4px rgba(42,23,207,0.08);
+      background: var(--bg-card);
     }
-    .btn-auth {
-      padding: 14px; margin-top: 6px; width: 100%;
-      background: linear-gradient(60deg, #2f3f95, #000c8c);
+    .field input.error {
+      border-color: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,0.08);
+    }
+    .field .error-text {
+      font-size: 11px; color: #dc2626; display: none;
+    }
+    .field input.error + .error-text { display: block; }
+
+    .btn-pay {
+      padding: 16px; margin-top: 8px; width: 100%;
+      background: linear-gradient(135deg, #2a17cf, #1a0d8a);
       color: white; border: none; border-radius: 50px; font-weight: 700;
-      font-size: 16px; cursor: pointer; transition: 0.3s;
-      box-shadow: 0 8px 25px rgba(47,63,149,0.35);
+      font-size: 16px; cursor: pointer; transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(42,23,207,0.3);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
     }
-    .btn-auth:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(47,63,149,0.45); }
-    .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary {
-      display: inline-block; padding: 12px 28px; margin-top: 12px;
-      background: transparent; border: 2px solid #e2e8f0; border-radius: 50px;
-      font-weight: 600; font-size: 14px; color: #475569; text-decoration: none;
+    .btn-pay:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(42,23,207,0.4); }
+    .btn-pay:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; margin-top: 12px;
+      background: transparent; border: 2px solid var(--border-color); border-radius: 50px;
+      font-weight: 600; font-size: 14px; color: var(--text-secondary); text-decoration: none;
       transition: 0.3s;
     }
-    .btn-secondary:hover { border-color: #2a17cf; color: #2a17cf; }
-    .success-box {
-      text-align: center; padding: 20px 0;
+    .btn-back:hover { border-color: #2a17cf; color: #2a17cf; }
+
+    .processing-overlay {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 0; text-align: center;
     }
-    .success-box .checkmark {
-      font-size: 64px; margin-bottom: 12px;
+    .processing-overlay.active { display: flex; }
+    .processing-overlay .spinner {
+      width: 56px; height: 56px; border: 4px solid var(--border-color);
+      border-top-color: #2a17cf; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin-bottom: 20px;
     }
-    .success-box h2 { font-size: 22px; color: #16a34a; margin-bottom: 8px; }
-    .success-box p { color: #64748b; font-size: 14px; margin-bottom: 6px; }
-    .success-box .order-id { font-weight: 700; color: #1e293b; font-size: 16px; }
+    .processing-overlay h3 { font-size: 18px; color: var(--text-primary); margin-bottom: 6px; }
+    .processing-overlay p { font-size: 14px; color: var(--text-muted); }
+    .processing-overlay .dots::after {
+      content: ''; animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    .success-screen { display: none; text-align: center; padding: 20px 0; }
+    .success-screen.active { display: block; animation: scaleIn 0.4s ease; }
+    .success-screen .checkmark {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #059669, #047857);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 36px; color: white;
+      box-shadow: 0 8px 30px rgba(5,150,105,0.3);
+      animation: pop 0.5s ease;
+    }
+    .success-screen h2 { font-size: 24px; color: var(--text-primary); margin-bottom: 4px; }
+    .success-screen .success-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .success-screen .success-details {
+      background: var(--input-bg); border-radius: 14px; padding: 20px;
+      text-align: left; margin-bottom: 20px;
+    }
+    .success-screen .success-details .detail-row {
+      display: flex; justify-content: space-between; padding: 6px 0;
+      font-size: 14px;
+    }
+    .success-screen .success-details .detail-row .label { color: var(--text-muted); }
+    .success-screen .success-details .detail-row .value { font-weight: 600; color: var(--text-primary); }
+    .success-screen .success-actions {
+      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    }
+
+    .confetti-container {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 9999; overflow: hidden;
+    }
+    .confetti-piece {
+      position: absolute; top: -10px; width: 10px; height: 10px;
+      border-radius: 2px; animation: confettiFall linear forwards;
+    }
+    .checkout-card .form-section { display: block; }
+    .checkout-card .form-section.hidden { display: none; }
+
     .empty-cart { text-align: center; padding: 30px 0; }
     .empty-cart .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
-    .empty-cart p { color: #94a3b8; font-size: 14px; margin-bottom: 16px; }
-    .remove-btn {
-      background: none; border: none; cursor: pointer; font-size: 16px;
-      color: #94a3b8; padding: 4px 8px; border-radius: 6px; transition: 0.2s;
+    .empty-cart p { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes pop { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    @keyframes confettiFall {
+      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
     }
-    .remove-btn:hover { background: #fef2f2; color: #dc2626; }
+
     @media (max-width: 480px) {
-      .auth-card { padding: 32px 24px; }
-      .payment-row { flex-direction: column; }
+      .checkout-card { padding: 28px 20px; }
+      .form-row { flex-direction: column; gap: 0; }
+      .card-preview { padding: 18px; }
+      .card-preview .card-number-display { font-size: 16px; letter-spacing: 2px; }
     }
-    [data-theme="dark"] .auth-page { background: var(--bg-body); }
-    [data-theme="dark"] .auth-card { background: var(--bg-card); border-color: var(--border-color); box-shadow: 0 14px 40px rgba(0,0,0,0.2); }
-    [data-theme="dark"] .auth-card h1 { color: var(--text-primary); }
-    [data-theme="dark"] .auth-sub { color: var(--text-muted); }
-    [data-theme="dark"] .field label { color: var(--text-primary); }
-    [data-theme="dark"] .field input { background: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); }
-    [data-theme="dark"] .field input:focus { background: var(--bg-card); border-color: #3b82f6; }
-    [data-theme="dark"] .cart-item { border-bottom-color: var(--border-color); }
-    [data-theme="dark"] .cart-item-name { color: var(--text-primary); }
-    [data-theme="dark"] .cart-item-price { color: var(--text-primary); }
-    [data-theme="dark"] .cart-total { border-top-color: var(--border-color); color: var(--text-primary); }
-    [data-theme="dark"] .payment-section h2 { color: var(--text-primary); }
-    [data-theme="dark"] .success-box .order-id { color: var(--text-primary); }
   </style>
 </head>
 <body>
   <header-componente></header-componente>
 
-  <main class="auth-page">
-    <div class="auth-card" id="checkoutCard">
+  <main class="checkout-page">
+    <div class="checkout-card" id="checkoutCard">
       <h1>Finalizar Pedido</h1>
-      <p class="auth-sub">Revisa tu carrito y completa el pago</p>
+      <p class="checkout-sub">Revisa tu carrito y completa el pago simulado</p>
       <div id="checkoutContent"></div>
     </div>
   </main>
 
   <footer-componente></footer-componente>
 
+  <div class="confetti-container" id="confettiContainer"></div>
+
   <script>
     (() => {
       const content = document.getElementById('checkoutContent');
+      let cardBrand = '';
+
+      function detectCardBrand(number) {
+        const clean = number.replace(/\D/g, '');
+        if (/^4/.test(clean)) return 'visa';
+        if (/^5[1-5]/.test(clean)) return 'mastercard';
+        if (/^3[47]/.test(clean)) return 'amex';
+        if (/^6(?:011|5)/.test(clean)) return 'discover';
+        return '';
+      }
+
+      function luhnCheck(cardNumber) {
+        const digits = cardNumber.replace(/\D/g, '');
+        if (digits.length < 13 || digits.length > 19) return false;
+        let sum = 0; let alt = false;
+        for (let i = digits.length - 1; i >= 0; i--) {
+          let n = parseInt(digits[i], 10);
+          if (alt) { n *= 2; if (n > 9) n -= 9; }
+          sum += n; alt = !alt;
+        }
+        return sum % 10 === 0;
+      }
+
+      function validateCardForm() {
+        const num = document.getElementById('cardNumber');
+        const holder = document.getElementById('cardHolder');
+        const expiry = document.getElementById('cardExpiry');
+        const cvc = document.getElementById('cardCvc');
+        let valid = true;
+
+        [num, holder, expiry, cvc].forEach(f => f.classList.remove('error'));
+
+        const numClean = num.value.replace(/\D/g, '');
+        if (numClean.length < 13 || numClean.length > 19 || !luhnCheck(numClean)) {
+          num.classList.add('error'); valid = false;
+        }
+
+        if (!holder.value.trim() || holder.value.trim().length < 3) {
+          holder.classList.add('error'); valid = false;
+        }
+
+        const expMatch = expiry.value.match(/^(\d{2})\/(\d{2})$/);
+        if (!expMatch) {
+          expiry.classList.add('error'); valid = false;
+        } else {
+          const now = new Date();
+          const expMonth = parseInt(expMatch[1], 10);
+          const expYear = parseInt(expMatch[2], 10) + 2000;
+          if (expMonth < 1 || expMonth > 12 || expYear < now.getFullYear() || (expYear === now.getFullYear() && expMonth < now.getMonth() + 1)) {
+            expiry.classList.add('error'); valid = false;
+          }
+        }
+
+        const cvcClean = cvc.value.replace(/\D/g, '');
+        const expectedLen = cardBrand === 'amex' ? 4 : 3;
+        if (cvcClean.length !== expectedLen) {
+          cvc.classList.add('error'); valid = false;
+        }
+
+        return valid;
+      }
+
+      function showProcessing() {
+        document.getElementById('formSection').classList.add('hidden');
+        document.getElementById('processingOverlay').classList.add('active');
+      }
+
+      function showSuccess(order) {
+        document.getElementById('processingOverlay').classList.remove('active');
+        document.getElementById('successScreen').classList.add('active');
+        document.getElementById('successOrderId').textContent = `#${order.id}`;
+        document.getElementById('successTotal').textContent = `${(order.total || 0).toFixed(2).replace('.', ',')} €`;
+        const now = new Date();
+        document.getElementById('successDate').textContent =
+          now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const last4 = document.getElementById('cardNumber').value.replace(/\D/g, '').slice(-4);
+        document.getElementById('successCard').textContent = `**** **** **** ${last4}`;
+        spawnConfetti();
+      }
+
+      function spawnConfetti() {
+        const container = document.getElementById('confettiContainer');
+        const colors = ['#2a17cf', '#00d5ff', '#059669', '#f59e0b', '#dc2626', '#7c3aed', '#ec4899'];
+        for (let i = 0; i < 60; i++) {
+          const piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          piece.style.left = Math.random() * 100 + '%';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.width = (Math.random() * 8 + 4) + 'px';
+          piece.style.height = (Math.random() * 8 + 4) + 'px';
+          piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          piece.style.animationDelay = (Math.random() * 1.5) + 's';
+          piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+          container.appendChild(piece);
+        }
+        setTimeout(() => container.innerHTML = '', 5000);
+      }
 
       function renderCart() {
         const cart = API.getCart();
@@ -128,48 +340,106 @@
             <div class="empty-cart">
               <div class="empty-icon">🛒</div>
               <p>Tu carrito está vacío</p>
-              <a href="./grupos.html" class="btn-secondary">Ver cursos</a>
+              <a href="./grupos.html" class="btn-back">Ver cursos</a>
             </div>`;
           return;
         }
 
+        const total = API.getCartTotal();
         content.innerHTML = `
-          <div id="cartItems">
-            ${cart.map((item, i) => `
-              <div class="cart-item">
-                <div>
-                  <div class="cart-item-name">${item.course_name}</div>
-                  <div class="cart-item-teacher">${item.teacher || ''}</div>
+          <div class="order-summary">
+            <h2>📋 Resumen del pedido</h2>
+            <div id="cartItems">
+              ${cart.map((item, i) => `
+                <div class="cart-item">
+                  <div>
+                    <div class="cart-item-name">${item.course_name}</div>
+                    <div class="cart-item-teacher">${item.teacher || ''}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span class="cart-item-price">${(item.price || 0).toFixed(2).replace('.',',')} €</span>
+                    <button class="remove-btn" data-index="${i}" style="background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px 8px;border-radius:6px;font-size:16px;transition:0.2s">✕</button>
+                  </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:10px">
-                  <span class="cart-item-price">${(item.price || 0).toFixed(2).replace('.',',')} €</span>
-                  <button class="remove-btn" data-index="${i}" title="Eliminar">✕</button>
+              `).join('')}
+            </div>
+            <div class="cart-total">
+              <span>Total</span>
+              <span>${total.toFixed(2).replace('.',',')} €</span>
+            </div>
+          </div>
+
+          <div class="form-section" id="formSection">
+            <div class="card-preview" id="cardPreview">
+              <div class="card-brand" id="previewBrand">Tarjeta</div>
+              <div class="card-number-display" id="previewNumber">···· ···· ···· ····</div>
+              <div class="card-bottom">
+                <div class="card-holder">
+                  <small>Titular</small>
+                  <span id="previewHolder">Tu Nombre</span>
+                </div>
+                <div class="card-expiry">
+                  <small>Caduca</small>
+                  <span id="previewExpiry">MM/AA</span>
                 </div>
               </div>
-            `).join('')}
-          </div>
-          <div class="cart-total">
-            <span>Total</span>
-            <span>${API.getCartTotal().toFixed(2).replace('.',',')} €</span>
-          </div>
-          <div class="payment-section">
-            <h2>💳 Datos de pago</h2>
-            <div class="field">
-              <label>Número de tarjeta</label>
-              <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
             </div>
-            <div class="payment-row">
+
+            <div class="card-form">
               <div class="field">
-                <label>Fecha de caducidad</label>
-                <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5">
+                <label>Titular de la tarjeta</label>
+                <input type="text" id="cardHolder" placeholder="Nombre y apellidos" autocomplete="cc-name">
+                <div class="error-text">Introduce el nombre del titular</div>
               </div>
               <div class="field">
-                <label>CVC</label>
-                <input type="text" id="cardCvc" placeholder="123" maxlength="4">
+                <label>
+                  Número de tarjeta
+                  <span class="card-icon" id="brandIcon"></span>
+                </label>
+                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number" inputmode="numeric">
+                <div class="error-text">Número de tarjeta no válido</div>
+              </div>
+              <div class="form-row">
+                <div class="field">
+                  <label>Fecha de caducidad</label>
+                  <input type="text" id="cardExpiry" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" inputmode="numeric">
+                  <div class="error-text">Fecha no válida</div>
+                </div>
+                <div class="field">
+                  <label>Código de seguridad</label>
+                  <input type="text" id="cardCvc" placeholder="CVC" maxlength="4" autocomplete="cc-csc" inputmode="numeric">
+                  <div class="error-text">Código inválido</div>
+                </div>
               </div>
             </div>
-            <button class="btn-auth" id="submitOrder">Pagar ${API.getCartTotal().toFixed(2).replace('.',',')} €</button>
-          </div>`;
+
+            <button class="btn-pay" id="submitBtn">
+              💳 Pagar ${total.toFixed(2).replace('.',',')} €
+            </button>
+          </div>
+
+          <div class="processing-overlay" id="processingOverlay">
+            <div class="spinner"></div>
+            <h3>Procesando pago<span class="dots"></span></h3>
+            <p>No cierres esta página</p>
+          </div>
+
+          <div class="success-screen" id="successScreen">
+            <div class="checkmark">✓</div>
+            <h2>¡Pago realizado!</h2>
+            <p class="success-sub">Tu pedido se ha procesado correctamente</p>
+            <div class="success-details">
+              <div class="detail-row"><span class="label">Pedido</span><span class="value" id="successOrderId">#-</span></div>
+              <div class="detail-row"><span class="label">Total</span><span class="value" id="successTotal">-</span></div>
+              <div class="detail-row"><span class="label">Fecha</span><span class="value" id="successDate">-</span></div>
+              <div class="detail-row"><span class="label">Tarjeta</span><span class="value" id="successCard">-</span></div>
+            </div>
+            <div class="success-actions">
+              <a href="./panel.html" class="btn-back">📋 Ir a mis pedidos</a>
+              <a href="./index.html" class="btn-back">🏠 Volver al inicio</a>
+            </div>
+          </div>
+        `;
 
         content.querySelectorAll('.remove-btn').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -179,39 +449,87 @@
             if (API.getCartCount() === 0) { renderCart(); return; }
             renderCart();
           });
+          btn.addEventListener('mouseenter', () => btn.style.color = '#dc2626');
+          btn.addEventListener('mouseleave', () => btn.style.color = 'var(--text-muted)');
         });
 
-        document.getElementById('cardNumber')?.addEventListener('input', function() {
-          this.value = this.value.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim().substring(0, 19);
-        });
-        document.getElementById('cardExpiry')?.addEventListener('input', function() {
-          this.value = this.value.replace(/\D/g, '').replace(/^(\d{2})/, '$1/').substring(0, 5);
-        });
-        document.getElementById('cardCvc')?.addEventListener('input', function() {
-          this.value = this.value.replace(/\D/g, '').substring(0, 4);
+        setupForm();
+      }
+
+      function setupForm() {
+        const numInput = document.getElementById('cardNumber');
+        const holderInput = document.getElementById('cardHolder');
+        const expiryInput = document.getElementById('cardExpiry');
+        const cvcInput = document.getElementById('cardCvc');
+        const previewNumber = document.getElementById('previewNumber');
+        const previewHolder = document.getElementById('previewHolder');
+        const previewExpiry = document.getElementById('previewExpiry');
+        const previewCard = document.getElementById('cardPreview');
+        const brandIcon = document.getElementById('brandIcon');
+        const previewBrand = document.getElementById('previewBrand');
+
+        numInput.addEventListener('input', function() {
+          let clean = this.value.replace(/\D/g, '');
+          const brand = detectCardBrand(clean);
+          cardBrand = brand;
+          previewCard.className = 'card-preview' + (brand ? ' ' + brand : '');
+
+          if (brand === 'amex') {
+            clean = clean.replace(/^(\d{4})(\d{6})?(\d{0,5})?/, (_, g1, g2, g3) => [g1, g2, g3].filter(Boolean).join(' '));
+            this.maxLength = 18;
+          } else {
+            clean = clean.replace(/(.{4})/g, '$1 ').trim();
+            this.maxLength = 19;
+          }
+          this.value = clean;
+
+          const display = this.value || '···· ···· ···· ····';
+          previewNumber.textContent = display;
+
+          const brands = { visa: 'VISA', mastercard: 'Mastercard', amex: 'Amex', discover: 'Discover' };
+          previewBrand.textContent = brand ? brands[brand] : 'Tarjeta';
+          brandIcon.className = 'card-icon' + (brand ? ' ' + brand : '');
+          brandIcon.textContent = brand === 'visa' ? 'V' : brand === 'mastercard' ? 'MC' : brand === 'amex' ? 'AM' : brand === 'discover' ? 'D' : '';
         });
 
-        document.getElementById('submitOrder').addEventListener('click', async () => {
-          const btn = document.getElementById('submitOrder');
-          btn.disabled = true; btn.textContent = 'Procesando...';
+        holderInput.addEventListener('input', function() {
+          previewHolder.textContent = this.value.trim() || 'Tu Nombre';
+        });
+
+        expiryInput.addEventListener('input', function() {
+          let clean = this.value.replace(/\D/g, '');
+          if (clean.length >= 2) {
+            clean = clean.substring(0, 2) + '/' + clean.substring(2);
+          }
+          this.value = clean.substring(0, 5);
+          previewExpiry.textContent = this.value || 'MM/AA';
+        });
+
+        cvcInput.addEventListener('input', function() {
+          this.value = this.value.replace(/\D/g, '').substring(0, cardBrand === 'amex' ? 4 : 3);
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+          if (!validateCardForm()) return;
+          const btn = document.getElementById('submitBtn');
+          btn.disabled = true;
+          showProcessing();
           const cartItems = API.getCart();
           try {
-            const order = await API.createOrder(cartItems.map(i => ({
-              course_id: i.course_id, course_name: i.course_name, price: i.price
-            })));
+            const numClean = document.getElementById('cardNumber').value.replace(/\D/g, '');
+            const last4 = numClean.slice(-4);
+            const order = await API.createOrder(
+              cartItems.map(i => ({ course_id: i.course_id, course_name: i.course_name, price: i.price })),
+              cardBrand || 'tarjeta',
+              last4
+            );
             API.clearCart();
-            content.innerHTML = `
-              <div class="success-box">
-                <div class="checkmark">✅</div>
-                <h2>¡Pedido realizado!</h2>
-                <p>Tu pedido se ha registrado correctamente.</p>
-                <p class="order-id">Nº de pedido: #${order.id}</p>
-                <p style="margin-top:12px;color:#64748b">Total: ${(order.total || API.getCartTotal()).toFixed(2).replace('.',',')} €</p>
-                <a href="./index.html" class="btn-auth" style="display:inline-block;width:auto;margin-top:16px;text-decoration:none">Volver al inicio</a>
-              </div>`;
+            showSuccess(order);
           } catch (e) {
-            showError(e.error || 'Error al procesar el pedido');
-            btn.disabled = false; btn.textContent = 'Intentar de nuevo';
+            document.getElementById('formSection').classList.remove('hidden');
+            document.getElementById('processingOverlay').classList.remove('active');
+            btn.disabled = false;
+            showError(e.error || 'Error al procesar el pago');
           }
         });
       }
@@ -221,12 +539,22 @@
         if (existing) existing.remove();
         const err = document.createElement('div');
         err.className = 'checkout-error';
-        err.style.cssText = 'background:#fef2f2;color:#dc2626;padding:12px;border-radius:10px;font-size:14px;margin-bottom:20px;border:1px solid #fecaca';
-        err.textContent = msg;
+        err.style.cssText = 'background:#fef2f2;color:#dc2626;padding:12px;border-radius:10px;font-size:14px;margin-bottom:16px;border:1px solid #fecaca;display:flex;align-items:center;gap:8px';
+        err.textContent = '✕ ' + msg;
         content.prepend(err);
+        setTimeout(() => err.remove(), 5000);
       }
 
-      renderCart();
+      if (!API.isLoggedIn()) {
+        content.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-icon">🔒</div>
+            <p>Debes iniciar sesión para finalizar tu pedido</p>
+            <a href="./login.html" class="btn-back">Iniciar sesión</a>
+          </div>`;
+      } else {
+        renderCart();
+      }
     })();
   </script>
 </body>

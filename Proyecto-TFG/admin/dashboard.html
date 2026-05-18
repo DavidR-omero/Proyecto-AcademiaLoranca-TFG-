@@ -11,10 +11,28 @@
   <script src="../parte-logica/api.js"></script>
   <script src="./admin-utils.js"></script>
   <style>
-    .charts-row { display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px }
-    .chart-card { padding:24px;border-radius:16px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.03);border:1px solid #f1f5f9;position:relative }
-    .chart-card canvas { display:block;width:100%;height:220px }
+    .charts-row { display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px }
+    .chart-card {
+      padding:24px;border-radius:16px;background:#fff;
+      box-shadow:0 2px 12px rgba(0,0,0,.03),0 1px 4px rgba(0,0,0,.02);
+      border:1px solid #f1f5f9;position:relative;overflow:hidden;
+    }
+    .chart-card canvas { display:block;width:100%;height:220px;cursor:crosshair }
+    .chart-card .chart-title {
+      margin-bottom:16px;color:#1e293b;font-size:16px;font-weight:700;
+      display:flex;align-items:center;gap:8px;
+    }
+    .chart-tooltip {
+      position:absolute;pointer-events:none;opacity:0;transition:opacity .2s;
+      background:rgba(15,23,42,.9);color:#fff;padding:6px 12px;border-radius:8px;
+      font-size:12px;font-weight:600;z-index:10;white-space:nowrap;
+      backdrop-filter:blur(4px);
+    }
+    .chart-tooltip.show { opacity:1 }
     @media (max-width:768px) { .charts-row { grid-template-columns:1fr } }
+    @media (max-width:480px) { .chart-card { padding:16px } }
+    [data-theme="dark"] .chart-card { background:var(--bg-card);border-color:var(--border-color);box-shadow:none }
+    [data-theme="dark"] .chart-card .chart-title { color:var(--text-primary) }
   </style>
 </head>
 <body>
@@ -29,18 +47,21 @@
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -92,11 +113,7 @@
         <div class="number" id="statMessages">-</div>
         <div class="label">Mensajes recibidos</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-top"><div class="stat-icon orange">🔴</div></div>
-        <div class="number" id="statUnread">-</div>
-        <div class="label">Mensajes sin leer</div>
-      </div>
+    </div>
     </div>
 
     <div class="stats-grid">
@@ -124,12 +141,14 @@
 
     <div class="charts-row">
       <div class="card chart-card">
-        <h3 style="margin-bottom:16px;color:#1e293b;font-size:16px">📈 Usuarios registrados por mes</h3>
+        <div class="chart-title">📈 Usuarios registrados por mes</div>
         <canvas id="usersChart" height="200"></canvas>
+        <div class="chart-tooltip" id="tooltip1"></div>
       </div>
       <div class="card chart-card">
-        <h3 style="margin-bottom:16px;color:#1e293b;font-size:16px">✉️ Mensajes recibidos por mes</h3>
+        <div class="chart-title">✉️ Mensajes recibidos por mes</div>
         <canvas id="messagesChart" height="200"></canvas>
+        <div class="chart-tooltip" id="tooltip2"></div>
       </div>
     </div>
   </main>
@@ -147,7 +166,6 @@
         document.getElementById('statUsers').textContent = stats.users;
         document.getElementById('statCourses').textContent = stats.courses;
         document.getElementById('statMessages').textContent = stats.messages;
-        document.getElementById('statUnread').textContent = stats.unread;
         document.getElementById('statAnnouncements').textContent = stats.announcements || 0;
         document.getElementById('statEvents').textContent = stats.events || 0;
         document.getElementById('statOrders').textContent = stats.orders || 0;
@@ -155,62 +173,135 @@
         document.getElementById('loadingSkeleton')?.remove();
       } catch (e) { console.error(e); document.getElementById('loadingSkeleton')?.remove(); }
 
-      function drawBarChart(canvas, labels, data, color) {
-        const rect = canvas.parentElement.getBoundingClientRect();
+      function drawBarChart(canvas, labels, data, color, tooltipId) {
+        const parent = canvas.parentElement;
+        const rect = parent.getBoundingClientRect();
         const w = rect.width - 48;
-        canvas.width = w;
+        canvas.width = w * 2;
         canvas.style.width = w + 'px';
+        canvas.height = 440;
         canvas.style.height = '220px';
         const ctx = canvas.getContext('2d');
-        const h = 220;
+        const h = 440;
         const max = Math.max(...data, 1);
-        const pad = { top: 20, bottom: 30, left: 30, right: 10 };
+        const pad = { top: 30, bottom: 50, left: 36, right: 16 };
         const chartW = w - pad.left - pad.right;
         const chartH = h - pad.top - pad.bottom;
-        const barW = Math.min(50, chartW / labels.length * 0.6);
         const gap = chartW / labels.length;
+        const barW = Math.min(44, gap * 0.55);
+        const radius = 6;
 
-        ctx.clearRect(0, 0, w, h);
-        ctx.textAlign = 'center';
-        ctx.font = '11px Inter, sans-serif';
-        ctx.fillStyle = '#94a3b8';
+        const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+        const c1 = color, c2 = color + '55';
+        grad.addColorStop(0, c1);
+        grad.addColorStop(1, c2);
 
-        ctx.strokeStyle = '#e2e8f0';
-        ctx.lineWidth = 1;
+        ctx.clearRect(0, 0, w * 2, h);
+
+        /* Grid lines */
+        const gridCount = 4;
+        ctx.textAlign = 'right';
+        ctx.font = '18px Inter, sans-serif';
+        for (let i = 0; i <= gridCount; i++) {
+          const y = pad.top + (chartH / gridCount) * i;
+          const val = Math.round(max - (max / gridCount) * i);
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.setLineDash([4, 6]);
+          ctx.moveTo(pad.left, y);
+          ctx.lineTo(w * 2 - pad.right, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(val, pad.left - 8, y + 6);
+        }
+
+        /* Baseline */
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(pad.left, pad.top + chartH);
-        ctx.lineTo(w - pad.right, pad.top + chartH);
+        ctx.lineTo(w * 2 - pad.right, pad.top + chartH);
         ctx.stroke();
 
+        /* Bars + labels */
+        const barData = [];
         labels.forEach((l, i) => {
           const x = pad.left + i * gap + gap / 2;
           const val = data[i];
-          const barH = (val / max) * chartH;
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          const rx = 4, bw = barW, bh = barH, bx = x - bw / 2, by = pad.top + chartH - barH;
-          ctx.moveTo(bx + rx, by);
-          ctx.lineTo(bx + bw - rx, by);
-          ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + rx);
-          ctx.lineTo(bx + bw, by + bh);
-          ctx.lineTo(bx, by + bh);
-          ctx.lineTo(bx, by + rx);
-          ctx.quadraticCurveTo(bx, by, bx + rx, by);
-          ctx.fill();
+          const barH = (val / max) * chartH || 0;
+          const bw = barW, bx = x - bw / 2, by = pad.top + chartH - barH;
+          barData.push({ bx, by, bw, barH, val, x, label: l });
 
+          /* Shadow */
+          ctx.shadowColor = color + '30';
+          ctx.shadowBlur = 12;
+          ctx.shadowOffsetY = 4;
+
+          /* Bar with gradient */
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          if (barH > radius * 2) {
+            ctx.moveTo(bx + radius, by);
+            ctx.lineTo(bx + bw - radius, by);
+            ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + radius);
+            ctx.lineTo(bx + bw, pad.top + chartH);
+            ctx.lineTo(bx, pad.top + chartH);
+            ctx.lineTo(bx, by + radius);
+            ctx.quadraticCurveTo(bx, by, bx + radius, by);
+          } else {
+            ctx.rect(bx, by, bw, barH);
+          }
+          ctx.fill();
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
+
+          /* Value on top */
+          ctx.fillStyle = '#1e293b';
+          ctx.font = 'bold 22px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(val, x, by - 8);
+
+          /* Month label */
           ctx.fillStyle = '#94a3b8';
-          ctx.fillText(l, x, h - 5);
-          ctx.fillStyle = '#475569';
-          ctx.font = 'bold 12px Inter, sans-serif';
-          ctx.fillText(val, x, by - 6);
-          ctx.font = '11px Inter, sans-serif';
+          ctx.font = '18px Inter, sans-serif';
+          ctx.fillText(l, x, pad.top + chartH + 32);
         });
+
+        /* Hover tooltip */
+        canvas.onmousemove = function(e) {
+          const r = canvas.getBoundingClientRect();
+          const mx = (e.clientX - r.left) * 2;
+          const my = (e.clientY - r.top) * 2;
+          let found = null;
+          for (const b of barData) {
+            if (mx >= b.bx && mx <= b.bx + b.bw && my >= b.by && my <= b.by + b.barH + 16) {
+              found = b; break;
+            }
+          }
+          const tooltip = document.getElementById(tooltipId);
+          if (found) {
+            tooltip.textContent = `${found.label}: ${found.val}`;
+            tooltip.style.left = (e.clientX - r.left + 12) + 'px';
+            tooltip.style.top = (e.clientY - r.top - 30) + 'px';
+            tooltip.classList.add('show');
+            canvas.style.cursor = 'pointer';
+          } else {
+            tooltip.classList.remove('show');
+            canvas.style.cursor = 'crosshair';
+          }
+        };
+        canvas.onmouseleave = function() {
+          document.getElementById(tooltipId).classList.remove('show');
+        };
       }
 
       try {
         const chartData = await API.request('/api/admin/stats/charts');
-        drawBarChart(document.getElementById('usersChart'), chartData.months, chartData.users, '#6a11cb');
-        drawBarChart(document.getElementById('messagesChart'), chartData.months, chartData.messages, '#00d5ff');
+        drawBarChart(document.getElementById('usersChart'), chartData.months, chartData.users, '#6a11cb', 'tooltip1');
+        drawBarChart(document.getElementById('messagesChart'), chartData.months, chartData.messages, '#00d5ff', 'tooltip2');
         document.getElementById('loadingSkeleton')?.remove();
       } catch (e) { console.error('Charts error:', e); document.getElementById('loadingSkeleton')?.remove(); }
 

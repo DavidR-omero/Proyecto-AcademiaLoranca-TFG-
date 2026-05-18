@@ -19,17 +19,59 @@
     .calendar-grid .day-name { text-align:center;font-size:12px;font-weight:700;color:#94a3b8;padding:6px 0;text-transform:uppercase }
     .calendar-grid .day-cell { aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;color:#1e293b;position:relative;transition:.2s;min-height:50px }
     .calendar-grid .day-cell:hover { background:#eef2ff }
-    .calendar-grid .day-cell.other { color:#cbd5e1 }
+    .calendar-grid .day-cell.other { color:#cbd5e1;cursor:default }
+    .calendar-grid .day-cell.other:hover { background:transparent }
     .calendar-grid .day-cell.today { background:#eef2ff;color:#4f46e5;font-weight:800 }
+    .calendar-grid .day-cell.past { opacity:.45;cursor:not-allowed }
+    .calendar-grid .day-cell.past:hover { background:transparent }
+    .calendar-grid .day-cell.future { cursor:pointer }
+    .calendar-grid .day-cell.future:hover { background:#eef2ff }
     .calendar-grid .day-cell .event-dots { display:flex;gap:3px;position:absolute;bottom:4px }
     .calendar-grid .day-cell .event-dots span { width:6px;height:6px;border-radius:50% }
     .calendar-grid .day-cell .day-label { font-size:10px;margin-top:2px }
+    .calendar-grid .day-cell .day-add {
+      position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;
+      background:#6a11cb;color:#fff;font-size:10px;font-weight:700;line-height:16px;
+      text-align:center;opacity:0;transition:opacity .2s;pointer-events:none;
+    }
+    .calendar-grid .day-cell.today .day-add,
+    .calendar-grid .day-cell.future .day-add { display:block }
+    .calendar-grid .day-cell.future:hover .day-add,
+    .calendar-grid .day-cell.today:hover .day-add { opacity:1 }
+    .calendar-grid .day-cell.past .day-add { display:none }
+    .calendar-grid .day-cell.today .day-add { background:#4f46e5 }
+    [data-theme="dark"] .calendar-grid .day-cell .day-add { background:#93c5fd;color:#0f172a }
+    .day-popup {
+      position:absolute;z-index:100;background:#fff;border-radius:14px;padding:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.15);min-width:200px;border:1px solid #e2e8f0;
+      animation:popIn .2s ease;display:none;
+    }
+    .day-popup.show { display:block }
+    .day-popup .dp-title { font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px }
+    .day-popup .dp-event { display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:#475569;border-bottom:1px solid #f1f5f9 }
+    .day-popup .dp-event:last-child { border-bottom:none }
+    .day-popup .dp-event .dp-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0 }
+    .day-popup .dp-add {
+      display:block;margin-top:8px;padding:8px;background:#f0f4ff;border-radius:8px;
+      text-align:center;font-size:13px;font-weight:600;color:#6a11cb;cursor:pointer;transition:.2s;border:none;width:100%
+    }
+    .day-popup .dp-add:hover { background:#e0e7ff }
+    @keyframes popIn { from { opacity:0;transform:translateY(8px) scale(.96) } to { opacity:1;transform:translateY(0) scale(1) } }
+    [data-theme="dark"] .day-popup { background:var(--bg-card);border-color:var(--border-color) }
+    [data-theme="dark"] .day-popup .dp-title { color:var(--text-primary) }
+    [data-theme="dark"] .day-popup .dp-event { color:var(--text-secondary);border-bottom-color:var(--border-color) }
+    [data-theme="dark"] .day-popup .dp-add { background:rgba(59,130,246,.1);color:#93c5fd }
+    [data-theme="dark"] .day-popup .dp-add:hover { background:rgba(59,130,246,.2) }
     [data-theme="dark"] .calendar-grid { background:#1a2332;border-color:#334155 }
     [data-theme="dark"] .calendar-month { color:#f1f5f9 }
     [data-theme="dark"] .calendar-grid .day-cell { color:#f1f5f9 }
     [data-theme="dark"] .calendar-grid .day-cell:hover { background:#1e3a5f }
     [data-theme="dark"] .calendar-grid .day-cell.other { color:#475569 }
+    [data-theme="dark"] .calendar-grid .day-cell.other:hover { background:transparent }
     [data-theme="dark"] .calendar-grid .day-cell.today { background:#1e3a5f;color:#93c5fd }
+    [data-theme="dark"] .calendar-grid .day-cell.past { opacity:.3 }
+    [data-theme="dark"] .calendar-grid .day-cell.past:hover { background:transparent }
+    [data-theme="dark"] .calendar-grid .day-cell.future:hover { background:#1e3a5f }
     [data-theme="dark"] .calendar-nav .btn-nav:hover { background:#1e3a5f }
   </style>
 </head>
@@ -45,18 +87,21 @@
       <a href="./users.html"><span class="nav-icon">👥</span><span>Usuarios</span></a>
       <a href="./courses.html"><span class="nav-icon">📚</span><span>Cursos</span></a>
       <a href="./teachers.html"><span class="nav-icon">👨‍🏫</span><span>Profesores</span></a>
+      <a href="./schedules.html"><span class="nav-icon">🕐</span><span>Horarios</span></a>
       <a href="./messages.html"><span class="nav-icon">✉️</span><span>Mensajes</span></a>
       <a href="./announcements.html"><span class="nav-icon">📢</span><span>Anuncios</span></a>
       <a href="./events.html" class="active"><span class="nav-icon">📅</span><span>Eventos</span></a>
       <a href="./orders.html"><span class="nav-icon">📦</span><span>Pedidos</span></a>
       <a href="./db-viewer.html"><span class="nav-icon">🗄️</span><span>Visor BD</span></a>
       <a href="../index.html"><span class="nav-icon">🌐</span><span>Ver web</span></a>
-      <a href="#" id="adminThemeToggle" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:auto;padding-top:16px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;color:rgba(255,255,255,0.7);text-decoration:none;font-weight:500;font-size:13px;transition:all 0.25s ease;cursor:pointer">
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" id="adminThemeToggle">
         <span class="nav-icon" id="adminThemeIcon">🌙</span>
         <span id="adminThemeLabel">Modo oscuro</span>
       </a>
       <a href="#" class="logout" id="logoutBtn"><span class="nav-icon">🚪</span><span>Cerrar Sesión</span></a>
-    </nav>
+    </div>
   </aside>
 
   <main class="main-content">
@@ -181,9 +226,12 @@
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
         const isToday = dateStr === today;
+        const isPast = dateStr < today;
         const dayEvents = eventMap[dateStr] || [];
-        html += `<div class="day-cell ${isToday ? 'today' : ''}" onclick="viewDayEvents('${dateStr}')">
+        const dayClass = isToday ? 'today' : isPast ? 'past' : 'future';
+        html += `<div class="day-cell ${dayClass}" onclick="openCreateWithDate('${dateStr}')" data-date="${dateStr}">
           <span>${d}</span>
+          ${!isPast ? '<span class="day-add">+</span>' : ''}
           ${dayEvents.length > 0 ? `<div class="event-dots">${dayEvents.slice(0,3).map(e => `<span style="background:${e.color || '#2a17cf'}"></span>`).join('')}${dayEvents.length > 3 ? '<span style="font-size:9px;color:#64748b;font-weight:700">+</span>' : ''}</div>` : ''}
         </div>`;
       }
@@ -196,15 +244,54 @@
       grid.innerHTML = html;
     }
 
-    function viewDayEvents(dateStr) {
+    function openCreateWithDate(dateStr) {
+      const today = new Date().toISOString().split('T')[0];
+
+      /* Block past dates */
+      if (dateStr < today) {
+        showToast('No puedes crear eventos en fechas pasadas', 'error');
+        return;
+      }
+
       const dayEvents = events.filter(e => e.event_date === dateStr);
-      if (dayEvents.length === 0) return;
       const date = new Date(dateStr + 'T12:00:00').toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
-      let msg = `Eventos del ${date}:\n\n`;
-      dayEvents.forEach(e => {
-        msg += `• ${e.title}${e.event_time ? ' ('+e.event_time+')' : ''}\n`;
-      });
-      alert(msg);
+
+      if (dayEvents.length > 0) {
+        const existing = document.querySelector('.day-popup');
+        if (existing) existing.remove();
+
+        const cell = document.querySelector(`.day-cell[data-date="${dateStr}"]`);
+        if (!cell) { openCreateWithDateSimple(dateStr); return; }
+
+        const popup = document.createElement('div');
+        popup.className = 'day-popup';
+        popup.innerHTML = `
+          <div class="dp-title">📅 ${date}</div>
+          ${dayEvents.map(e => `<div class="dp-event"><span class="dp-dot" style="background:${e.color||'#2a17cf'}"></span>${e.title}${e.event_time ? ' · '+e.event_time : ''}</div>`).join('')}
+          <button class="dp-add" onclick="this.closest('.day-popup').remove(); openCreateWithDateSimple('${dateStr}')">+ Nuevo evento en esta fecha</button>
+        `;
+
+        const rect = cell.getBoundingClientRect();
+        popup.style.position = 'fixed';
+        popup.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+        popup.style.top = (rect.bottom + 8) + 'px';
+        document.body.appendChild(popup);
+
+        function closePopup(e) {
+          if (!popup.contains(e.target) && e.target !== cell) {
+            popup.remove();
+            document.removeEventListener('click', closePopup);
+          }
+        }
+        setTimeout(() => document.addEventListener('click', closePopup), 10);
+      } else {
+        openCreateWithDateSimple(dateStr);
+      }
+    }
+
+    function openCreateWithDateSimple(dateStr) {
+      openCreate();
+      document.getElementById('editDate').value = dateStr;
     }
 
     function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
