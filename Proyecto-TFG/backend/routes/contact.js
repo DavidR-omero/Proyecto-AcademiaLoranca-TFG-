@@ -4,10 +4,10 @@ const { runSql, queryAll } = require('../database');
 const { authenticateToken, SECRET } = require('../middleware/auth');
 const router = express.Router();
 
-/* Simple rate limiting map */
+// Mapa simple de rate limiting por IP (3 solicitudes/minuto)
 const rateMap = new Map();
-const RATE_WINDOW = 60 * 1000; /* 1 minute */
-const RATE_MAX = 3; /* max 3 submissions per minute per IP */
+const RATE_WINDOW = 60 * 1000;
+const RATE_MAX = 3;
 
 function isRateLimited(ip) {
   const now = Date.now();
@@ -21,7 +21,7 @@ function isRateLimited(ip) {
   return false;
 }
 
-/* Cleanup stale entries every 5 minutes */
+// Limpieza de entradas caducadas cada 5 minutos
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateMap) {
@@ -29,6 +29,7 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
+// POST /api/contact - enviar mensaje de contacto (público, con rate limiting)
 router.post('/', (req, res) => {
   const ip = req.ip || req.connection.remoteAddress;
   if (isRateLimited(ip)) {
@@ -37,7 +38,7 @@ router.post('/', (req, res) => {
 
   const { name, email, course_level, phone, message } = req.body;
 
-  /* Validate required fields */
+  // Validación de campos obligatorios y formato
   const errors = [];
   if (!name || typeof name !== 'string' || !name.trim())
     errors.push('El nombre es obligatorio.');
@@ -61,6 +62,7 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: errors.join(' ') });
   }
 
+  // Si el usuario está autenticado, asociamos el mensaje a su cuenta
   let userId = null;
   const auth = req.headers['authorization'];
   if (auth && auth.startsWith('Bearer ')) {
@@ -70,7 +72,7 @@ router.post('/', (req, res) => {
     } catch {}
   }
 
-  /* Sanitize inputs */
+  // Sanitización básica (eliminar etiquetas HTML)
   const sanitize = s => (s || '').trim().replace(/[<>]/g, '');
   const safeName = sanitize(name);
   const safeEmail = sanitize(email);
@@ -85,6 +87,7 @@ router.post('/', (req, res) => {
   res.status(201).json({ success: true, message: 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.' });
 });
 
+// GET /api/contact/my - mensajes del usuario autenticado
 router.get('/my', authenticateToken, (req, res) => {
   const messages = queryAll('SELECT * FROM contact_messages WHERE user_id=? ORDER BY created_at DESC', [req.user.id]);
   res.json({ messages });

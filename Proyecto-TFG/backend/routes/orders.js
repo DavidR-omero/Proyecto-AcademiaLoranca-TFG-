@@ -3,6 +3,7 @@ const router = express.Router();
 const { queryAll, queryOne, runSql } = require('../database');
 const { authenticateToken } = require('../middleware/auth');
 
+// GET /api/orders - pedidos del usuario actual
 router.get('/', authenticateToken, (req, res) => {
   const orders = queryAll(`SELECT o.*, u.username FROM orders o
     JOIN users u ON o.user_id = u.id
@@ -14,6 +15,7 @@ router.get('/', authenticateToken, (req, res) => {
   res.json(orders);
 });
 
+// GET /api/orders/:id - detalle de un pedido concreto
 router.get('/:id', authenticateToken, (req, res) => {
   const order = queryOne(`SELECT o.*, u.username FROM orders o
     JOIN users u ON o.user_id = u.id
@@ -23,6 +25,12 @@ router.get('/:id', authenticateToken, (req, res) => {
   res.json(order);
 });
 
+/*
+  POST /api/orders - crear pedido (checkout simulado)
+  Crea la orden como 'pending', espera 1.5s (simula autorización bancaria)
+  y la marca como 'completed'. Guarda método de pago y últimos 4 dígitos.
+  No almacena datos sensibles de tarjeta.
+*/
 router.post('/', authenticateToken, async (req, res) => {
   const { items, payment_method, payment_last4 } = req.body;
   if (!items || !items.length) return res.status(400).json({ error: 'Carrito vacío' });

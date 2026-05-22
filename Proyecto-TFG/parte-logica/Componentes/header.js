@@ -1,9 +1,11 @@
+// Web Component del header global con navegación, tema oscuro, carrito y auth
 class HeaderComponent extends HTMLElement {
     constructor() {
         super();
         this._shadow = this.attachShadow({ mode: 'open' });
     }
 
+    // Se ejecuta al insertar el componente en el DOM
     connectedCallback() {
         const token = localStorage.getItem('token');
         let user = null;
@@ -527,6 +529,7 @@ class HeaderComponent extends HTMLElement {
 
         const saved = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // Inicializa el tema (oscuro/claro) desde localStorage o preferencia del sistema
         const isDark = saved ? saved === 'dark' : prefersDark;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
         const themeBtn = shadow.getElementById('themeToggle');
@@ -538,7 +541,7 @@ class HeaderComponent extends HTMLElement {
             });
         }
 
-        /* Cart — only for logged-in non-admin users */
+        /* Cart — solo para usuarios logueados no-admin */
         const isLoggedIn = !!token;
         const isRegularUser = isLoggedIn && user?.role !== 'admin';
 
@@ -622,7 +625,7 @@ class HeaderComponent extends HTMLElement {
             renderCart();
         }
 
-        /* Cart login required toast (always registered) */
+        // Toast global para "inicie sesión para añadir al carrito" (desde cualquier página)
         window.addEventListener('cart-login-required', (e) => {
             const existing = document.querySelector('[data-cart-toast]');
             if (existing) existing.remove();

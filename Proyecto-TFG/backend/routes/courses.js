@@ -3,6 +3,7 @@ const { queryAll, queryOne, runSql } = require('../database');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
+// GET /api/courses - listado público de cursos con número de matriculados
 router.get('/', (req, res) => {
   const courses = queryAll(`SELECT c.*,
     (SELECT COUNT(*) FROM enrollments WHERE course_id=c.id) as enrolled_count
@@ -10,6 +11,7 @@ router.get('/', (req, res) => {
   res.json({ courses });
 });
 
+// GET /api/courses/:id - detalle de un curso (público)
 router.get('/:id', (req, res) => {
   const course = queryOne(`SELECT c.*,
     (SELECT COUNT(*) FROM enrollments WHERE course_id=c.id) as enrolled_count
@@ -18,6 +20,8 @@ router.get('/:id', (req, res) => {
   res.json({ course });
 });
 
+// POST /api/courses/enroll - matricularse en un curso (requiere auth)
+// Validaciones: curso existe, plazas disponibles, no duplicado
 router.post('/enroll', authenticateToken, (req, res) => {
   const { course_id } = req.body;
   if (!course_id) return res.status(400).json({ error: 'ID del curso requerido' });
@@ -36,6 +40,7 @@ router.post('/enroll', authenticateToken, (req, res) => {
   res.status(201).json({ success: true, message: 'Matriculado correctamente' });
 });
 
+// DELETE /api/courses/enroll/:courseId - desmatricularse de un curso
 router.delete('/enroll/:courseId', authenticateToken, (req, res) => {
   const row = queryOne('SELECT id FROM enrollments WHERE user_id=? AND course_id=?', [req.user.id, req.params.courseId]);
   if (!row) return res.status(404).json({ error: 'No estás matriculado en este curso' });
@@ -43,6 +48,7 @@ router.delete('/enroll/:courseId', authenticateToken, (req, res) => {
   res.json({ success: true, message: 'Desmatriculado correctamente' });
 });
 
+// GET /api/courses/my/enrollments - cursos del usuario autenticado
 router.get('/my/enrollments', authenticateToken, (req, res) => {
   const courses = queryAll(`SELECT c.*, e.created_at as enrolled_at,
     (SELECT COUNT(*) FROM enrollments WHERE course_id=c.id) as enrolled_count
