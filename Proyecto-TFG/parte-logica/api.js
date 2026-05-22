@@ -1,3 +1,11 @@
+/*
+  API Client - Capa de comunicación con el backend
+  Todas las llamadas pasan por API.request() que maneja:
+    - Inyección automática del token JWT
+    - Cabecera Content-Type application/json
+    - Parseo de respuesta y manejo de errores
+*/
+
 var API = {
   BASE: '',
 
@@ -12,6 +20,7 @@ var API = {
     return data;
   },
 
+  /* ── Autenticación ── */
   login(username, password) {
     return this.request('/api/auth/login', {
       method: 'POST', body: JSON.stringify({ username, password })
@@ -39,33 +48,7 @@ var API = {
     });
   },
 
-  getCourses() {
-    return this.request('/api/courses');
-  },
-  enrollCourse(courseId) {
-    return this.request('/api/courses/enroll', {
-      method: 'POST', body: JSON.stringify({ course_id: courseId })
-    });
-  },
-  unenrollCourse(courseId) {
-    return this.request(`/api/courses/enroll/${courseId}`, { method: 'DELETE' });
-  },
-  getMyCourses() {
-    return this.request('/api/courses/my/enrollments');
-  },
-
-  getAnnouncements() {
-    return this.request('/api/announcements');
-  },
-
-  getEvents() {
-    return this.request('/api/events/upcoming');
-  },
-
-  getAllEvents() {
-    return this.request('/api/events');
-  },
-
+  // Recuperación de contraseña en 3 pasos
   sendResetCode(email) {
     return this.request('/api/auth/send-reset-code', {
       method: 'POST', body: JSON.stringify({ email })
@@ -82,10 +65,40 @@ var API = {
     });
   },
 
+  /* ── Cursos y matriculación ── */
+  getCourses() {
+    return this.request('/api/courses');
+  },
+  enrollCourse(courseId) {
+    return this.request('/api/courses/enroll', {
+      method: 'POST', body: JSON.stringify({ course_id: courseId })
+    });
+  },
+  unenrollCourse(courseId) {
+    return this.request(`/api/courses/enroll/${courseId}`, { method: 'DELETE' });
+  },
+  getMyCourses() {
+    return this.request('/api/courses/my/enrollments');
+  },
+
+  /* ── Anuncios y eventos (públicos) ── */
+  getAnnouncements() {
+    return this.request('/api/announcements');
+  },
+  getEvents() {
+    return this.request('/api/events');
+  },
+  getSchedules() {
+    return this.request('/api/schedules');
+  },
+  getTeachers() {
+    return this.request('/api/teachers');
+  },
+
+  /* ── Formulario de contacto ── */
   getMyMessages() {
     return this.request('/api/contact/my');
   },
-
   sendContact(data) {
     return this.request('/api/contact', {
       method: 'POST', body: JSON.stringify(data)
@@ -94,10 +107,8 @@ var API = {
   getNotifications() {
     return this.request('/api/notifications');
   },
-  getSchedules() {
-    return this.request('/api/schedules');
-  },
 
+  /* ── Administrador ── */
   admin: {
     getStats() { return API.request('/api/admin/stats'); },
     getUsers() { return API.request('/api/admin/users'); },
@@ -115,6 +126,11 @@ var API = {
     },
     deleteMessage(id) {
       return API.request(`/api/admin/messages/${id}`, { method: 'DELETE' });
+    },
+    replyMessage(id, reply) {
+      return API.request(`/api/admin/messages/${id}/reply`, {
+        method: 'PUT', body: JSON.stringify({ reply })
+      });
     },
     getCourses() { return API.request('/api/courses'); },
     createCourse(data) {
@@ -144,11 +160,6 @@ var API = {
     deleteAnnouncement(id) {
       return API.request(`/api/admin/announcements/${id}`, { method: 'DELETE' });
     },
-    replyMessage(id, reply) {
-      return API.request(`/api/admin/messages/${id}/reply`, {
-        method: 'PUT', body: JSON.stringify({ reply })
-      });
-    },
     getEvents() { return API.request('/api/admin/events'); },
     createEvent(data) {
       return API.request('/api/admin/events', {
@@ -162,9 +173,6 @@ var API = {
     },
     deleteEvent(id) {
       return API.request(`/api/admin/events/${id}`, { method: 'DELETE' });
-    },
-    getAll(tableName) {
-      return API.request(`/api/admin/table/${tableName}`);
     },
     getCourseStudents(courseId) {
       return API.request(`/api/admin/courses/${courseId}/students`);
@@ -191,10 +199,13 @@ var API = {
     },
     deleteTeacher(id) {
       return API.request(`/api/admin/teachers/${id}`, { method: 'DELETE' });
+    },
+    getAll(tableName) {
+      return API.request(`/api/admin/table/${tableName}`);
     }
   },
 
-  /* Cart */
+  /* ── Carrito (localStorage) ── */
   getCart() {
     try { return JSON.parse(localStorage.getItem('cart')) || []; } catch { return []; }
   },
@@ -222,7 +233,7 @@ var API = {
   },
   getCartCount() { return API.getCart().length; },
 
-  /* Orders */
+  /* ── Pedidos ── */
   createOrder(items, payment_method = '', payment_last4 = '') {
     return API.request('/api/orders', {
       method: 'POST', body: JSON.stringify({ items, payment_method, payment_last4 })
@@ -232,21 +243,19 @@ var API = {
     return API.request('/api/orders');
   },
 
+  /* ── Sesión ── */
+  setSession(data) {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+  },
+  isLoggedIn() {
+    return !!localStorage.getItem('token');
+  },
+  getUser() {
+    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
+  },
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
-
-  isLoggedIn() {
-    return !!localStorage.getItem('token');
-  },
-
-  getUser() {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
-  },
-
-  setSession(data) {
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-  }
 };

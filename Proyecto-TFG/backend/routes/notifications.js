@@ -3,6 +3,10 @@ const { queryAll, queryOne } = require('../database');
 const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
 
+// GET /api/notifications - contadores de notificaciones para el header
+// Parámetro opcional 'since' para filtrar desde una fecha concreta
+// Admin: mensajes sin leer + eventos próximos + anuncios recientes
+// Usuario normal: solo eventos próximos + anuncios recientes
 router.get('/', authenticateToken, (req, res) => {
   let since = req.query.since || null;
   if (since) {

@@ -4,8 +4,10 @@ const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 
+// Todas las rutas de admin requieren autenticación + rol admin
 router.use(authenticateToken, requireAdmin);
 
+// Dashboard - estadísticas generales
 router.get('/stats', (req, res) => {
   const users = queryAll('SELECT COUNT(*) as c FROM users')[0].c;
   const messages = queryAll('SELECT COUNT(*) as c FROM contact_messages')[0].c;
@@ -18,6 +20,7 @@ router.get('/stats', (req, res) => {
   res.json({ stats: { users, messages, unread, courses, announcements, events, orders, revenue } });
 });
 
+// Datos para los gráficos del dashboard (últimos 6 meses)
 router.get('/stats/charts', (req, res) => {
   const months = [];
   const userData = [];
@@ -59,6 +62,7 @@ router.put('/users/:id', (req, res) => {
   res.json({ user: updated });
 });
 
+// Evita que el admin se elimine a sí mismo
 router.delete('/users/:id', (req, res) => {
   const user = queryOne('SELECT id FROM users WHERE id=?', [req.params.id]);
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });

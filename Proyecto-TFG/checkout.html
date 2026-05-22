@@ -237,6 +237,7 @@
       const content = document.getElementById('checkoutContent');
       let cardBrand = '';
 
+      // Detecta la marca de la tarjeta por el prefijo del número (Visa, Mastercard, Amex, Discover)
       function detectCardBrand(number) {
         const clean = number.replace(/\D/g, '');
         if (/^4/.test(clean)) return 'visa';
@@ -246,6 +247,7 @@
         return '';
       }
 
+      // Validación Luhn: algoritmo estándar para verificar números de tarjeta
       function luhnCheck(cardNumber) {
         const digits = cardNumber.replace(/\D/g, '');
         if (digits.length < 13 || digits.length > 19) return false;
@@ -258,6 +260,7 @@
         return sum % 10 === 0;
       }
 
+      // Valida todos los campos del formulario de tarjeta antes de enviar
       function validateCardForm() {
         const num = document.getElementById('cardNumber');
         const holder = document.getElementById('cardHolder');
@@ -297,11 +300,13 @@
         return valid;
       }
 
+      // Muestra la pantalla de procesamiento (oculta el formulario)
       function showProcessing() {
         document.getElementById('formSection').classList.add('hidden');
         document.getElementById('processingOverlay').classList.add('active');
       }
 
+      // Pantalla de éxito con datos del pedido + confetti
       function showSuccess(order) {
         document.getElementById('processingOverlay').classList.remove('active');
         document.getElementById('successScreen').classList.add('active');
@@ -315,6 +320,7 @@
         spawnConfetti();
       }
 
+      // Genera 60 piezas de confetti animadas con colores aleatorios
       function spawnConfetti() {
         const container = document.getElementById('confettiContainer');
         const colors = ['#2a17cf', '#00d5ff', '#059669', '#f59e0b', '#dc2626', '#7c3aed', '#ec4899'];
@@ -333,6 +339,7 @@
         setTimeout(() => container.innerHTML = '', 5000);
       }
 
+      // Renderiza el resumen del carrito + formulario de pago
       function renderCart() {
         const cart = API.getCart();
         if (!cart.length) {
@@ -441,6 +448,7 @@
           </div>
         `;
 
+        // Botones para eliminar items del carrito
         content.querySelectorAll('.remove-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             const idx = parseInt(btn.dataset.index);
@@ -456,6 +464,7 @@
         setupForm();
       }
 
+      // Configura los eventos en tiempo real del formulario (previsualización de tarjeta)
       function setupForm() {
         const numInput = document.getElementById('cardNumber');
         const holderInput = document.getElementById('cardHolder');
@@ -468,6 +477,7 @@
         const brandIcon = document.getElementById('brandIcon');
         const previewBrand = document.getElementById('previewBrand');
 
+        // Al teclear el número: formatea con espacios, actualiza marca y vista previa
         numInput.addEventListener('input', function() {
           let clean = this.value.replace(/\D/g, '');
           const brand = detectCardBrand(clean);
@@ -496,6 +506,7 @@
           previewHolder.textContent = this.value.trim() || 'Tu Nombre';
         });
 
+        // Formatea MM/AA automáticamente
         expiryInput.addEventListener('input', function() {
           let clean = this.value.replace(/\D/g, '');
           if (clean.length >= 2) {
@@ -509,6 +520,7 @@
           this.value = this.value.replace(/\D/g, '').substring(0, cardBrand === 'amex' ? 4 : 3);
         });
 
+        // Envío del formulario: valida → muestra spinner → llama a API → éxito/error
         document.getElementById('submitBtn').addEventListener('click', async () => {
           if (!validateCardForm()) return;
           const btn = document.getElementById('submitBtn');
@@ -534,6 +546,7 @@
         });
       }
 
+      // Muestra un error temporal en rojo arriba del contenido
       function showError(msg) {
         const existing = document.querySelector('.checkout-error');
         if (existing) existing.remove();
@@ -545,6 +558,7 @@
         setTimeout(() => err.remove(), 5000);
       }
 
+      // Si no hay sesión, muestra mensaje para iniciar sesión
       if (!API.isLoggedIn()) {
         content.innerHTML = `
           <div class="empty-cart">

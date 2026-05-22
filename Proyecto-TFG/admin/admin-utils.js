@@ -1,3 +1,4 @@
+// Toast de notificación (elimina duplicados previos)
 function showToast(msg, type = 'success') {
   const existing = document.querySelector('.toast');
   if (existing) existing.remove();
@@ -8,6 +9,7 @@ function showToast(msg, type = 'success') {
   setTimeout(() => t.remove(), 3000);
 }
 
+// Confirmación modal para acciones destructivas (Promise-based)
 function showConfirm(msg) {
   return new Promise(resolve => {
     const overlay = document.createElement('div');
@@ -30,6 +32,7 @@ function showConfirm(msg) {
   });
 }
 
+// Filtro de tabla en tiempo real por búsqueda
 function setupTableSearch(inputId, tableBodyId, filterFn) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -42,6 +45,7 @@ function setupTableSearch(inputId, tableBodyId, filterFn) {
   });
 }
 
+// Exportación a CSV con BOM para Excel (UTF-8)
 function exportCSV(filename, headers, rows) {
   const bom = '\uFEFF';
   const csv = bom + headers.join(',') + '\n' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -53,6 +57,7 @@ function exportCSV(filename, headers, rows) {
   URL.revokeObjectURL(a.href);
 }
 
+// Paginador reutilizable con botones de navegación y contador
 function createPager(containerId, perPage, onPageChange) {
   const state = { page: 1, total: 0, perPage };
   const container = document.getElementById(containerId);
@@ -94,6 +99,7 @@ function createPager(containerId, perPage, onPageChange) {
   };
 }
 
+// Formatea fechas: "hace X min" si reciente, o fecha local si antiguo
 function formatDate(dateStr) {
   if (!dateStr) return '—';
   const d = new Date(dateStr);

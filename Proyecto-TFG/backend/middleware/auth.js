@@ -1,7 +1,10 @@
 const jwt = require('jsonwebtoken');
 
+// Clave secreta para firmar los tokens JWT
+// En producción esto iría en una variable de entorno
 const SECRET = 'academia-loranca-secret-key-2026';
 
+// Genera un token JWT con los datos del usuario (válido 24h)
 function generateToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username, role: user.role },
@@ -10,6 +13,7 @@ function generateToken(user) {
   );
 }
 
+// Middleware: verifica que el token sea válido y adjunta el usuario a req.user
 function authenticateToken(req, res, next) {
   const auth = req.headers['authorization'];
   const token = auth && auth.startsWith('Bearer ') ? auth.slice(7) : null;
@@ -22,6 +26,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
+// Middleware: solo administradores pueden pasar
 function requireAdmin(req, res, next) {
   if (req.user.role !== 'admin')
     return res.status(403).json({ error: 'Se requieren permisos de administrador' });
