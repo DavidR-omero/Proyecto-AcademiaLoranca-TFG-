@@ -234,7 +234,7 @@
         <h2>Recuperar contraseña</h2>
         <button class="fp-close" id="fpClose">✕</button>
       </div>
-      <p class="fp-desc">Te enviaremos un código de verificación a tu correo electrónico.</p>
+      <p class="fp-desc">Introduce tu email o usuario para recuperar tu contraseña.</p>
 
       <div class="fp-step active" id="fpStep1">
         <div class="fp-field">
@@ -246,7 +246,7 @@
       </div>
 
       <div class="fp-step" id="fpStep2">
-        <p class="fp-desc" style="margin-bottom:12px">Te hemos enviado un código de 6 dígitos a tu correo electrónico.</p>
+        <p class="fp-desc" style="margin-bottom:12px">Introduce el código de verificación.</p>
         <div class="fp-field">
           <label>Código de verificación</label>
           <input type="text" id="fpCode" placeholder="000000" maxlength="6" class="code-input">
@@ -361,11 +361,9 @@
         hideMsg(fpMsg1);
         try {
           const data = await API.sendResetCode(email);
-          showMsg(fpMsg1, `Tu código de verificación: ${data.devCode}`, 'success');
           showStep(fpStep2);
+          showMsg(fpMsg2, `Tu código de verificación: ${data.devCode}`, 'success');
           fpCode.value = '';
-          fpCode.focus();
-          hideMsg(fpMsg2);
         } catch (e) {
           showMsg(fpMsg1, e.error || 'Error al enviar el código', 'error');
         }
