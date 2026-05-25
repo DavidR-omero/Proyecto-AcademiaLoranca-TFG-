@@ -467,10 +467,10 @@ class HeaderComponent extends HTMLElement {
             <div>
 
                 <div id="div-logo">
-                    <a href="./Index.html">
+                    <a href="./index.html">
                         <img id="logo" src="./imagenes/logo.png" alt="Logo">
                     </a>
-                    <a href="./Index.html">
+                    <a href="./index.html">
                         <div id="nombre_academia">
                             ACADEMIA <br> LORANCA
                         </div>
@@ -481,7 +481,7 @@ class HeaderComponent extends HTMLElement {
 
                 <menu id="menu-header">
                     <button class="theme-toggle" id="themeToggle" title="Cambiar tema">🌙</button>
-                    <a class="link-encabezado" href="./Index.html">Inicio</a>
+                    <a class="link-encabezado" href="./index.html">Inicio</a>
                     <a class="link-encabezado" href="./grupos.html">Cursos</a>
                     <a class="link-encabezado" href="./index.html#servicios">Servicios</a>
                     <a class="link-encabezado" href="./index.html#horarios">Horarios</a>
@@ -661,7 +661,7 @@ class HeaderComponent extends HTMLElement {
                 e.preventDefault();
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = './Index.html';
+                window.location.href = './index.html';
             });
         }
 
