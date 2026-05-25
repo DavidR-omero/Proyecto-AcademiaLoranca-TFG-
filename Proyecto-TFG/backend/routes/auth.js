@@ -83,19 +83,9 @@ router.post('/send-reset-code', async (req, res) => {
     [user.email, code, token]
   );
 
-  /* Try to send email */
-  const sent = await sendResetCode(user.email, code);
-
-  if (!sent && !process.env.SMTP_PASS) {
-    return res.json({ sent: false, devCode: code, message: 'Modo desarrollo — Código: ' + code });
-  }
-
-  res.json({
-    sent,
-    message: sent
-      ? 'Revisa tu correo electrónico. El código ha sido enviado.'
-      : 'Error al enviar el email. Inténtalo de nuevo más tarde.'
-  });
+  /* Best-effort email, siempre devolvemos el código */
+  await sendResetCode(user.email, code);
+  res.json({ devCode: code, message: 'Tu código de verificación ha sido generado.' });
 });
 
 router.post('/verify-reset-code', (req, res) => {

@@ -361,18 +361,8 @@
         hideMsg(fpMsg1);
         try {
           const data = await API.sendResetCode(email);
-          if (!data.sent) {
-            if (data.devCode) {
-              showMsg(fpMsg1, `Modo desarrollo — Código: ${data.devCode}`, 'error');
-              showStep(fpStep2);
-            } else {
-              showMsg(fpMsg1, 'No se pudo enviar el código. Inténtalo de nuevo más tarde.', 'error');
-              this.disabled = false; this.textContent = 'Enviar código';
-              return;
-            }
-          } else {
-            showStep(fpStep2);
-          }
+          showMsg(fpMsg1, `Tu código de verificación: ${data.devCode}`, 'success');
+          showStep(fpStep2);
           fpCode.value = '';
           fpCode.focus();
           hideMsg(fpMsg2);
