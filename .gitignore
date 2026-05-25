@@ -1,3 +1,8 @@
 node_modules/
+<<<<<<< HEAD
+backend/database.sqlite
+backend/tests/test.sqlite
+=======
 *.sqlite
+>>>>>>> b41a792ae2c89b310a6dac2495de78d8112727f0
 *.log

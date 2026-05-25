@@ -547,34 +547,60 @@ body::before {
 }
 
 @media (max-width: 480px) {
-
-    .clases {
-        margin: 40px auto;
+    .clases { margin: 20px auto; }
+    .clases h1.titulo-seccion { font-size: 1.8rem; margin-bottom: 30px; }
+    .curso-imagen-derecha, .curso-imagen-derecha.reverse {
+        padding: 20px 16px; margin-bottom: 30px;
     }
-
-    .clases h1.titulo-seccion {
-        font-size: 2.2rem;
-    }
+    .curso-texto h2 { font-size: 1.4rem; }
+    .curso-texto p { font-size: 0.9rem; }
+    .curso-imagen img { max-width: 100%; }
+    .zona-grupos { flex: 1 1 100%; max-width: 100%; }
+    .zona-grupos.featured { flex: 1 1 100%; max-width: 100%; }
+    .zona-grupos .card-img, .zona-grupos .card-img-placeholder { height: 140px; }
+    .zona-grupos h3 { font-size: 1.1rem; }
+    .div-grupos { margin: 30px 0; }
+    .div-grupos h2 { font-size: 1.6rem; margin-bottom: 30px; }
+    .card-body { padding: 14px 14px 0 14px; }
+    .card-footer { padding: 10px 14px 14px; gap: 6px; }
+    .card-footer .btn-add-cart,
+    .card-footer .boton-info { font-size: 12px; padding: 8px 10px; }
+    .price-badge { font-size: 13px; padding: 4px 12px; }
+    .contenido-POPUP { padding: 24px 16px; }
+    .contenido-POPUP h2 { font-size: 1.3rem; }
+    .contenido-POPUP p { font-size: 0.9rem; }
+    .contenedor-avatar { width: 120px; height: 120px; margin-bottom: 14px; }
+    .featured-badge { font-size: 10px; padding: 3px 10px; top: 8px; left: 8px; }
 }
 
-@media (min-width: 320px) and (max-width: 480px){
-    .contenedor-avatar {
-        width: 150px;
-    }
+@media (max-width: 360px) {
+    .clases h1.titulo-seccion { font-size: 1.5rem; }
+    .zona-grupos { border-radius: 14px; }
+    .curso-texto h2 { font-size: 1.2rem; }
+    .contenido-POPUP { padding: 18px 12px; border-radius: 16px; }
+    .contenedor-avatar { width: 100px; height: 100px; }
+    .card-footer .btn-add-cart,
+    .card-footer .boton-info { font-size: 11px; }
+}
 
-    .pop1 {
-        font-size: 1.3em;
-        margin-bottom: 14px;
-    }
+@media (max-width: 768px) {
+    .zona-grupos { flex: 1 1 100%; max-width: 360px; }
+    .DivGrupos { gap: 20px; }
+    .featured-badge { font-size: 11px; }
+}
 
-    .pop2{
-        font-size: 1.2em;
-        margin-bottom: 14px;
-    }
+@media (max-width: 900px) {
+    .curso-imagen-derecha .curso-imagen { margin-top: 16px; }
+    .curso-imagen img { max-width: 100%; }
+}
 
-    .curso-texto h2 {
-        font-size: 1.6rem;
-    }
+/* Touch improvements */
+@media (hover: none) and (pointer: coarse) {
+    .zona-grupos:hover { transform: none; }
+    .zona-grupos.featured:hover { box-shadow: 0 12px 40px rgba(245,158,11,0.2); }
+    .curso-imagen img:hover { transform: none; }
+    .boton-apuntarse:hover { transform: none; }
+    .card-footer .btn-add-cart:hover, .card-footer .boton-info:hover { transform: none; }
 }
 
 .loading { text-align: center; padding: 60px; color: #94a3b8; font-size: 15px; }
