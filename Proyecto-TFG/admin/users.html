@@ -63,6 +63,7 @@
             <span class="search-icon">🔍</span>
             <input type="text" class="search-input" id="searchInput" placeholder="Buscar usuario..." oninput="renderUsers()">
           </div>
+          <button class="btn-primary" onclick="openCreateUser()">+ Nuevo usuario</button>
           <button class="btn btn-secondary" onclick="exportCSV('usuarios.csv', ['ID','Usuario','Email','Rol','Fecha'], users.map(u => [u.id, u.username, u.email, u.role, u.created_at]))">📥 CSV</button>
         </div>
       </div>
@@ -80,14 +81,16 @@
 
   <div class="modal-overlay" id="editModal">
     <div class="modal">
-      <h2>✏️ Editar usuario</h2>
+      <h2 id="modalTitle">✏️ Editar usuario</h2>
+      <div class="field"><label>Nombre de usuario</label><input type="text" id="editUsername" placeholder="Ej: nuevo_usuario"></div>
+      <div class="field"><label>Email</label><input type="email" id="editEmail" placeholder="usuario@ejemplo.com"></div>
       <div class="field"><label>Rol</label>
         <select id="editRole"><option value="user">Usuario</option><option value="admin">Administrador</option></select>
       </div>
-      <div class="field"><label>Nueva contrase&ntilde;a (dejar en blanco para no cambiar)</label><input type="password" id="editPassword" placeholder="M&iacute;n. 4 caracteres"></div>
+      <div class="field"><label>Contrase&ntilde;a <span id="passwordLabel" style="font-weight:400;color:#94a3b8">(dejar en blanco para no cambiar)</span></label><input type="password" id="editPassword" placeholder="M&iacute;n. 4 caracteres"></div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-        <button class="btn-save" onclick="saveUser()">Guardar cambios</button>
+        <button class="btn-save" id="saveUserBtn" onclick="saveUser()">Guardar cambios</button>
       </div>
     </div>
   </div>
@@ -139,28 +142,69 @@
         `).join('') + '</tbody></table></div>';
     }
 
+    function openCreateUser() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = '➕ Nuevo usuario';
+      document.getElementById('saveUserBtn').textContent = 'Crear usuario';
+      document.getElementById('editUsername').value = '';
+      document.getElementById('editEmail').value = '';
+      document.getElementById('editRole').value = 'user';
+      document.getElementById('editPassword').value = '';
+      document.getElementById('passwordLabel').textContent = '(obligatoria)';
+      document.getElementById('editPassword').placeholder = 'Mín. 4 caracteres';
+      document.getElementById('editUsername').removeAttribute('readonly');
+      document.getElementById('editModal').classList.add('active');
+    }
+
     function openEdit(id) {
       const u = users.find(x => x.id === id); if (!u) return;
       editingId = id;
+      document.getElementById('modalTitle').textContent = '✏️ Editar usuario';
+      document.getElementById('saveUserBtn').textContent = 'Guardar cambios';
+      document.getElementById('editUsername').value = u.username;
+      document.getElementById('editUsername').setAttribute('readonly', 'readonly');
+      document.getElementById('editEmail').value = u.email;
       document.getElementById('editRole').value = u.role;
       document.getElementById('editPassword').value = '';
+      document.getElementById('passwordLabel').textContent = '(dejar en blanco para no cambiar)';
+      document.getElementById('editPassword').placeholder = 'Mín. 4 caracteres';
       document.getElementById('editModal').classList.add('active');
     }
 
     async function saveUser() {
+      const username = document.getElementById('editUsername').value.trim();
+      const email = document.getElementById('editEmail').value.trim();
+      const role = document.getElementById('editRole').value;
       const pwd = document.getElementById('editPassword').value;
-      const data = { role: document.getElementById('editRole').value };
-      if (pwd && pwd.length >= 4) data.password = pwd;
-      const username = users.find(u => u.id === editingId)?.username;
-      try {
-        const res = await API.admin.updateUser(editingId, data);
-        const idx = users.findIndex(u => u.id === editingId);
-        if (idx >= 0) users[idx] = res.user;
-        renderUsers();
-        closeModal();
-        const msg = pwd ? 'Contraseña actualizada correctamente' : 'Usuario actualizado';
-        showToast(msg, 'success');
-      } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
+
+      if (editingId) {
+        const data = { role };
+        if (pwd && pwd.length >= 4) data.password = pwd;
+        try {
+          const res = await API.admin.updateUser(editingId, data);
+          const idx = users.findIndex(u => u.id === editingId);
+          if (idx >= 0) users[idx] = res.user;
+          renderUsers();
+          closeModal();
+          showToast(pwd ? 'Contraseña actualizada correctamente' : 'Usuario actualizado', 'success');
+        } catch (e) { showToast(e.error || 'Error al guardar', 'error'); }
+      } else {
+        if (!username || !email || !pwd) {
+          showToast('Todos los campos son obligatorios', 'error');
+          return;
+        }
+        if (pwd.length < 4) {
+          showToast('La contraseña debe tener al menos 4 caracteres', 'error');
+          return;
+        }
+        try {
+          const res = await API.admin.createUser({ username, email, password: pwd, role });
+          users.push(res.user);
+          renderUsers();
+          closeModal();
+          showToast('Usuario creado correctamente', 'success');
+        } catch (e) { showToast(e.error || 'Error al crear usuario', 'error'); }
+      }
     }
 
     async function deleteUser(id) {
