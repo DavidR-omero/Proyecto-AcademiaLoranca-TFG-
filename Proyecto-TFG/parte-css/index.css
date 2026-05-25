@@ -601,7 +601,7 @@ section h2 {
 
 .valores-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 70px;
 }
 
@@ -794,7 +794,7 @@ section h2 {
 
 .niveles-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 48px;
 }
 
@@ -1106,7 +1106,7 @@ section::after {
 }
 .horarios-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 30px;
     max-width: 700px;
     margin: 0 auto;
@@ -1407,9 +1407,8 @@ main.container ul li {
 }
 
 img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;  /
+  max-width: 100%;
+  height: auto;
 }
 
 @media (min-width: 320px) and (max-width: 480px) {
@@ -1836,7 +1835,7 @@ img {
 }
 .profesores-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
     max-width: 900px;
     margin: 0 auto;
@@ -2266,8 +2265,10 @@ img {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
 }
-.course-preview .cp-grid::-webkit-scrollbar { height: 0; width: 0; display: none; }
-.course-preview .cp-grid { scrollbar-width: none; -ms-overflow-style: none; }
+.course-preview .cp-grid::-webkit-scrollbar { height: 6px; width: 6px; }
+.course-preview .cp-grid::-webkit-scrollbar-track { background: var(--border-color, #e2e8f0); border-radius: 3px; }
+.course-preview .cp-grid::-webkit-scrollbar-thumb { background: var(--text-muted, #94a3b8); border-radius: 3px; }
+.course-preview .cp-grid { scrollbar-width: thin; -ms-overflow-style: auto; }
 .cp-card {
     flex: 0 0 280px;
     scroll-snap-align: start;
@@ -2422,4 +2423,50 @@ img {
     .hero-stats-live { gap: 10px; flex-wrap: wrap; }
     .hsl-item { padding: 10px 14px; max-width: none; flex: 1 1 calc(33% - 10px); }
     .hsl-num { font-size: 1.4rem; }
+}
+
+@media (max-width: 768px) {
+    .carrusel { margin: 40px auto; border-radius: 16px; min-height: 280px; }
+    .slides img { height: 240px; }
+    .cta-box { padding: 16px 20px; max-width: 320px; }
+    .cta-box h3 { font-size: 1rem; }
+    .cta-box p { font-size: 0.85rem; }
+    .cta-box .btn { font-size: 0.8rem; padding: 8px 16px; }
+}
+
+@media (max-width: 480px) {
+    .carrusel { margin: 16px auto; border-radius: 10px; min-height: 200px; }
+    .slides img { height: 160px; }
+    .carrusel-cta { bottom: 10px; }
+    .cta-box { padding: 10px 14px; max-width: 90%; }
+    .cta-box h3 { font-size: 0.85rem; margin-bottom: 4px; }
+    .cta-box p { font-size: 0.75rem; margin-bottom: 6px; line-height: 1.2; }
+    .cta-box .btn { font-size: 0.7rem; padding: 6px 12px; }
+    .carrusel .btn { padding: 4px 6px; font-size: 0.75rem; }
+}
+
+@media (max-width: 360px) {
+    .carrusel { margin: 10px auto; border-radius: 8px; }
+    .slides img { height: 130px; }
+    .carrusel-cta { bottom: 6px; }
+    .cta-box { padding: 6px 10px; border-radius: 12px; }
+    .cta-box h3 { font-size: 0.7rem; }
+    .cta-box p { font-size: 0.65rem; margin-bottom: 4px; }
+    .cta-box .btn { font-size: 0.6rem; padding: 4px 8px; }
+    .carrusel .btn { padding: 3px 5px; font-size: 0.65rem; }
+}
+
+@media (max-width: 768px) {
+    .valores-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    .niveles-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    .profesores-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+    .horarios-grid { grid-template-columns: 1fr; max-width: 400px; }
+}
+@media (max-width: 480px) {
+    .valores-grid { grid-template-columns: 1fr; gap: 24px; }
+    .niveles-grid { grid-template-columns: 1fr; gap: 24px; }
+    .profesores-grid { grid-template-columns: 1fr; gap: 20px; }
+    .nivel-img { height: 160px; }
 }

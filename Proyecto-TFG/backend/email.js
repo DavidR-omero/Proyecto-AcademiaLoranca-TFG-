@@ -2,8 +2,8 @@ const nodemailer = require('nodemailer');
 
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.gmail.com';
 const SMTP_PORT = parseInt(process.env.SMTP_PORT || '587');
-const SMTP_USER = process.env.SMTP_USER || 'academialoranca22@gmail.com';
-const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_USER = process.env.SMTP_USER;
+const SMTP_PASS = process.env.SMTP_PASS;
 const FROM_ADDR = process.env.FROM_ADDR || SMTP_USER;
 
 let transporter = null;

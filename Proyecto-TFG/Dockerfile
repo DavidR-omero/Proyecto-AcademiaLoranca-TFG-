@@ -14,5 +14,11 @@ COPY ./admin/ ./admin/
 
 EXPOSE 3000
 
+ENV SMTP_HOST=smtp.gmail.com
+ENV SMTP_PORT=587
+ENV SMTP_USER=proyectoacademiatfg@gmail.com
+ENV SMTP_PASS=
+ENV FROM_ADDR="Academia Loranca <proyectoacademiatfg@gmail.com>"
+
 WORKDIR /app/backend
 CMD ["node", "server.js"]

@@ -337,6 +337,36 @@ input[type="checkbox"] {
     .contacto-main-container { padding: 0 10px; }
 }
 
+@media (max-width: 600px) {
+    .detalle-item { font-size: 0.85rem; padding: 10px 14px; white-space: normal; }
+    .info-detalles { flex-direction: column; align-items: stretch; }
+    .detalle-item { justify-content: center; }
+}
+
+@media (max-width: 768px) {
+    .contacto-main-container { margin: 40px auto; gap: 24px; }
+    .form-cont { margin: 40px auto; padding: 0 16px; gap: 24px; }
+    .formulario-responsivo { padding: 24px; }
+    .info-titulo { font-size: 1.6rem; }
+    .fila-formulario { gap: 14px; }
+    .grupo-campo { margin-bottom: 14px; }
+}
+
+@media (max-width: 480px) {
+    .formulario-responsivo { padding: 16px; border-radius: 16px; margin: 20px 8px; }
+    .titulo-animado { font-size: 1.3rem; margin-bottom: 20px; }
+    input, textarea, select { font-size: 16px; padding: 10px 12px; }
+    .boton-enviar { padding: 14px; font-size: 1rem; min-height: 48px; }
+    .contacto-main-container { gap: 16px; }
+    .info-titulo { font-size: 1.4rem; }
+    .info-cuerpo p { font-size: 0.9rem; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .boton-enviar:hover { transform: none; filter: none; }
+    .detalle-item.clickable:hover { transform: none; }
+}
+
 html {
     font-size: clamp(14px, 1vw, 18px);
 }

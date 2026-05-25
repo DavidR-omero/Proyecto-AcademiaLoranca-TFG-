@@ -309,7 +309,7 @@ class FooterComponent extends HTMLElement {
                         <p style="margin:0 0 0 20px">📞 <a href="tel:+34652081700">+34 652 08 17 00</a></p>
                         <p style="font-size:0.8rem;opacity:0.7;margin:12px 0 2px 0">📞 Laura Barroso (2º-4º ESO y Bachillerato)</p>
                         <p style="margin:0 0 0 20px">📞 <a href="tel:+34665927240">+34 665 92 72 40</a></p>
-                        <p>✉️ <a href="mailto:academialoranca22@gmail.com">academialoranca22@gmail.com</a></p>
+                        <p>✉️ <a href="mailto:proyectoacademiatfg@gmail.com">proyectoacademiatfg@gmail.com</a></p>
                     </div>
                 </div>
 
