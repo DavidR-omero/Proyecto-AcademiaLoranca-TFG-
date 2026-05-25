@@ -69,7 +69,7 @@ router.post('/send-reset-code', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'El email o usuario es obligatorio' });
 
   const user = queryOne('SELECT id,username,email FROM users WHERE LOWER(email)=LOWER(?) OR LOWER(username)=LOWER(?)', [email, email]);
-  if (!user) return res.status(404).json({ error: 'No existe una cuenta con ese email o usuario' });
+  if (!user) return res.json({ sent: false, message: 'Si existe una cuenta con ese email, recibirás un código de verificación.' });
 
   /* Clean up old codes for this email */
   runSql('DELETE FROM password_resets WHERE email=? OR expires_at < datetime("now")', [user.email]);
@@ -86,12 +86,15 @@ router.post('/send-reset-code', async (req, res) => {
   /* Try to send email */
   const sent = await sendResetCode(user.email, code);
 
+  if (!sent && !process.env.SMTP_PASS) {
+    return res.json({ sent: false, devCode: code, message: 'Modo desarrollo — Código: ' + code });
+  }
+
   res.json({
     sent,
     message: sent
       ? 'Revisa tu correo electrónico. El código ha sido enviado.'
-      : 'No se pudo enviar el email. Modo desarrollo: revisa la consola del servidor.',
-    ...(sent ? {} : { devCode: code })
+      : 'Error al enviar el email. Inténtalo de nuevo más tarde.'
   });
 });
 
@@ -118,8 +121,8 @@ router.post('/reset-password', (req, res) => {
   const { email, token, newPassword } = req.body;
   if (!email || !token || !newPassword)
     return res.status(400).json({ error: 'Email, token y nueva contraseña son obligatorios' });
-  if (newPassword.length < 4)
-    return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres' });
+    if (newPassword.length < 8)
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
 
   const record = queryOne(
     'SELECT id FROM password_resets WHERE LOWER(email)=LOWER(?) AND token=? AND used=1 AND expires_at > datetime("now")',
