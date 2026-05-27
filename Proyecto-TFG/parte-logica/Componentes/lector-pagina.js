@@ -220,7 +220,7 @@ class LectorPaginaComponent extends HTMLElement {
         const root = contenedor || document.querySelector("main");
         if(!root) return;
 
-        const elementos = root.querySelectorAll("p, h1, h2, h3, li");
+        const elementos = root.querySelectorAll("p, h1, h2, h3, h4, h5, h6, li, td, th, .card-header, .info-row, .event-body, .msg-body, .announcement-item, .course-info, .order-row");
         this.parrafos = Array.from(elementos).map(el => el.innerText);
         this.indiceActual = 0;
     }
@@ -250,6 +250,7 @@ class LectorPaginaComponent extends HTMLElement {
     toggleLectura(){
         const playBtn = this._shadow.getElementById("play");
         if(!this.reproduciendo){
+            this.obtenerParrafos();
             this.leerActual();
             playBtn.textContent = "⏸";
             this.reproduciendo = true;
