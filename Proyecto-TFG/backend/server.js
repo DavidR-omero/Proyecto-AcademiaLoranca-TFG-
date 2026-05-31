@@ -7,9 +7,7 @@ const { initDb, queryAll } = require('./database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: ['https://proyecto-academia-loranca-tfg.vercel.app', 'http://localhost:3000']
-}));
+app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 // Servir archivos estáticos desde la raíz del proyecto (HTML, CSS, JS, imágenes)
