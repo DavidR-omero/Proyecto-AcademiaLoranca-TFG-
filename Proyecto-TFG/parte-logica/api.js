@@ -7,7 +7,7 @@
 */
 
 var API = {
-  BASE: 'https://proyecto-academialoranca-tfg.onrender.com',
+  BASE: '',
 
   async request(path, options = {}) {
     const token = localStorage.getItem('token');
