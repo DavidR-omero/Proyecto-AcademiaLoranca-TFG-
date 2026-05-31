@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors({
   origin: [
-    'https://proyecto-academia-loranca-tfg.vercel.app',
+    'https://proyecto-academia-loranca-tfg.vercel.app/',
     'http://localhost:3000'
   ]
 }));
