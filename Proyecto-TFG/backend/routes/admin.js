@@ -45,6 +45,21 @@ router.get('/users', (req, res) => {
   res.json({ users });
 });
 
+router.post('/users', (req, res) => {
+  const { username, email, password, role } = req.body;
+  if (!username || !email || !password)
+    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+
+  const existing = queryOne('SELECT id FROM users WHERE username=? OR email=?', [username, email]);
+  if (existing) return res.status(409).json({ error: 'El usuario o email ya existe' });
+
+  const hash = bcrypt.hashSync(password, 10);
+  const result = runSql('INSERT INTO users (username,email,password,role) VALUES (?,?,?,?)',
+    [username, email, hash, role || 'user']);
+  const user = queryOne('SELECT id,username,email,role,created_at FROM users WHERE id=?', [result.lastInsertRowid]);
+  res.status(201).json({ user });
+});
+
 router.put('/users/:id', (req, res) => {
   const { role, password } = req.body;
   const user = queryOne('SELECT id FROM users WHERE id=?', [req.params.id]);

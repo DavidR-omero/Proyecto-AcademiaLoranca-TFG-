@@ -112,6 +112,11 @@ var API = {
   admin: {
     getStats() { return API.request('/api/admin/stats'); },
     getUsers() { return API.request('/api/admin/users'); },
+    createUser(data) {
+      return API.request('/api/admin/users', {
+        method: 'POST', body: JSON.stringify(data)
+      });
+    },
     updateUser(id, data) {
       return API.request(`/api/admin/users/${id}`, {
         method: 'PUT', body: JSON.stringify(data)
